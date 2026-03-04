@@ -19,13 +19,15 @@
             --primary-dark: #B71C1C;
             --secondary: #263238;       
             --success: #2E7D32;          
-            --warning: #F9A825;          
+            --warning: #F9A825;
+            --info: #0288D1;          
             --bg-body: #F3F2F1;
             --surface: #FFFFFF;
             --text-main: #201F1E;
             --text-muted: #605E5C;
             --radius: 12px;
             --header-h: 64px;
+            --nav-h: 65px;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -59,8 +61,26 @@
         }
         .month-selector option { color: #333; }
 
-        /* DASHBOARD */
-        .dashboard { padding: 15px; background: var(--surface); border-bottom: 1px solid #ECEFF1; flex-shrink: 0; }
+        /* VIEW CONTAINER */
+        #mainContent {
+            flex: 1;
+            position: relative;
+            overflow: hidden; /* ให้แต่ละ view จัดการ scroll เอง */
+            display: flex;
+            flex-direction: column;
+        }
+        .view-section {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden; /* ป้องกันไม่ให้ทะลุ Bottom Nav */
+        }
+        .view-section.active {
+            display: flex;
+        }
+
+        /* DASHBOARD (Mini) - Used in List View */
+        .dashboard-mini { padding: 15px; background: var(--surface); border-bottom: 1px solid #ECEFF1; flex-shrink: 0; }
         .progress-card { background: #fff; border: 1px solid #E0E0E0; border-radius: var(--radius); padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         .progress-bar { height: 10px; background: #ECEFF1; border-radius: 5px; overflow: hidden; margin: 10px 0; }
         .progress-fill { height: 100%; background: linear-gradient(90deg, #FF8A80, #D32F2F); width: 0%; transition: width 0.5s; }
@@ -81,10 +101,10 @@
         }
         .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
         #filter-all.active { background: var(--text-main); }      
-        #filter-pending.active { background: var(--primary); }    
-        #filter-fail.active { background: var(--warning); color: #333; }
+        #filter-pending.active { background: var(--warning); color: #333; }    
+        #filter-fail.active { background: var(--primary); color: white; }
 
-        #list-container { flex: 1; overflow-y: auto; padding: 10px 15px; display: grid; gap: 10px; padding-bottom: 90px; }
+        #list-container { flex: 1; overflow-y: auto; padding: 10px 15px; display: grid; gap: 10px; padding-bottom: 20px; }
         
         .card { 
             background: var(--surface); padding: 16px; border-radius: var(--radius); 
@@ -103,12 +123,99 @@
         .inspector-badge { font-size: 0.7rem; background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 4px; display:inline-block; margin-top:2px; }
 
         /* FAB */
-        .fab-wrapper { position: fixed; bottom: 30px; right: 20px; display: flex; flex-direction: column; gap: 15px; z-index: 40; }
+        .fab-wrapper { position: fixed; bottom: calc(var(--nav-h) + 20px); right: 20px; display: flex; flex-direction: column; gap: 15px; z-index: 40; }
         .fab { width: 56px; height: 56px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.25); cursor: pointer; font-size: 1.2rem; transition: transform 0.2s; }
         .fab:active { transform: scale(0.95); }
         .fab-scan { background: var(--primary); width: 64px; height: 64px; font-size: 1.6rem; }
         .fab-excel { background: var(--success); }
         .fab-refresh { background: var(--text-main); width: 48px; height: 48px; font-size: 1.1rem; }
+
+        /* BOTTOM NAVIGATION */
+        .bottom-nav {
+            height: var(--nav-h);
+            background: var(--surface);
+            display: flex;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 50;
+            flex-shrink: 0;
+            padding-bottom: env(safe-area-inset-bottom); /* รองรับ iPhone X ขึ้นไป */
+        }
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #90A4AE;
+            font-size: 0.75rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: 0.2s;
+            border: none;
+            background: none;
+            font-family: 'Prompt';
+        }
+        .nav-item i { font-size: 1.4rem; margin-bottom: 4px; }
+        .nav-item.active { color: var(--primary); font-weight: 600; }
+
+        /* MAIN DASHBOARD VIEW */
+        #viewDashboard { overflow-y: auto; padding: 15px; padding-bottom: 30px; background: var(--bg-body); }
+        .dash-title { margin: 0 0 15px 0; font-size: 1.2rem; color: var(--text-main); font-weight: 600; display:flex; align-items:center; gap:8px;}
+        
+        .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .dash-box { background: white; border-radius: var(--radius); padding: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); border: 1px solid #ECEFF1; display:flex; flex-direction:column; align-items:flex-start; position: relative; overflow: hidden;}
+        .dash-box::after { content: ''; position: absolute; right: -15px; bottom: -15px; opacity: 0.1; font-family: "Font Awesome 6 Free"; font-weight: 900; font-size: 4rem; z-index: 0; }
+        
+        .dash-box .label { font-size: 0.85rem; color: var(--text-muted); z-index: 1;}
+        .dash-box .value { font-size: 1.8rem; font-weight: 700; color: var(--text-main); z-index: 1;}
+        
+        .box-total { border-left: 4px solid var(--info); }
+        .box-total .value { color: var(--info); }
+        .box-total::after { content: '\f1fb'; color: var(--info); } /* extinguisher */
+
+        .box-pending { border-left: 4px solid var(--warning); }
+        .box-pending .value { color: var(--warning); }
+        .box-pending::after { content: '\f017'; color: var(--warning); } /* clock */
+
+        .box-pass { border-left: 4px solid var(--success); }
+        .box-pass .value { color: var(--success); }
+        .box-pass::after { content: '\f058'; color: var(--success); } /* check-circle */
+
+        .box-fail { border-left: 4px solid var(--primary); background: #FFEBEE;}
+        .box-fail .value { color: var(--primary); }
+        .box-fail::after { content: '\f071'; color: var(--primary); } /* exclamation-triangle */
+
+        /* Donut Chart */
+        .chart-card { background: white; border-radius: var(--radius); padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); border: 1px solid #ECEFF1; margin-bottom: 20px; text-align: center; }
+        .donut-wrapper { position: relative; width: 140px; height: 140px; margin: 0 auto 15px auto; }
+        .donut-chart { width: 100%; height: 100%; border-radius: 50%; background: #ECEFF1; /* Conic gradient will be applied via JS */ transition: background 0.5s; }
+        .donut-hole { position: absolute; top: 20px; left: 20px; right: 20px; bottom: 20px; background: white; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05); }
+        .donut-hole .pct { font-size: 1.5rem; font-weight: 700; color: var(--text-main); line-height: 1; }
+        .donut-hole .lbl { font-size: 0.7rem; color: var(--text-muted); }
+        
+        .chart-legend { display: flex; justify-content: center; gap: 15px; font-size: 0.8rem; color: var(--text-muted); }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .legend-color { width: 12px; height: 12px; border-radius: 3px; }
+
+        /* --- YEARLY DASHBOARD --- */
+        .dash-toggle { display: flex; background: #ECEFF1; border-radius: 8px; padding: 4px; margin-bottom: 15px; }
+        .dash-toggle button { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 6px; font-family: 'Prompt'; font-size: 0.9rem; cursor: pointer; color: var(--text-muted); transition: 0.2s; }
+        .dash-toggle button.active { background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); color: var(--primary); font-weight: 600; }
+
+        .year-chart { display: flex; align-items: flex-end; justify-content: space-between; height: 180px; padding: 10px 0; border-bottom: 1px solid #ECEFF1; gap: 4px; margin-bottom: 15px;}
+        .y-col { display: flex; flex-direction: column; justify-content: flex-end; flex: 1; align-items: center; height: 100%; position: relative; }
+        .y-bar-wrap { width: 100%; max-width: 14px; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; border-radius: 4px; overflow: hidden; background: #F5F5F5; }
+        .y-bar-fail { background: var(--primary); width: 100%; transition: height 0.5s; }
+        .y-bar-pass { background: var(--success); width: 100%; transition: height 0.5s; }
+        .y-lbl { font-size: 0.65rem; color: var(--text-muted); margin-top: 8px; writing-mode: vertical-rl; transform: rotate(180deg); }
+
+        /* Defect Bar Chart */
+        .defect-list { display: flex; flex-direction: column; gap: 12px; }
+        .defect-item { display: flex; flex-direction: column; gap: 4px; }
+        .defect-lbl-row { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-main); }
+        .defect-bar-bg { width: 100%; height: 8px; background: #ECEFF1; border-radius: 4px; overflow: hidden; }
+        .defect-bar-fill { height: 100%; background: var(--primary); border-radius: 4px; transition: width 0.5s; width: 0%; }
+        .no-data-msg { text-align: center; color: var(--text-muted); font-size: 0.9rem; padding: 20px 0; background: #FAFAFA; border-radius: 8px; border: 1px dashed #CFD8DC;}
 
         /* MODALS */
         .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 100; display: none; justify-content: center; align-items: flex-end; backdrop-filter: blur(2px); }
@@ -119,14 +226,7 @@
         .sheet-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
         
         /* FORM COMPONENTS */
-        .quick-pass-btn {
-            width: 100%; padding: 12px; 
-            border: 2px solid var(--success); color: var(--success);
-            background: rgba(46, 125, 50, 0.05);
-            border-radius: 12px; font-weight: 600; font-family: 'Prompt';
-            cursor: pointer; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 8px;
-            transition: 0.2s;
-        }
+        .quick-pass-btn { width: 100%; padding: 12px; border: 2px solid var(--success); color: var(--success); background: rgba(46, 125, 50, 0.05); border-radius: 12px; font-weight: 600; font-family: 'Prompt'; cursor: pointer; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
         .quick-pass-btn:active { background: var(--success); color: white; }
 
         .check-item { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #F5F5F5; align-items: center; }
@@ -172,34 +272,155 @@
         </div>
     </header>
 
-    <div class="dashboard">
-        <div class="progress-card">
-            <div class="stat-row">
-                <span style="font-weight:600; color:var(--text-main);">ความคืบหน้า (Real-time)</span>
-                <span id="statsPercent" style="color:var(--primary); font-weight:700;">0%</span>
+    <div id="mainContent">
+        
+        <!-- ======================= -->
+        <!-- VIEW: LIST (หน้าหลักเดิม) -->
+        <!-- ======================= -->
+        <div id="viewList" class="view-section active">
+            <div class="dashboard-mini">
+                <div class="progress-card">
+                    <div class="stat-row">
+                        <span style="font-weight:600; color:var(--text-main);">ความคืบหน้า (Real-time)</span>
+                        <span id="statsPercent" style="color:var(--primary); font-weight:700;">0%</span>
+                    </div>
+                    <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
+                    <div class="stat-row">
+                        <span id="statsCount">0/90 จุด</span>
+                        <span id="statsFail" style="color:var(--primary);"></span>
+                    </div>
+                </div>
+                <div class="defect-tags" id="defectTags"></div>
             </div>
-            <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
-            <div class="stat-row">
-                <span id="statsCount">0/90 จุด</span>
-                <span id="statsFail" style="color:var(--primary);"></span>
+
+            <div class="search-container">
+                <input type="text" id="searchInput" class="input-box" style="margin-top:0; background:#FFF; border-radius:24px; padding-left:20px; border:none; box-shadow:0 2px 5px rgba(0,0,0,0.03);" placeholder="🔍 ค้นหารหัส, สถานที่..." onkeyup="App.renderList()">
             </div>
+            
+            <div class="filter-chips">
+                <div class="chip active" id="filter-all" onclick="App.filter('all', this)">ทั้งหมด</div>
+                <div class="chip" id="filter-pending" onclick="App.filter('pending', this)">รอตรวจ</div>
+                <div class="chip" id="filter-fail" onclick="App.filter('fail', this)">มีปัญหา</div>
+            </div>
+
+            <div id="list-container"></div>
         </div>
-        <div class="defect-tags" id="defectTags"></div>
-    </div>
 
-    <div class="search-container">
-        <input type="text" id="searchInput" class="input-box" style="margin-top:0; background:#FFF; border-radius:24px; padding-left:20px; border:none; box-shadow:0 2px 5px rgba(0,0,0,0.03);" placeholder="🔍 ค้นหารหัส, สถานที่..." onkeyup="App.render()">
-    </div>
-    
-    <div class="filter-chips">
-        <div class="chip active" id="filter-all" onclick="App.filter('all', this)">ทั้งหมด</div>
-        <div class="chip" id="filter-pending" onclick="App.filter('pending', this)">รอตรวจ</div>
-        <div class="chip" id="filter-fail" onclick="App.filter('fail', this)">มีปัญหา</div>
-    </div>
 
-    <div id="list-container"></div>
+        <!-- ======================= -->
+        <!-- VIEW: DASHBOARD (หน้าใหม่) -->
+        <!-- ======================= -->
+        <div id="viewDashboard" class="view-section">
+            <h2 class="dash-title"><i class="fa-solid fa-chart-pie" style="color:var(--primary)"></i> สรุปผลการตรวจ </h2>
+            
+            <!-- Toggle Month / Year -->
+            <div class="dash-toggle">
+                <button id="toggleMonth" class="active" onclick="App.switchDashMode('month')">รายเดือน</button>
+                <button id="toggleYear" onclick="App.switchDashMode('year')">รายปี</button>
+            </div>
 
-    <div class="fab-wrapper">
+            <!-- === MONTHLY VIEW === -->
+            <div id="dashMonthView">
+                <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
+                    <span style="font-size:0.9rem; color:#888; font-weight:400;" id="dashMonthLabel"></span>
+                </div>
+                <!-- Grid 4 Cards -->
+                <div class="dash-grid">
+                    <div class="dash-box box-total">
+                        <span class="label">รวมทั้งหมด</span>
+                        <span class="value" id="dashValTotal">0</span>
+                    </div>
+                    <div class="dash-box box-pending">
+                        <span class="label">รอตรวจสอบ</span>
+                        <span class="value" id="dashValPending">0</span>
+                    </div>
+                    <div class="dash-box box-pass">
+                        <span class="label">ปกติ (Pass)</span>
+                        <span class="value" id="dashValPass">0</span>
+                    </div>
+                    <div class="dash-box box-fail">
+                        <span class="label">พบปัญหา (Fail)</span>
+                        <span class="value" id="dashValFail">0</span>
+                    </div>
+                </div>
+
+                <!-- Donut Chart -->
+                <div class="chart-card">
+                    <div class="donut-wrapper">
+                        <div class="donut-chart" id="dashDonut"></div>
+                        <div class="donut-hole">
+                            <span class="pct" id="dashDonutPct">0%</span>
+                            <span class="lbl">ความคืบหน้า</span>
+                        </div>
+                    </div>
+                    <div class="chart-legend">
+                        <div class="legend-item"><div class="legend-color" style="background:var(--success)"></div> ปกติ</div>
+                        <div class="legend-item"><div class="legend-color" style="background:var(--primary)"></div> มีปัญหา</div>
+                        <div class="legend-item"><div class="legend-color" style="background:#ECEFF1"></div> รอตรวจ</div>
+                    </div>
+                </div>
+
+                <!-- Top Defects -->
+                <div class="chart-card">
+                    <h3 style="margin: 0 0 15px 0; font-size: 1rem; text-align:left; color:var(--text-main);"><i class="fa-solid fa-list-ul"></i> อันดับปัญหาที่พบ</h3>
+                    <div id="dashDefectList" class="defect-list">
+                        <!-- จะถูกสร้างด้วย JS -->
+                    </div>
+                </div>
+            </div> <!-- End Month View -->
+
+            <!-- === YEARLY VIEW === -->
+            <div id="dashYearView" style="display:none;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:flex-end;">
+                    <span style="font-size:0.9rem; color:#888; font-weight:400;" id="dashYearLabel"></span>
+                </div>
+                
+                <div class="dash-grid">
+                    <div class="dash-box box-pass" style="background: rgba(46, 125, 50, 0.05); border-color:var(--success);">
+                        <span class="label">ตรวจผ่านทั้งปี (ครั้ง)</span>
+                        <span class="value" id="yearTotalPass">0</span>
+                    </div>
+                    <div class="dash-box box-fail" style="background: rgba(211, 47, 47, 0.05); border-color:var(--primary);">
+                        <span class="label">พบปัญหาทั้งปี (ครั้ง)</span>
+                        <span class="value" id="yearTotalFail">0</span>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3 style="margin: 0 0 5px 0; font-size: 1rem; text-align:left; color:var(--text-main);">สถิติการตรวจ 12 เดือน</h3>
+                    <div class="year-chart" id="yearChart">
+                        <!-- กราฟจะถูกสร้างด้วย JS -->
+                    </div>
+                    <div class="chart-legend" style="margin-top:10px;">
+                        <div class="legend-item"><div class="legend-color" style="background:var(--success)"></div> ปกติ</div>
+                        <div class="legend-item"><div class="legend-color" style="background:var(--primary)"></div> มีปัญหา</div>
+                    </div>
+                </div>
+            </div> <!-- End Year View -->
+            
+            <div style="height: 60px;"></div> <!-- Spacer for scrolling past bottom nav -->
+        </div>
+
+    </div> <!-- End Main Content -->
+
+
+    <!-- ======================= -->
+    <!-- BOTTOM NAVIGATION -->
+    <!-- ======================= -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" id="navBtnList" onclick="App.switchTab('List')">
+            <i class="fa-solid fa-list-check"></i>
+            รายการตรวจ
+        </button>
+        <button class="nav-item" id="navBtnDashboard" onclick="App.switchTab('Dashboard')">
+            <i class="fa-solid fa-chart-line"></i>
+            แดชบอร์ด
+        </button>
+    </nav>
+
+
+    <!-- Floating Action Buttons -->
+    <div class="fab-wrapper" id="fabGroup">
         <div class="fab fab-refresh" onclick="App.syncCloud()" title="อัปเดตข้อมูล"><i class="fa-solid fa-rotate"></i></div>
         <div class="fab fab-excel" onclick="App.exportExcel()" title="ส่งออก Excel"><i class="fa-solid fa-file-excel"></i></div>
         <div class="fab fab-scan" onclick="App.openScanner()" title="สแกน QR"><i class="fa-solid fa-qrcode"></i></div>
@@ -219,15 +440,12 @@
             </div>
 
             <div style="margin-top:20px;">
-                <!-- ปุ่มกดทีเดียวผ่าน -->
                 <button class="quick-pass-btn" onclick="App.setAllPass()">
                     <i class="fa-solid fa-check-double"></i> ปกติทั้งหมด (All Pass)
                 </button>
-                
                 <div id="checklistForm"></div>
             </div>
 
-            <!-- Photo Upload -->
             <div id="photoSection">
                 <div class="photo-area" onclick="document.getElementById('photoInput').click()">
                     <i class="fa-solid fa-camera fa-2x" style="color:var(--primary);"></i>
@@ -308,7 +526,6 @@
         // ============================================
         const CLOUD_URL = "https://script.google.com/macros/s/AKfycbyWV9ncnU_mnxX3UTMK0LTnLvefXV0TMIonULZLeGOyjBu6xcfHsOrLSluJHDKrv2_fig/exec"; 
 
-        // --- DATASET: 90 POINTS (FULL) - Corrected Spelling ---
         const DB_INIT = [
             { id: "FE-01", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Workshop" },
             { id: "FE-02", type: "เคมีแห้ง", size: "15 ปอนด์", loc: "Workshop" },
@@ -402,17 +619,19 @@
             { id: "FE-90", type: "BF2000", size: "10 ปอนด์", loc: "AHU. Room" },
         ];
 
-        // --- APP ENGINE ---
         const App = {
             data: [],
-            cloudStatus: {}, // เก็บสถานะจาก Cloud (Real-time)
+            cloudData: {}, 
+            cloudStatus: {}, 
             month: '',
             filterType: 'all',
             currentId: null,
-            currentCheckList: [], // เก็บรายการคำถามปัจจุบัน
+            currentCheckList: [],
             scanner: null,
             tempPhoto: null,
             autoSyncInterval: null,
+            currentTab: 'List', // Tab ปัจจุบัน
+            dashMode: 'month', // [NEW] โหมดของ Dashboard ('month' หรือ 'year')
 
             init() {
                 const stored = localStorage.getItem('firePins_Ent_V5');
@@ -420,21 +639,79 @@
                 this.month = new Date().toISOString().slice(0, 7);
                 document.getElementById('monthPicker').value = this.month;
                 this.updateOnlineStatus();
-                this.render();
+                this.renderAll();
                 
-                // Real-time: Sync immediately and start polling
                 this.syncCloud();
                 this.startAutoSync();
-                
                 this.handleDeepLink();
             },
 
+            // --- TAB NAVIGATION ---
+            switchTab(tabName) {
+                this.currentTab = tabName;
+                
+                // สลับปุ่ม
+                document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+                document.getElementById('navBtn' + tabName).classList.add('active');
+                
+                // สลับ View
+                document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active'));
+                document.getElementById('view' + tabName).classList.add('active');
+
+                // ซ่อน/แสดง FAB ตามหน้า
+                const fabGroup = document.getElementById('fabGroup');
+                if(tabName === 'Dashboard') {
+                    fabGroup.style.display = 'none'; // ซ่อนปุ่มลอยหน้า Dashboard ให้ดูสะอาดตา
+                } else {
+                    fabGroup.style.display = 'flex';
+                }
+
+                this.renderAll();
+            },
+
+            // --- TAB NAVIGATION ---
+            switchTab(tabName) {
+                this.currentTab = tabName;
+                
+                // สลับปุ่ม
+                document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+                document.getElementById('navBtn' + tabName).classList.add('active');
+                
+                // สลับ View
+                document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active'));
+                document.getElementById('view' + tabName).classList.add('active');
+
+                // ซ่อน/แสดง FAB ตามหน้า
+                const fabGroup = document.getElementById('fabGroup');
+                if(tabName === 'Dashboard') {
+                    fabGroup.style.display = 'none'; // ซ่อนปุ่มลอยหน้า Dashboard ให้ดูสะอาดตา
+                } else {
+                    fabGroup.style.display = 'flex';
+                }
+
+                this.renderAll();
+            },
+
+            // [NEW] สลับโหมด Dashboard (เดือน / ปี)
+            switchDashMode(mode) {
+                this.dashMode = mode;
+                
+                // สลับปุ่ม
+                document.getElementById('toggleMonth').classList.remove('active');
+                document.getElementById('toggleYear').classList.remove('active');
+                if(mode === 'month') document.getElementById('toggleMonth').classList.add('active');
+                if(mode === 'year') document.getElementById('toggleYear').classList.add('active');
+                
+                // สลับ Container
+                document.getElementById('dashMonthView').style.display = mode === 'month' ? 'block' : 'none';
+                document.getElementById('dashYearView').style.display = mode === 'year' ? 'block' : 'none';
+                
+                this.renderAll();
+            },
+
             startAutoSync() {
-                // Poll Cloud every 15 seconds
                 if(this.autoSyncInterval) clearInterval(this.autoSyncInterval);
-                this.autoSyncInterval = setInterval(() => {
-                    this.syncCloud(true); // true = silent mode
-                }, 15000);
+                this.autoSyncInterval = setInterval(() => { this.syncCloud(true); }, 15000);
             },
 
             updateOnlineStatus() {
@@ -449,47 +726,102 @@
                 }
             },
 
-            // ดึงข้อมูลจาก Google Sheet
             syncCloud(silent = false) {
                 if(!CLOUD_URL) return;
-                
                 const btn = document.querySelector('.fab-refresh i');
                 if(!silent && btn) btn.classList.add('fa-spin');
 
                 fetch(CLOUD_URL + "?action=read")
                 .then(res => res.json())
                 .then(data => {
-                    this.cloudStatus = {};
+                    this.cloudData = {}; 
                     data.forEach(row => {
-                        // เก็บข้อมูลเฉพาะของเดือนปัจจุบัน
-                        if(row.time && row.time.startsWith(new Date().getFullYear())) { 
-                           this.cloudStatus[row.id] = { 
-                               status: row.status, 
-                               inspector: row.inspector, 
-                               time: row.time,
-                               image: row.image || '',
-                               note: row.note || '', // รองรับการดึงหมายเหตุเพื่อน
-                               failReason: row.failReason || '' // รองรับสาเหตุที่เสีย
-                           };
+                        let rowMonth = row.month;
+                        if (!rowMonth && row.time) {
+                            const timeStr = String(row.time);
+                            if (timeStr.includes('/')) {
+                                const parts = timeStr.split(/[/\s]/);
+                                if (parts.length >= 3) {
+                                    let m = parts[1].padStart(2, '0');
+                                    let y = parseInt(parts[2]);
+                                    if (y > 2500) y -= 543;
+                                    rowMonth = `${y}-${m}`;
+                                }
+                            } else if (timeStr.match(/^\d{4}-\d{2}/)) {
+                                rowMonth = timeStr.substring(0, 7);
+                            }
+                        }
+
+                        if (rowMonth) {
+                            if (!this.cloudData[rowMonth]) this.cloudData[rowMonth] = {};
+                            this.cloudData[rowMonth][row.id] = { 
+                                status: row.status, inspector: row.inspector, time: row.time,
+                                image: row.image || '', note: row.note || '', failReason: row.failReason || '' 
+                            };
                         }
                     });
-                    this.render();
+
+                    this.cloudStatus = this.cloudData[this.month] || {};
+                    this.renderAll();
                 })
                 .catch(err => console.error("Sync Error:", err))
-                .finally(() => {
-                      if(!silent && btn) btn.classList.remove('fa-spin');
-                });
+                .finally(() => { if(!silent && btn) btn.classList.remove('fa-spin'); });
             },
 
-            render() {
+            // --- RENDER FUNCTIONS ---
+            renderAll() {
+                // คำนวณสถิติหลักก่อน
+                const stats = this.calculateStats();
+                
+                if(this.currentTab === 'List') {
+                    this.renderList(stats);
+                } else if (this.currentTab === 'Dashboard') {
+                    this.renderDashboard(stats);
+                    this.renderYearlyDashboard(); // เรนเดอร์กราฟปีเตรียมไว้เสมอ
+                }
+            },
+
+            calculateStats() {
+                let total=0, done=0, pass=0, fail=0;
+                const defectCounts = {};
+
+                this.data.forEach(item => {
+                    total++;
+                    const cloudInfo = this.cloudStatus[item.id];
+                    const localInfo = item.history[this.month];
+                    let status = 'pending';
+                    
+                    if (cloudInfo) {
+                        const s = String(cloudInfo.status).toLowerCase();
+                        status = (s === 'pass' || (s.includes('ปกติ') && !s.includes('ผิด'))) ? 'pass' : 'fail';
+                    } 
+                    if (localInfo) status = localInfo.status;
+
+                    if (status !== 'pending') done++;
+                    if (status === 'pass') pass++;
+                    if (status === 'fail') {
+                        fail++;
+                        // นับ Defect Topics
+                        let topics = [];
+                        if (localInfo && localInfo.failTopics) topics = localInfo.failTopics;
+                        else if (cloudInfo && cloudInfo.failReason) topics = [cloudInfo.failReason];
+
+                        topics.forEach(topic => {
+                            if(topic) defectCounts[topic] = (defectCounts[topic] || 0) + 1;
+                        });
+                    }
+                });
+
+                return { total, done, pass, fail, pending: total - done, defectCounts };
+            },
+
+            renderList(preCalcStats) {
                 const list = document.getElementById('list-container');
                 const search = document.getElementById('searchInput').value.toLowerCase();
-                
                 if(!list) return;
-                list.innerHTML = '';
                 
-                let total=0, done=0, fail=0;
-                const defectCounts = {};
+                const stats = preCalcStats || this.calculateStats();
+                list.innerHTML = '';
 
                 this.data.forEach(item => {
                     const cloudInfo = this.cloudStatus[item.id];
@@ -498,27 +830,13 @@
                     let status = 'pending';
                     let inspectorName = '';
                     let timeShow = '';
-
-                    // Logic: Priority -> Cloud (ถ้ามีและใหม่กว่า) OR Local (ถ้าพึ่งทำเสร็จ)
-                    // เพื่อความง่ายและ Real-time เราจะยึด Cloud เป็นหลัก แต่ถ้า Cloud ยังไม่อัปเดต ให้ใช้ Local
                     
-                    let useCloud = false;
-                    if (cloudInfo) useCloud = true;
-                    
-                    // FIX: ถ้า Local ใหม่กว่า Cloud (เพิ่งกดเซฟไป) ให้ใช้ Local
-                    // (เนื่องจาก Timestamp เทียบยากใน JS vs GAS เราจะใช้ Logic ว่า ถ้ามี Local ให้ใช้ Local ไปก่อนจนกว่า Cloud จะ sync กลับมาทับ)
-                    // แต่เพื่อความชัวร์เรื่อง "กดแล้วทำไมยังแดง" เราจะเช็คสถานะให้ละเอียด
-
-                    if (useCloud) {
+                    if (cloudInfo) {
                         const s = String(cloudInfo.status).toLowerCase();
-                        // แก้ BUG: เช็คคำว่า 'ปกติ' แต่ต้องไม่มีคำว่า 'ผิด' (เพราะ 'ผิดปกติ' มีคำว่า 'ปกติ' ผสมอยู่)
-                        const isPass = s === 'pass' || (s.includes('ปกติ') && !s.includes('ผิด'));
-                        status = isPass ? 'pass' : 'fail';
+                        status = (s === 'pass' || (s.includes('ปกติ') && !s.includes('ผิด'))) ? 'pass' : 'fail';
                         inspectorName = cloudInfo.inspector;
                         timeShow = cloudInfo.time.split(' ')[1] || '';
                     } 
-                    
-                    // Override ด้วย Local ถ้ามี (เพื่อให้เห็นผลทันทีที่กดเซฟ)
                     if (localInfo) {
                         status = localInfo.status;
                         inspectorName = localInfo.inspector;
@@ -527,12 +845,7 @@
 
                     const isInspected = status !== 'pending';
 
-                    total++;
-                    if(isInspected) done++;
-                    if(status === 'fail') fail++;
-
                     if (this.filterType === 'pending' && isInspected) return;
-                    if (this.filterType === 'done' && !isInspected) return;
                     if (this.filterType === 'fail' && status !== 'fail') return;
                     
                     if(!search || (item.id+item.loc+item.type).toLowerCase().includes(search)) {
@@ -540,14 +853,9 @@
                         div.className = `card ${status}`;
                         div.onclick = () => this.openInspect(item.id);
                         
-                        let statusBadge = '';
-                        if(isInspected) {
-                            statusBadge = status==='pass' 
-                                ? `<span style="color:var(--success)">✅ ปกติ (${timeShow})</span>` 
-                                : `<span style="color:var(--warning)">⚠️ พบปัญหา (${timeShow})</span>`;
-                        } else {
-                            statusBadge = `<span style="color:#999">รอตรวจ</span>`;
-                        }
+                        let statusBadge = isInspected 
+                            ? (status==='pass' ? `<span style="color:var(--success)">✅ ปกติ (${timeShow})</span>` : `<span style="color:var(--warning)">⚠️ พบปัญหา (${timeShow})</span>`)
+                            : `<span style="color:#999">รอตรวจ</span>`;
 
                         div.innerHTML = `
                             <div class="card-info">
@@ -559,27 +867,131 @@
                         `;
                         list.appendChild(div);
                     }
-                    
-                    // นับจำนวน Defect
-                    if(localInfo && localInfo.status === 'fail' && localInfo.failTopics) {
-                         localInfo.failTopics.forEach(topic => {
-                             defectCounts[topic] = (defectCounts[topic] || 0) + 1;
-                         });
-                    }
                 });
 
-                const percent = total ? Math.round((done/total)*100) : 0;
+                // Update Mini Dashboard
+                const percent = stats.total ? Math.round((stats.done/stats.total)*100) : 0;
                 document.getElementById('progressFill').style.width = percent + '%';
                 document.getElementById('statsPercent').innerText = percent + '%';
-                document.getElementById('statsCount').innerText = `${done}/${total} จุด`;
-                document.getElementById('statsFail').innerText = fail > 0 ? `พบปัญหา ${fail}` : '';
+                document.getElementById('statsCount').innerText = `${stats.done}/${stats.total} จุด`;
+                document.getElementById('statsFail').innerText = stats.fail > 0 ? `พบปัญหา ${stats.fail}` : '';
 
                 const tagsDiv = document.getElementById('defectTags');
-                tagsDiv.innerHTML = Object.entries(defectCounts)
+                tagsDiv.innerHTML = Object.entries(stats.defectCounts)
                     .map(([k,v]) => `<span class="d-tag">${k} ${v}</span>`).join('');
             },
 
-            // --- ADD NEW DEVICE ---
+            renderDashboard(stats) {
+                // Update Labels
+                const mNames = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
+                const [y, m] = this.month.split('-');
+                document.getElementById('dashMonthLabel').innerText = `${mNames[parseInt(m)-1]} ${parseInt(y)+543}`;
+
+                // Update Value Cards
+                document.getElementById('dashValTotal').innerText = stats.total;
+                document.getElementById('dashValPending').innerText = stats.pending;
+                document.getElementById('dashValPass').innerText = stats.pass;
+                document.getElementById('dashValFail').innerText = stats.fail;
+
+                // Update Donut Chart
+                const total = stats.total || 1;
+                const passPct = (stats.pass / total) * 100;
+                const failPct = (stats.fail / total) * 100;
+                // const pendingPct = (stats.pending / total) * 100;
+                
+                // CSS Conic Gradient string
+                // Pass (Green) -> Fail (Red) -> Pending (Gray)
+                const cPass = `var(--success) 0% ${passPct}%`;
+                const cFail = `var(--primary) ${passPct}% ${passPct + failPct}%`;
+                const cPend = `#ECEFF1 ${passPct + failPct}% 100%`;
+                
+                document.getElementById('dashDonut').style.background = `conic-gradient(${cPass}, ${cFail}, ${cPend})`;
+                document.getElementById('dashDonutPct').innerText = Math.round((stats.done/total)*100) + '%';
+
+                // Update Top Defects List
+                const defectListEl = document.getElementById('dashDefectList');
+                defectListEl.innerHTML = '';
+                
+                const sortedDefects = Object.entries(stats.defectCounts).sort((a,b) => b[1] - a[1]);
+                
+                if(sortedDefects.length === 0) {
+                    defectListEl.innerHTML = '<div class="no-data-msg">ยังไม่พบปัญหาในเดือนนี้ 🎉</div>';
+                } else {
+                    let maxDefect = sortedDefects[0][1];
+                    sortedDefects.forEach(([topic, count]) => {
+                        const barWidth = (count / maxDefect) * 100;
+                        defectListEl.innerHTML += `
+                            <div class="defect-item">
+                                <div class="defect-lbl-row">
+                                    <span>${topic}</span>
+                                    <span style="font-weight:600; color:var(--primary);">${count} จุด</span>
+                                </div>
+                                <div class="defect-bar-bg">
+                                    <div class="defect-bar-fill" style="width: ${barWidth}%"></div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+            },
+
+            // [NEW] เรนเดอร์แดชบอร์ดรายปี
+            renderYearlyDashboard() {
+                const year = this.month.split('-')[0];
+                document.getElementById('dashYearLabel').innerText = `ภาพรวมปี พ.ศ. ${parseInt(year) + 543}`;
+
+                const months = ['01','02','03','04','05','06','07','08','09','10','11','12'];
+                const mNames = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+
+                const chartEl = document.getElementById('yearChart');
+                chartEl.innerHTML = '';
+
+                let totalYearPass = 0;
+                let totalYearFail = 0;
+                const totalDevices = this.data.length; // จำนวนจุดตรวจตั้งต้นทั้งหมด
+
+                months.forEach((m, idx) => {
+                    const targetMonth = `${year}-${m}`;
+                    let pass = 0, fail = 0;
+
+                    this.data.forEach(item => {
+                        let status = 'pending';
+                        const cloudInfo = this.cloudData[targetMonth] ? this.cloudData[targetMonth][item.id] : null;
+                        const localInfo = item.history[targetMonth];
+
+                        if (cloudInfo) {
+                            const s = String(cloudInfo.status).toLowerCase();
+                            status = (s === 'pass' || (s.includes('ปกติ') && !s.includes('ผิด'))) ? 'pass' : 'fail';
+                        }
+                        if (localInfo) status = localInfo.status;
+
+                        if(status === 'pass') pass++;
+                        if(status === 'fail') fail++;
+                    });
+
+                    totalYearPass += pass;
+                    totalYearFail += fail;
+
+                    // คำนวณความสูงของกราฟแท่ง (เทียบจากจำนวนจุดทั้งหมด)
+                    const passPct = (pass / totalDevices) * 100;
+                    const failPct = (fail / totalDevices) * 100;
+
+                    chartEl.innerHTML += `
+                        <div class="y-col">
+                            <div class="y-bar-wrap">
+                                <div class="y-bar-fail" style="height: ${failPct}%;" title="ปัญหา ${fail}"></div>
+                                <div class="y-bar-pass" style="height: ${passPct}%;" title="ปกติ ${pass}"></div>
+                            </div>
+                            <span class="y-lbl">${mNames[idx]}</span>
+                        </div>
+                    `;
+                });
+
+                document.getElementById('yearTotalPass').innerText = totalYearPass;
+                document.getElementById('yearTotalFail').innerText = totalYearFail;
+            },
+
+            // --- REST OF APP LOGIC ---
             addDevice() {
                 const id = document.getElementById('addId').value.toUpperCase().trim();
                 const loc = document.getElementById('addLoc').value.trim();
@@ -592,38 +1004,23 @@
                 this.data.push({ id, loc, type, size, history: {} });
                 this.saveToStorage();
                 UI.closeModal('modalAdd');
-                this.render();
+                this.renderAll();
                 alert('เพิ่มจุดตรวจสำเร็จ!');
             },
 
-            // --- INSPECTION LOGIC ---
             getChecklistItems(type) {
-                const common = [
-                    "ตำแหน่งติดตั้งเข้าถึงง่าย/ไม่ถูกกีดขวาง",
-                    "ป้ายบ่งชี้จุดติดตั้งชัดเจน/ถูกต้อง",
-                    "สภาพตัวถังปกติ ไม่ผุ/ไม่เป็นสนิม/ไม่บุบ",
-                    "สลักนิรภัยและซีลล็อกอยู่ครบ สภาพดี"
-                ];
-
-                if (type.includes("CO2")) {
-                    return [...common, "น้ำหนักถังปกติ (จากการชั่งตวง)", "กระบอกฉีด/กรวยฉีด สภาพสมบูรณ์"];
-                } else {
-                    return [...common, "เกจวัดแรงดันอยู่แถบสีเขียว (พร้อมใช้)", "สายฉีดสภาพดี ไม่แตกลายงา/ไม่อุดตัน"];
-                }
+                const common = ["ตำแหน่งติดตั้งเข้าถึงง่าย/ไม่ถูกกีดขวาง", "ป้ายบ่งชี้จุดติดตั้งชัดเจน/ถูกต้อง", "สภาพตัวถังปกติ ไม่ผุ/ไม่เป็นสนิม/ไม่บุบ", "สลักนิรภัยและซีลล็อกอยู่ครบ สภาพดี"];
+                if (type.includes("CO2")) return [...common, "น้ำหนักถังปกติ (จากการชั่งตวง)", "กระบอกฉีด/กรวยฉีด สภาพสมบูรณ์"];
+                else return [...common, "เกจวัดแรงดันอยู่แถบสีเขียว (พร้อมใช้)", "สายฉีดสภาพดี ไม่แตกลายงา/ไม่อุดตัน"];
             },
 
             openInspect(id) {
                 this.currentId = id;
                 const item = this.data.find(d => d.id === id);
-                
-                // Check Cloud status
                 const cloudInfo = this.cloudStatus[id];
-                if (cloudInfo) {
-                     alert(`⚠️ จุดนี้ตรวจแล้วโดย: ${cloudInfo.inspector}\nเวลา: ${cloudInfo.time}\n(คุณสามารถบันทึกทับเพื่อแก้ไขได้)`);
-                }
+                if (cloudInfo) alert(`⚠️ จุดนี้ตรวจแล้วโดย: ${cloudInfo.inspector}\nเวลา: ${cloudInfo.time}\n(คุณสามารถบันทึกทับเพื่อแก้ไขได้)`);
 
                 const h = item.history[this.month];
-
                 document.getElementById('inspectTitle').innerText = `${item.id} : ${item.loc}`;
                 document.getElementById('inspectSubtitle').innerText = `ประเภท: ${item.type} (${item.size})`;
                 document.getElementById('inspectName').value = h?.inspector || '';
@@ -631,12 +1028,8 @@
                 
                 const lastCheckEl = document.getElementById('lastCheckDate');
                 const lastCheckInfo = document.getElementById('lastCheckInfo');
-                if(h && h.time) {
-                    lastCheckEl.innerText = h.time;
-                    lastCheckInfo.style.display = 'block';
-                } else {
-                    lastCheckInfo.style.display = 'none';
-                }
+                if(h && h.time) { lastCheckEl.innerText = h.time; lastCheckInfo.style.display = 'block'; } 
+                else { lastCheckInfo.style.display = 'none'; }
 
                 this.tempPhoto = h?.photo || null;
                 this.updatePhotoUI();
@@ -675,64 +1068,35 @@
                     const el = document.getElementById(`chk_${i}`);
                     if(el) checks.push(el.checked);
                 }
-                // ถ้ามีอันไหนไม่ได้ติ๊ก (false) ถือว่า Fail
                 const isFail = checks.some(c => !c);
                 const photoSec = document.getElementById('photoSection');
                 
-                if(isFail) {
-                    photoSec.style.display = 'block';
-                } else if(!this.tempPhoto) {
-                    photoSec.style.display = 'none';
-                }
+                if(isFail) photoSec.style.display = 'block';
+                else if(!this.tempPhoto) photoSec.style.display = 'none';
             },
             
             updatePhotoUI() {
                 const img = document.getElementById('photoPreview');
-                if(this.tempPhoto) { 
-                    img.src = this.tempPhoto; img.style.display = 'block'; 
-                } else { 
-                    img.style.display = 'none'; img.src = ''; 
-                }
+                if(this.tempPhoto) { img.src = this.tempPhoto; img.style.display = 'block'; } 
+                else { img.style.display = 'none'; img.src = ''; }
             },
 
             handlePhoto(input) {
                 if (input.files && input.files[0]) {
                     const file = input.files[0];
                     const reader = new FileReader();
-                    
                     reader.onload = (e) => {
                         const img = new Image();
                         img.src = e.target.result;
-                        
                         img.onload = () => {
                             const canvas = document.createElement('canvas');
                             const ctx = canvas.getContext('2d');
-                            
-                            // FIX: ลดขนาดรูปลงอีกเพื่อให้ส่งผ่านชัวร์ๆ (500px)
-                            const MAX_WIDTH = 500;
-                            const MAX_HEIGHT = 500;
-                            
-                            let width = img.width;
-                            let height = img.height;
-                            
-                            if (width > height) {
-                                if (width > MAX_WIDTH) {
-                                    height *= MAX_WIDTH / width;
-                                    width = MAX_WIDTH;
-                                }
-                            } else {
-                                if (height > MAX_HEIGHT) {
-                                    width *= MAX_HEIGHT / height;
-                                    height = MAX_HEIGHT;
-                                }
-                            }
-                            
-                            canvas.width = width;
-                            canvas.height = height;
-                            
-                            ctx.drawImage(img, 0, 0, width, height);
-                            
-                            // FIX: ลด Quality ลงเหลือ 0.5
+                            const MAX_SIZE = 500;
+                            let w = img.width, h = img.height;
+                            if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; } } 
+                            else { if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; } }
+                            canvas.width = w; canvas.height = h;
+                            ctx.drawImage(img, 0, 0, w, h);
                             this.tempPhoto = canvas.toDataURL('image/jpeg', 0.5);
                             this.updatePhotoUI();
                         };
@@ -761,65 +1125,41 @@
                 
                 if(status === 'fail' && !this.tempPhoto) {
                     if(!confirm("⚠️ พบข้อบกพร่องแต่ยังไม่ได้ถ่ายรูป\nต้องการบันทึกโดยไม่มีรูปหรือไม่?")) {
-                        btn.disabled = false;
-                        btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> บันทึกข้อมูล';
+                        btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> บันทึกข้อมูล';
                         return;
                     }
                 }
 
                 const item = this.data.find(d => d.id === this.currentId);
                 const payload = {
-                    id: this.currentId,
-                    loc: item.loc,
-                    type: item.type,
-                    month: this.month,
-                    status: status,
-                    inspector: name,
-                    note: document.getElementById('inspectNote').value,
-                    checks: checks, 
-                    failTopics: failTopics,
-                    time: new Date().toLocaleString('th-TH'),
-                    photo: this.tempPhoto
+                    id: this.currentId, loc: item.loc, type: item.type, month: this.month,
+                    status: status, inspector: name, note: document.getElementById('inspectNote').value,
+                    checks: checks, failTopics: failTopics, time: new Date().toLocaleString('th-TH'), photo: this.tempPhoto
                 };
 
-                // 1. Save Local
                 item.history[this.month] = { ...payload }; 
                 
-                // Update CloudStatus locally immediately (ไม่ต้องรอ Sync) เพื่อให้หน้าจอเปลี่ยนสีทันที
-                this.cloudStatus[this.currentId] = {
-                    status: status,
-                    inspector: name,
-                    time: payload.time,
-                    image: this.tempPhoto
+                if (!this.cloudData[this.month]) this.cloudData[this.month] = {};
+                this.cloudData[this.month][this.currentId] = {
+                    status: status, inspector: name, time: payload.time, image: this.tempPhoto, failReason: failTopics[0] || ''
                 };
+                this.cloudStatus = this.cloudData[this.month];
                 
                 this.saveToStorage();
-                this.render(); // Re-render to show green/red immediately
+                this.renderAll(); 
 
-                // 2. Send to Cloud
                 if(CLOUD_URL && CLOUD_URL.startsWith('http')) {
                     fetch(CLOUD_URL, {
-                        method: 'POST',
-                        mode: 'no-cors',
+                        method: 'POST', mode: 'no-cors',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
-                    }).then(() => {
-                        alert("✅ บันทึกสำเร็จ!");
-                        UI.closeModal('modalInspect');
-                        // ไม่ต้อง sync ทันทีก็ได้เพราะเราอัปเดต local state แล้ว
-                    }).catch(err => {
-                        console.error(err);
-                        alert("⚠️ บันทึกในเครื่องแล้ว (แต่ส่งออนไลน์ไม่ผ่าน ลองลดขนาดรูป)");
-                        UI.closeModal('modalInspect');
-                    }).finally(() => {
-                        btn.disabled = false;
-                        btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> บันทึกข้อมูล';
-                    });
+                    }).then(() => { alert("✅ บันทึกสำเร็จ!"); UI.closeModal('modalInspect'); })
+                    .catch(err => { alert("⚠️ บันทึกในเครื่องแล้ว (แต่ส่งออนไลน์ไม่ผ่าน)"); UI.closeModal('modalInspect'); })
+                    .finally(() => { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> บันทึกข้อมูล'; });
                 } else {
                     alert("✅ บันทึกในเครื่องเรียบร้อย (Offline)");
                     UI.closeModal('modalInspect');
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> บันทึกข้อมูล';
+                    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> บันทึกข้อมูล';
                 }
             },
 
@@ -827,34 +1167,35 @@
                 this.filterType = type;
                 document.querySelectorAll('.chip').forEach(b => b.classList.remove('active')); 
                 if(btn) btn.classList.add('active'); 
-                this.render();
+                this.renderAll();
             },
 
-            changeMonth() { this.month = document.getElementById('monthPicker').value; this.render(); },
+            changeMonth() { 
+                this.month = document.getElementById('monthPicker').value; 
+                this.cloudStatus = this.cloudData[this.month] || {}; 
+                this.renderAll(); 
+            },
+            
             changeMonthFromMenu() {
                 this.month = document.getElementById('monthPickerMenu').value;
                 document.getElementById('monthPicker').value = this.month;
-                this.render();
+                this.cloudStatus = this.cloudData[this.month] || {};
+                this.renderAll();
                 UI.closeModal('modalMenu');
             },
             
             exportExcel() {
-                // Header CSV
                 let csv = `\uFEFFID,Location,Type,Size,Status,Inspector,Timestamp,Note,Check_Result,Image_URL\n`;
-                
                 this.data.forEach(d => {
                     const local = d.history[this.month];
                     const cloud = this.cloudStatus[d.id];
-                    
-                    // FIX: รวมข้อมูลจาก Cloud และ Local (ถ้า Cloud มีข้อมูลให้ใช้ Cloud ก่อนเพื่อความครบถ้วนของทีม)
                     let useData = local;
+                    
                     if(cloud && cloud.status) {
-                        // สร้าง Object จำลองเพื่อให้ Export ได้เหมือนกัน
                         useData = {
                             status: (String(cloud.status).toLowerCase() === 'pass' || (String(cloud.status).includes('ปกติ') && !String(cloud.status).includes('ผิด'))) ? 'pass' : 'fail',
-                            inspector: cloud.inspector,
-                            time: cloud.time,
-                            note: cloud.note || (local?.note || ''), // ใช้ note จาก cloud ถ้ามี ถ้าไม่มีใช้ local
+                            inspector: cloud.inspector, time: cloud.time,
+                            note: cloud.note || (local?.note || ''), 
                             failTopics: cloud.failReason ? [cloud.failReason] : (local?.failTopics || []),
                             image: cloud.image || (local?.photo || '')
                         };
@@ -863,21 +1204,13 @@
                     if(useData) {
                         let resultStr = "PASS";
                         if(useData.status === 'fail') {
-                            if(useData.failTopics && useData.failTopics.length > 0) {
-                                resultStr = "FAIL: " + useData.failTopics.join(" | ");
-                            } else {
-                                resultStr = "FAIL (No Details)";
-                            }
+                            resultStr = (useData.failTopics && useData.failTopics.length > 0) ? "FAIL: " + useData.failTopics.join(" | ") : "FAIL (No Details)";
                         }
-
                         const note = (useData.note || '').replace(/,/g, ' ');
                         const safeResult = resultStr.replace(/,/g, ' ');
-                        const imgLink = useData.image || ''; // Image Link or Base64
-
+                        const imgLink = useData.image || ''; 
                         csv += `${d.id},"${d.loc}","${d.type}","${d.size}",${useData.status},"${useData.inspector}",${useData.time},"${note}","${safeResult}","${imgLink}"\n`;
-                    } else {
-                        csv += `${d.id},"${d.loc}","${d.type}","${d.size}",PENDING,,,,,\n`;
-                    }
+                    } else { csv += `${d.id},"${d.loc}","${d.type}","${d.size}",PENDING,,,,,\n`; }
                 });
 
                 const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -900,13 +1233,8 @@
                 if(!file) return;
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    try {
-                        this.data = JSON.parse(e.target.result);
-                        this.saveToStorage();
-                        this.render();
-                        alert('กู้คืนข้อมูลสำเร็จ!');
-                        UI.closeModal('modalMenu');
-                    } catch(err) { alert('ไฟล์ไม่ถูกต้อง'); }
+                    try { this.data = JSON.parse(e.target.result); this.saveToStorage(); this.renderAll(); alert('กู้คืนข้อมูลสำเร็จ!'); UI.closeModal('modalMenu'); } 
+                    catch(err) { alert('ไฟล์ไม่ถูกต้อง'); }
                 };
                 reader.readAsText(file);
             },
@@ -916,24 +1244,16 @@
             
             handleDeepLink() {
                 const pid = new URLSearchParams(window.location.search).get('id');
-                if(pid) {
-                    const item = this.data.find(d => d.id === pid);
-                    if(item) setTimeout(() => this.openInspect(pid), 500);
-                }
+                if(pid) { const item = this.data.find(d => d.id === pid); if(item) setTimeout(() => this.openInspect(pid), 500); }
             },
 
             openScanner() {
-                if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
-                     alert("⚠️ คำเตือน: กรุณาเปิดผ่าน HTTPS (Netlify/GitHub) เพื่อใช้งานกล้อง");
-                }
                 UI.openModal('modalScan');
                 this.scanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: 250 });
                 this.scanner.render((txt) => {
-                    let id = txt;
-                    if(txt.includes('id=')) id = txt.split('id=')[1];
+                    let id = txt; if(txt.includes('id=')) id = txt.split('id=')[1];
                     const item = this.data.find(d => d.id === id);
-                    if(item) { UI.stopScanner(); this.openInspect(id); }
-                    else alert('ไม่พบรหัส: '+id);
+                    if(item) { UI.stopScanner(); this.openInspect(id); } else alert('ไม่พบรหัส: '+id);
                 });
             },
 
