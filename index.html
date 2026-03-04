@@ -5,8 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>FireCheck Enterprise V5</title>
     
+    <!-- PWA & Mobile Web App Tags -->
+    <meta name="theme-color" content="#D32F2F">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="FireCheck">
+    <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Fire_extinguisher_icon.svg/512px-Fire_extinguisher_icon.svg.png">
+    
     <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
     <!-- QR Scanner Engine -->
@@ -21,11 +28,11 @@
             --success: #2E7D32;          
             --warning: #F9A825;
             --info: #0288D1;          
-            --bg-body: #F3F2F1;
+            --bg-body: #F5F7FA;
             --surface: #FFFFFF;
             --text-main: #201F1E;
             --text-muted: #605E5C;
-            --radius: 12px;
+            --radius: 16px;
             --header-h: 64px;
             --nav-h: 65px;
         }
@@ -38,133 +45,129 @@
             margin: 0; height: 100dvh; 
             display: flex; flex-direction: column; 
             overflow: hidden;
+            overscroll-behavior-y: none;
         }
+
+        /* TOAST NOTIFICATION */
+        .toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
+            background: #333; color: white; padding: 12px 24px; border-radius: 30px;
+            z-index: 9999; opacity: 0; transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.2); font-size: 0.95rem; font-weight: 500;
+            display: flex; align-items: center; gap: 10px; white-space: nowrap; pointer-events: none;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
 
         /* HEADER */
         header { 
-            height: var(--header-h); background: var(--primary); color: white;
+            height: var(--header-h); background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white;
             padding: 0 16px; display: flex; justify-content: space-between; align-items: center; 
             box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3); z-index: 50; flex-shrink: 0; 
+            padding-top: env(safe-area-inset-top); /* For iPhone Notch */
         }
-        .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 1.2rem; }
-        .brand i { font-size: 1.4rem; color: rgba(255,255,255,0.9); }
-        .header-actions .btn-icon { color: white; opacity: 0.9; cursor: pointer; background: none; border: none; font-size: 1.2rem;}
+        .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 1.25rem; letter-spacing: 0.5px;}
+        .brand i { font-size: 1.4rem; color: #FFF; }
+        .header-actions { display: flex; align-items: center; gap: 10px; }
+        .header-actions .btn-icon { color: white; cursor: pointer; background: none; border: none; font-size: 1.3rem;}
         
-        .header-status { font-size: 0.7rem; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; display: flex; align-items: center; gap: 4px; }
+        .header-status { font-size: 0.7rem; background: rgba(0,0,0,0.15); padding: 4px 10px; border-radius: 12px; display: flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.1); font-weight: 500;}
         .dot { width: 8px; height: 8px; background: #EEE; border-radius: 50%; }
-        .dot.online { background: #00E676; box-shadow: 0 0 5px #00E676; }
+        .dot.online { background: #00E676; box-shadow: 0 0 6px #00E676; }
 
         .month-selector {
-            padding: 6px 12px; border: 1px solid rgba(255,255,255,0.3); 
+            padding: 6px 12px; border: 1px solid rgba(255,255,255,0.2); 
             border-radius: 20px; font-family: 'Prompt'; font-size: 0.85rem; 
-            background: rgba(255,255,255,0.15); color: white; outline: none;
+            background: rgba(0,0,0,0.1); color: white; outline: none; font-weight: 500;
         }
         .month-selector option { color: #333; }
 
         /* VIEW CONTAINER */
-        #mainContent {
-            flex: 1;
-            position: relative;
-            overflow: hidden; /* ให้แต่ละ view จัดการ scroll เอง */
-            display: flex;
-            flex-direction: column;
-        }
-        .view-section {
-            display: none;
-            flex-direction: column;
-            height: 100%;
-            overflow: hidden; /* ป้องกันไม่ให้ทะลุ Bottom Nav */
-        }
-        .view-section.active {
-            display: flex;
-        }
+        #mainContent { flex: 1; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+        .view-section { display: none; flex-direction: column; height: 100%; overflow: hidden; }
+        .view-section.active { display: flex; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* DASHBOARD (Mini) - Used in List View */
-        .dashboard-mini { padding: 15px; background: var(--surface); border-bottom: 1px solid #ECEFF1; flex-shrink: 0; }
-        .progress-card { background: #fff; border: 1px solid #E0E0E0; border-radius: var(--radius); padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .progress-bar { height: 10px; background: #ECEFF1; border-radius: 5px; overflow: hidden; margin: 10px 0; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, #FF8A80, #D32F2F); width: 0%; transition: width 0.5s; }
+        .dashboard-mini { padding: 15px 15px 5px 15px; background: var(--surface); border-bottom: 1px solid #ECEFF1; flex-shrink: 0; }
+        .progress-card { background: #fff; border: 1px solid #ECEFF1; border-radius: 12px; padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .progress-bar { height: 8px; background: #F0F2F5; border-radius: 4px; overflow: hidden; margin: 10px 0; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #FF8A80, #D32F2F); width: 0%; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
         .stat-row { display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--text-muted); font-weight: 500; }
         
-        .defect-tags { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 5px; }
-        .d-tag { font-size: 0.75rem; background: #FFEBEE; color: var(--primary); padding: 4px 10px; border-radius: 12px; white-space: nowrap; border: 1px solid #FFCDD2; }
+        .defect-tags { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none;}
+        .defect-tags::-webkit-scrollbar { display: none; }
+        .d-tag { font-size: 0.75rem; background: #FFF0F2; color: var(--primary); padding: 4px 12px; border-radius: 16px; white-space: nowrap; border: 1px solid #FFE4E8; font-weight: 500;}
 
         /* LIST & FILTER */
-        .search-container { padding: 10px 15px 0 15px; flex-shrink: 0; }
-        .input-box { width: 100%; padding: 10px 12px; border: 1px solid #8A8886; border-radius: var(--radius); font-family: 'Prompt'; font-size: 0.95rem; outline: none; background: white; }
+        .search-container { padding: 10px 15px; flex-shrink: 0; display: flex; gap: 8px; background: var(--surface); }
+        .input-box { flex: 2; padding: 12px 16px; border: 1px solid #E0E0E0; border-radius: 24px; font-family: 'Prompt'; font-size: 0.95rem; outline: none; background: #F9FAFB; transition: 0.2s;}
+        .input-box:focus { border-color: var(--primary); background: #FFF; box-shadow: 0 0 0 3px rgba(211,47,47,0.1); }
         
-        .filter-chips { padding: 12px 15px; display: flex; gap: 8px; overflow-x: auto; flex-shrink: 0; scrollbar-width: none; }
+        .loc-select { flex: 1; padding: 12px; border: 1px solid #E0E0E0; border-radius: 24px; font-family: 'Prompt'; font-size: 0.85rem; outline: none; background: #F9FAFB; color: var(--text-muted); text-overflow: ellipsis; white-space: nowrap; overflow: hidden; transition: 0.2s; }
+        .loc-select:focus { border-color: var(--primary); color: var(--text-main); }
+
+        .filter-chips { padding: 0 15px 12px 15px; display: flex; gap: 8px; overflow-x: auto; flex-shrink: 0; scrollbar-width: none; background: var(--surface); border-bottom: 1px solid #ECEFF1; }
+        .filter-chips::-webkit-scrollbar { display: none; }
         .chip { 
-            border: 1px solid #CFD8DC; padding: 6px 14px; border-radius: 20px; 
-            font-size: 0.85rem; color: var(--text-main); background: white; 
+            border: 1px solid #E0E0E0; padding: 6px 16px; border-radius: 20px; 
+            font-size: 0.85rem; color: var(--text-muted); background: white; 
             white-space: nowrap; cursor: pointer; transition: all 0.2s; font-weight: 500;
         }
-        .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
-        #filter-all.active { background: var(--text-main); }      
-        #filter-pending.active { background: var(--warning); color: #333; }    
-        #filter-fail.active { background: var(--primary); color: white; }
+        .chip.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 2px 6px rgba(211,47,47,0.2); }
 
-        #list-container { flex: 1; overflow-y: auto; padding: 10px 15px; display: grid; gap: 10px; padding-bottom: 20px; }
+        #list-container { flex: 1; overflow-y: auto; padding: 12px 15px; display: grid; gap: 12px; padding-bottom: 90px; }
         
         .card { 
             background: var(--surface); padding: 16px; border-radius: var(--radius); 
-            box-shadow: 0 2px 6px rgba(0,0,0,0.04); 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04); 
             display: flex; justify-content: space-between; align-items: center; 
-            border-left: 5px solid #CFD8DC; cursor: pointer; transition: transform 0.1s; 
+            border-left: 6px solid #E0E0E0; cursor: pointer; transition: transform 0.1s, box-shadow 0.2s; 
         }
-        .card:active { transform: scale(0.98); }
+        .card:active { transform: scale(0.98); box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
         .card.pass { border-left-color: var(--success); }
-        .card.fail { border-left-color: var(--primary); background: #FFEBEE; }
+        .card.fail { border-left-color: var(--primary); background: #FFF5F6; }
         .card-info h3 { margin: 0 0 6px 0; font-size: 1rem; color: var(--text-main); font-weight: 600; }
         .card-info p { margin: 0; font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px;}
-        .status-icon { font-size: 1.4rem; color: #CFD8DC; }
+        .status-icon { font-size: 1.5rem; color: #E0E0E0; }
         .card.pass .status-icon { color: var(--success); }
         .card.fail .status-icon { color: var(--primary); }
-        .inspector-badge { font-size: 0.7rem; background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 4px; display:inline-block; margin-top:2px; }
+        .inspector-badge { font-size: 0.7rem; background: rgba(0,0,0,0.04); padding: 3px 8px; border-radius: 6px; display:inline-block; margin-top:4px; font-weight: 500;}
 
         /* FAB */
         .fab-wrapper { position: fixed; bottom: calc(var(--nav-h) + 20px); right: 20px; display: flex; flex-direction: column; gap: 15px; z-index: 40; }
         .fab { width: 56px; height: 56px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.25); cursor: pointer; font-size: 1.2rem; transition: transform 0.2s; }
         .fab:active { transform: scale(0.95); }
-        .fab-scan { background: var(--primary); width: 64px; height: 64px; font-size: 1.6rem; }
+        .fab-scan { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); width: 64px; height: 64px; font-size: 1.6rem; }
         .fab-excel { background: var(--success); }
         .fab-refresh { background: var(--text-main); width: 48px; height: 48px; font-size: 1.1rem; }
 
         /* BOTTOM NAVIGATION */
         .bottom-nav {
-            height: var(--nav-h);
-            background: var(--surface);
-            display: flex;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-            z-index: 50;
-            flex-shrink: 0;
-            padding-bottom: env(safe-area-inset-bottom); /* รองรับ iPhone X ขึ้นไป */
+            height: var(--nav-h); background: var(--surface); display: flex;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.06); z-index: 50; flex-shrink: 0;
+            padding-bottom: env(safe-area-inset-bottom); border-radius: 20px 20px 0 0;
         }
         .nav-item {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #90A4AE;
-            font-size: 0.75rem;
-            text-decoration: none;
-            cursor: pointer;
-            transition: 0.2s;
-            border: none;
-            background: none;
-            font-family: 'Prompt';
+            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: #90A4AE; font-size: 0.75rem; text-decoration: none; cursor: pointer;
+            transition: 0.2s; border: none; background: none; font-family: 'Prompt'; padding-top: 5px;
         }
-        .nav-item i { font-size: 1.4rem; margin-bottom: 4px; }
+        .nav-item i { font-size: 1.4rem; margin-bottom: 4px; transition: 0.2s; }
         .nav-item.active { color: var(--primary); font-weight: 600; }
+        .nav-item.active i { transform: translateY(-2px); }
 
         /* MAIN DASHBOARD VIEW */
-        #viewDashboard { overflow-y: auto; padding: 15px; padding-bottom: 30px; background: var(--bg-body); }
-        .dash-title { margin: 0 0 15px 0; font-size: 1.2rem; color: var(--text-main); font-weight: 600; display:flex; align-items:center; gap:8px;}
+        #viewDashboard { overflow-y: auto; padding: 15px; padding-bottom: 30px; }
+        .dash-title { margin: 0 0 15px 0; font-size: 1.2rem; color: var(--text-main); font-weight: 700; display:flex; align-items:center; gap:8px;}
         
+        .dash-toggle { display: flex; background: #E4E7EB; border-radius: 10px; padding: 4px; margin-bottom: 20px; }
+        .dash-toggle button { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 8px; font-family: 'Prompt'; font-size: 0.9rem; cursor: pointer; color: var(--text-muted); transition: 0.2s; }
+        .dash-toggle button.active { background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.05); color: var(--primary); font-weight: 600; }
+
         .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-        .dash-box { background: white; border-radius: var(--radius); padding: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); border: 1px solid #ECEFF1; display:flex; flex-direction:column; align-items:flex-start; position: relative; overflow: hidden;}
-        .dash-box::after { content: ''; position: absolute; right: -15px; bottom: -15px; opacity: 0.1; font-family: "Font Awesome 6 Free"; font-weight: 900; font-size: 4rem; z-index: 0; }
+        .dash-box { background: white; border-radius: var(--radius); padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid #ECEFF1; display:flex; flex-direction:column; align-items:flex-start; position: relative; overflow: hidden;}
+        .dash-box::after { content: ''; position: absolute; right: -15px; bottom: -15px; opacity: 0.08; font-family: "Font Awesome 6 Free"; font-weight: 900; font-size: 4.5rem; z-index: 0; transition: transform 0.3s;}
+        .dash-box:hover::after { transform: scale(1.1); }
         
         .dash-box .label { font-size: 0.85rem; color: var(--text-muted); z-index: 1;}
         .dash-box .value { font-size: 1.8rem; font-weight: 700; color: var(--text-main); z-index: 1;}
@@ -181,27 +184,23 @@
         .box-pass .value { color: var(--success); }
         .box-pass::after { content: '\f058'; color: var(--success); } /* check-circle */
 
-        .box-fail { border-left: 4px solid var(--primary); background: #FFEBEE;}
+        .box-fail { border-left: 4px solid var(--primary); background: #FFF5F6;}
         .box-fail .value { color: var(--primary); }
         .box-fail::after { content: '\f071'; color: var(--primary); } /* exclamation-triangle */
 
         /* Donut Chart */
-        .chart-card { background: white; border-radius: var(--radius); padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); border: 1px solid #ECEFF1; margin-bottom: 20px; text-align: center; }
+        .chart-card { background: white; border-radius: var(--radius); padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid #ECEFF1; margin-bottom: 20px; text-align: center; }
         .donut-wrapper { position: relative; width: 140px; height: 140px; margin: 0 auto 15px auto; }
-        .donut-chart { width: 100%; height: 100%; border-radius: 50%; background: #ECEFF1; /* Conic gradient will be applied via JS */ transition: background 0.5s; }
-        .donut-hole { position: absolute; top: 20px; left: 20px; right: 20px; bottom: 20px; background: white; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05); }
-        .donut-hole .pct { font-size: 1.5rem; font-weight: 700; color: var(--text-main); line-height: 1; }
+        .donut-chart { width: 100%; height: 100%; border-radius: 50%; background: #ECEFF1; transition: background 0.5s; }
+        .donut-hole { position: absolute; top: 18px; left: 18px; right: 18px; bottom: 18px; background: white; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: inset 0 2px 6px rgba(0,0,0,0.04); }
+        .donut-hole .pct { font-size: 1.6rem; font-weight: 700; color: var(--text-main); line-height: 1; }
         .donut-hole .lbl { font-size: 0.7rem; color: var(--text-muted); }
         
         .chart-legend { display: flex; justify-content: center; gap: 15px; font-size: 0.8rem; color: var(--text-muted); }
         .legend-item { display: flex; align-items: center; gap: 5px; }
         .legend-color { width: 12px; height: 12px; border-radius: 3px; }
 
-        /* --- YEARLY DASHBOARD --- */
-        .dash-toggle { display: flex; background: #ECEFF1; border-radius: 8px; padding: 4px; margin-bottom: 15px; }
-        .dash-toggle button { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 6px; font-family: 'Prompt'; font-size: 0.9rem; cursor: pointer; color: var(--text-muted); transition: 0.2s; }
-        .dash-toggle button.active { background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); color: var(--primary); font-weight: 600; }
-
+        /* Year Chart */
         .year-chart { display: flex; align-items: flex-end; justify-content: space-between; height: 180px; padding: 10px 0; border-bottom: 1px solid #ECEFF1; gap: 4px; margin-bottom: 15px;}
         .y-col { display: flex; flex-direction: column; justify-content: flex-end; flex: 1; align-items: center; height: 100%; position: relative; }
         .y-bar-wrap { width: 100%; max-width: 14px; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; border-radius: 4px; overflow: hidden; background: #F5F5F5; }
@@ -218,15 +217,15 @@
         .no-data-msg { text-align: center; color: var(--text-muted); font-size: 0.9rem; padding: 20px 0; background: #FAFAFA; border-radius: 8px; border: 1px dashed #CFD8DC;}
 
         /* MODALS */
-        .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 100; display: none; justify-content: center; align-items: flex-end; backdrop-filter: blur(2px); }
+        .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 100; display: none; justify-content: center; align-items: flex-end; backdrop-filter: blur(3px); }
         .modal.show { display: flex; }
-        .sheet { background: var(--surface); width: 100%; max-width: 600px; border-radius: 24px 24px 0 0; padding: 25px; max-height: 90dvh; overflow-y: auto; animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .sheet { background: var(--surface); width: 100%; max-width: 600px; border-radius: 24px 24px 0 0; padding: 25px; max-height: 90dvh; overflow-y: auto; animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); padding-bottom: env(safe-area-inset-bottom); }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         
         .sheet-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
         
         /* FORM COMPONENTS */
-        .quick-pass-btn { width: 100%; padding: 12px; border: 2px solid var(--success); color: var(--success); background: rgba(46, 125, 50, 0.05); border-radius: 12px; font-weight: 600; font-family: 'Prompt'; cursor: pointer; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
+        .quick-pass-btn { width: 100%; padding: 14px; border: 2px solid var(--success); color: var(--success); background: rgba(46, 125, 50, 0.05); border-radius: 12px; font-weight: 600; font-family: 'Prompt'; cursor: pointer; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; font-size: 1rem;}
         .quick-pass-btn:active { background: var(--success); color: white; }
 
         .check-item { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #F5F5F5; align-items: center; }
@@ -239,15 +238,14 @@
         input:checked + .slider { background: var(--success); }
         input:checked + .slider:before { transform: translateX(20px); }
 
-        .form-control { width: 100%; padding: 14px; border: 1px solid #CFD8DC; border-radius: 12px; margin-top: 15px; font-family: 'Prompt'; font-size: 1rem; color: var(--text-main); background: #FAFAFA; outline: none; -webkit-appearance: none; }
-        .form-control:focus { border-color: var(--primary); background: #FFF; }
+        .form-control { width: 100%; padding: 14px; border: 1px solid #CFD8DC; border-radius: 12px; margin-top: 15px; font-family: 'Prompt'; font-size: 1rem; color: var(--text-main); background: #FAFAFA; outline: none; -webkit-appearance: none; transition: 0.2s;}
+        .form-control:focus { border-color: var(--primary); background: #FFF; box-shadow: 0 0 0 3px rgba(211,47,47,0.1);}
         
-        .btn-save { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; margin-top: 25px; font-size: 1.1rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 10px rgba(211, 47, 47, 0.25); display: flex; justify-content: center; align-items: center; gap: 10px;}
+        .btn-save { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; margin-top: 25px; font-size: 1.1rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 10px rgba(211, 47, 47, 0.25); display: flex; justify-content: center; align-items: center; gap: 10px; transition: 0.2s;}
         .btn-save:active { transform: scale(0.98); }
         
         /* PHOTO UPLOAD */
         #photoSection { display: none; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .photo-area { margin-top: 20px; border: 2px dashed #CFD8DC; border-radius: 12px; padding: 25px; text-align: center; color: var(--text-muted); cursor: pointer; background: #FAFAFA; transition: 0.2s; }
         .photo-area:active { background: #ECEFF1; border-color: var(--text-muted); }
         .photo-preview { max-width: 100%; max-height: 250px; border-radius: 8px; display: none; margin-top: 15px; margin-left: auto; margin-right: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
@@ -255,20 +253,24 @@
         #qr-reader { width: 100%; border-radius: 16px; overflow: hidden; background: black; }
         
         /* MENU */
-        .menu-btn { width: 100%; padding: 15px; text-align: left; background: none; border: none; border-bottom: 1px solid #F0F0F0; font-family: 'Prompt'; font-size: 1rem; color: var(--text-main); cursor: pointer; display: flex; align-items: center; gap: 12px; }
-        .menu-btn i { width: 24px; color: var(--text-muted); }
+        .menu-btn { width: 100%; padding: 15px; text-align: left; background: none; border: none; border-bottom: 1px solid #F0F0F0; font-family: 'Prompt'; font-size: 1rem; color: var(--text-main); cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.2s;}
+        .menu-btn:active { background: #F9FAFB; }
+        .menu-btn i { width: 24px; color: var(--text-muted); text-align: center;}
     </style>
 </head>
 <body>
 
+    <!-- Toast Notification Container -->
+    <div id="toast" class="toast"></div>
+
     <header>
         <div class="brand">
             <i class="fa-solid fa-fire-extinguisher"></i> FireCheck
-            <div id="statusBadge" class="header-status"><span id="statusDot" class="dot"></span> <span id="statusText">Offline</span></div>
         </div>
         <div class="header-actions">
+            <div id="statusBadge" class="header-status"><span id="statusDot" class="dot"></span> <span id="statusText">Offline</span></div>
             <input type="month" id="monthPicker" class="month-selector" onchange="App.changeMonth()">
-            <button class="btn-icon" onclick="UI.openModal('modalMenu')" style="color:white;"><i class="fa-solid fa-bars"></i></button>
+            <button class="btn-icon" onclick="UI.openModal('modalMenu')"><i class="fa-solid fa-ellipsis-vertical"></i></button>
         </div>
     </header>
 
@@ -293,8 +295,13 @@
                 <div class="defect-tags" id="defectTags"></div>
             </div>
 
+            <!-- ค้นหา + กรองสถานที่ -->
             <div class="search-container">
-                <input type="text" id="searchInput" class="input-box" style="margin-top:0; background:#FFF; border-radius:24px; padding-left:20px; border:none; box-shadow:0 2px 5px rgba(0,0,0,0.03);" placeholder="🔍 ค้นหารหัส, สถานที่..." onkeyup="App.renderList()">
+                <input type="text" id="searchInput" class="input-box" placeholder="🔍 ค้นหารหัสถัง..." onkeyup="App.renderList()">
+                <select id="locFilter" class="loc-select" onchange="App.renderList()">
+                    <option value="">ทุกโซนพื้นที่</option>
+                    <!-- ตัวเลือกจะถูกสร้างอัตโนมัติจาก JS -->
+                </select>
             </div>
             
             <div class="filter-chips">
@@ -308,7 +315,7 @@
 
 
         <!-- ======================= -->
-        <!-- VIEW: DASHBOARD (หน้าใหม่) -->
+        <!-- VIEW: DASHBOARD (หน้าแดชบอร์ด) -->
         <!-- ======================= -->
         <div id="viewDashboard" class="view-section">
             <h2 class="dash-title"><i class="fa-solid fa-chart-pie" style="color:var(--primary)"></i> สรุปผลการตรวจ </h2>
@@ -322,7 +329,7 @@
             <!-- === MONTHLY VIEW === -->
             <div id="dashMonthView">
                 <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
-                    <span style="font-size:0.9rem; color:#888; font-weight:400;" id="dashMonthLabel"></span>
+                    <span style="font-size:0.9rem; color:#888; font-weight:500;" id="dashMonthLabel"></span>
                 </div>
                 <!-- Grid 4 Cards -->
                 <div class="dash-grid">
@@ -367,12 +374,12 @@
                         <!-- จะถูกสร้างด้วย JS -->
                     </div>
                 </div>
-            </div> <!-- End Month View -->
+            </div>
 
             <!-- === YEARLY VIEW === -->
             <div id="dashYearView" style="display:none;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:flex-end;">
-                    <span style="font-size:0.9rem; color:#888; font-weight:400;" id="dashYearLabel"></span>
+                <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
+                    <span style="font-size:0.9rem; color:#888; font-weight:500;" id="dashYearLabel"></span>
                 </div>
                 
                 <div class="dash-grid">
@@ -396,9 +403,9 @@
                         <div class="legend-item"><div class="legend-color" style="background:var(--primary)"></div> มีปัญหา</div>
                     </div>
                 </div>
-            </div> <!-- End Year View -->
+            </div>
             
-            <div style="height: 60px;"></div> <!-- Spacer for scrolling past bottom nav -->
+            <div style="height: 60px;"></div>
         </div>
 
     </div> <!-- End Main Content -->
@@ -432,9 +439,9 @@
             <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                 <div>
                     <h2 style="margin:0; color:var(--text-main); font-size:1.4rem;">บันทึกผล</h2>
-                    <p id="inspectTitle" style="color:var(--text-muted); margin:4px 0 0 0; font-size:0.9rem;">FE-XX</p>
+                    <p id="inspectTitle" style="color:var(--text-muted); margin:4px 0 0 0; font-size:0.9rem; font-weight:600;">FE-XX</p>
                     <p id="inspectSubtitle" style="font-size:0.8rem; color:#888;">ประเภท: -</p>
-                    <p id="lastCheckInfo" style="font-size:0.75rem; color:var(--success); margin-top:4px; display:none;"><i class="fa-solid fa-clock-rotate-left"></i> ตรวจล่าสุด: <span id="lastCheckDate"></span></p>
+                    <p id="lastCheckInfo" style="font-size:0.75rem; color:var(--success); margin-top:4px; display:none; font-weight:500;"><i class="fa-solid fa-clock-rotate-left"></i> ตรวจล่าสุด: <span id="lastCheckDate"></span></p>
                 </div>
                 <button onclick="UI.closeModal('modalInspect')" style="background:none; border:none; font-size:1.8rem; color:#DDD; line-height:1;">&times;</button>
             </div>
@@ -473,11 +480,6 @@
                 <i class="fa-solid fa-plus-circle" style="color:var(--success)"></i> เพิ่มจุดตรวจใหม่
             </button>
 
-            <div style="margin-bottom: 20px;">
-                <label style="font-size:0.8rem; color:var(--text-muted);">เลือกเดือน</label>
-                <input type="month" id="monthPickerMenu" class="form-control" style="margin-top:5px;" onchange="App.changeMonthFromMenu()">
-            </div>
-
             <button class="menu-btn" onclick="App.backupData()"><i class="fa-solid fa-download"></i> สำรองข้อมูล (Backup)</button>
             <button class="menu-btn" onclick="document.getElementById('fileRestore').click()"><i class="fa-solid fa-upload"></i> กู้คืนข้อมูล (Restore)</button>
             <input type="file" id="fileRestore" style="display:none" accept=".json" onchange="App.restoreData(this)">
@@ -485,7 +487,7 @@
             <button class="menu-btn" onclick="App.clearData()" style="color:var(--primary); border-bottom:none;"><i class="fa-solid fa-trash"></i> ล้างข้อมูลทั้งหมด (Reset)</button>
             
             <div style="text-align:center; margin-top:30px;">
-                <button onclick="UI.closeModal('modalMenu')" style="background:none; border:1px solid #ddd; padding:10px 30px; border-radius:24px; color:#666;">ปิดเมนู</button>
+                <button onclick="UI.closeModal('modalMenu')" style="background:none; border:1px solid #ddd; padding:10px 30px; border-radius:24px; color:#666; font-family:'Prompt';">ปิดเมนู</button>
             </div>
         </div>
     </div>
@@ -500,7 +502,7 @@
             <input type="text" id="addSize" class="form-control" placeholder="ขนาด (เช่น 10 ปอนด์)">
             
             <button class="btn-save" onclick="App.addDevice()">บันทึกจุดใหม่</button>
-            <button onclick="UI.closeModal('modalAdd')" style="width:100%; margin-top:10px; background:none; border:none; padding:10px;">ยกเลิก</button>
+            <button onclick="UI.closeModal('modalAdd')" style="width:100%; margin-top:10px; background:none; border:none; padding:10px; font-family:'Prompt'; color:#666;">ยกเลิก</button>
         </div>
     </div>
 
@@ -510,13 +512,13 @@
             <div style="text-align:center;">
                 <h2 style="margin-bottom:20px;">สแกน QR Code</h2>
                 <div id="qr-reader"></div>
-                <p style="color:#90A4AE; margin:20px 0 10px;">หรือกรอกรหัสด้วยมือ</p>
+                <p style="color:#90A4AE; margin:20px 0 10px; font-size:0.9rem;">หรือกรอกรหัสด้วยมือ</p>
                 <div style="display:flex; gap:10px; justify-content:center;">
-                    <input type="text" id="manualId" class="form-control" style="margin:0; width:120px; text-transform:uppercase;" placeholder="FE-01">
-                    <button onclick="App.manualScan()" class="btn-save" style="margin-top:0; width:auto; padding:10px 20px;">GO</button>
+                    <input type="text" id="manualId" class="form-control" style="margin:0; width:130px; text-transform:uppercase;" placeholder="เช่น FE-01">
+                    <button onclick="App.manualScan()" class="btn-save" style="margin-top:0; width:auto; padding:10px 24px;">ค้นหา</button>
                 </div>
             </div>
-            <button onclick="UI.stopScanner()" style="width:100%; padding:14px; border:none; background:#F5F5F5; color:var(--text-muted); border-radius:12px; margin-top:20px; font-size:1rem;">ปิดกล้อง</button>
+            <button onclick="UI.stopScanner()" style="width:100%; padding:14px; border:none; background:#F5F5F5; color:var(--text-muted); border-radius:12px; margin-top:20px; font-size:1rem; font-family:'Prompt';">ปิดกล้อง</button>
         </div>
     </div>
 
@@ -619,6 +621,23 @@
             { id: "FE-90", type: "BF2000", size: "10 ปอนด์", loc: "AHU. Room" },
         ];
 
+        // --- TOAST NOTIFICATION SYSTEM ---
+        const Toast = {
+            show(msg, type = 'info') {
+                const el = document.getElementById('toast');
+                let icon = '<i class="fa-solid fa-info-circle" style="color:#40C4FF;"></i>';
+                if(type === 'success') icon = '<i class="fa-solid fa-circle-check" style="color:#00E676;"></i>';
+                if(type === 'error' || type === 'warning') icon = '<i class="fa-solid fa-circle-exclamation" style="color:#FF5252;"></i>';
+                
+                el.innerHTML = `${icon} <span>${msg}</span>`;
+                el.classList.add('show');
+                
+                // Clear existing timeout if multiple toasts are called
+                if(this.timeout) clearTimeout(this.timeout);
+                this.timeout = setTimeout(() => el.classList.remove('show'), 3000);
+            }
+        };
+
         const App = {
             data: [],
             cloudData: {}, 
@@ -630,14 +649,16 @@
             scanner: null,
             tempPhoto: null,
             autoSyncInterval: null,
-            currentTab: 'List', // Tab ปัจจุบัน
-            dashMode: 'month', // [NEW] โหมดของ Dashboard ('month' หรือ 'year')
+            currentTab: 'List',
+            dashMode: 'month', 
 
             init() {
                 const stored = localStorage.getItem('firePins_Ent_V5');
                 this.data = stored ? JSON.parse(stored) : DB_INIT.map(d => ({ ...d, history: {} }));
                 this.month = new Date().toISOString().slice(0, 7);
                 document.getElementById('monthPicker').value = this.month;
+                
+                this.populateLocationFilter(); // [NEW] จัดการ Dropdown สถานที่
                 this.updateOnlineStatus();
                 this.renderAll();
                 
@@ -646,63 +667,46 @@
                 this.handleDeepLink();
             },
 
-            // --- TAB NAVIGATION ---
-            switchTab(tabName) {
-                this.currentTab = tabName;
-                
-                // สลับปุ่ม
-                document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
-                document.getElementById('navBtn' + tabName).classList.add('active');
-                
-                // สลับ View
-                document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active'));
-                document.getElementById('view' + tabName).classList.add('active');
+            // [NEW] ดึงสถานที่ทั้งหมดมาใส่ใน Dropdown กรอง
+            populateLocationFilter() {
+                const select = document.getElementById('locFilter');
+                // หาค่าสถานที่ที่ไม่ซ้ำกัน
+                const uniqueLocs = [...new Set(this.data.map(item => {
+                    // ทำความสะอาดชื่อโซนเพื่อจัดกลุ่ม (ตัด (FHCx) ออก)
+                    return item.loc.split(' (')[0].trim();
+                }))].sort();
 
-                // ซ่อน/แสดง FAB ตามหน้า
-                const fabGroup = document.getElementById('fabGroup');
-                if(tabName === 'Dashboard') {
-                    fabGroup.style.display = 'none'; // ซ่อนปุ่มลอยหน้า Dashboard ให้ดูสะอาดตา
-                } else {
-                    fabGroup.style.display = 'flex';
-                }
-
-                this.renderAll();
+                uniqueLocs.forEach(loc => {
+                    const opt = document.createElement('option');
+                    opt.value = loc;
+                    opt.innerText = loc;
+                    select.appendChild(opt);
+                });
             },
 
             // --- TAB NAVIGATION ---
             switchTab(tabName) {
                 this.currentTab = tabName;
-                
-                // สลับปุ่ม
                 document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
                 document.getElementById('navBtn' + tabName).classList.add('active');
                 
-                // สลับ View
                 document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active'));
                 document.getElementById('view' + tabName).classList.add('active');
 
-                // ซ่อน/แสดง FAB ตามหน้า
                 const fabGroup = document.getElementById('fabGroup');
-                if(tabName === 'Dashboard') {
-                    fabGroup.style.display = 'none'; // ซ่อนปุ่มลอยหน้า Dashboard ให้ดูสะอาดตา
-                } else {
-                    fabGroup.style.display = 'flex';
-                }
+                if(tabName === 'Dashboard') fabGroup.style.display = 'none'; 
+                else fabGroup.style.display = 'flex';
 
                 this.renderAll();
             },
 
-            // [NEW] สลับโหมด Dashboard (เดือน / ปี)
             switchDashMode(mode) {
                 this.dashMode = mode;
-                
-                // สลับปุ่ม
                 document.getElementById('toggleMonth').classList.remove('active');
                 document.getElementById('toggleYear').classList.remove('active');
                 if(mode === 'month') document.getElementById('toggleMonth').classList.add('active');
                 if(mode === 'year') document.getElementById('toggleYear').classList.add('active');
                 
-                // สลับ Container
                 document.getElementById('dashMonthView').style.display = mode === 'month' ? 'block' : 'none';
                 document.getElementById('dashYearView').style.display = mode === 'year' ? 'block' : 'none';
                 
@@ -716,13 +720,13 @@
 
             updateOnlineStatus() {
                 const badge = document.querySelector('.dot');
-                const text = document.querySelector('.header-status');
+                const text = document.querySelector('#statusText');
                 if(CLOUD_URL.startsWith('http')) {
                     badge.classList.add('online');
-                    text.innerHTML = '<span class="dot online"></span> Real-time';
+                    text.innerText = 'Real-time';
                 } else {
                     badge.classList.remove('online');
-                    text.innerHTML = '<span class="dot"></span> Offline';
+                    text.innerText = 'Offline';
                 }
             },
 
@@ -763,21 +767,22 @@
 
                     this.cloudStatus = this.cloudData[this.month] || {};
                     this.renderAll();
+                    if(!silent) Toast.show("ซิงค์ข้อมูลล่าสุดแล้ว", "success");
                 })
-                .catch(err => console.error("Sync Error:", err))
+                .catch(err => {
+                    console.error("Sync Error:", err);
+                    if(!silent) Toast.show("ซิงค์ข้อมูลล้มเหลว", "error");
+                })
                 .finally(() => { if(!silent && btn) btn.classList.remove('fa-spin'); });
             },
 
-            // --- RENDER FUNCTIONS ---
             renderAll() {
-                // คำนวณสถิติหลักก่อน
                 const stats = this.calculateStats();
-                
                 if(this.currentTab === 'List') {
                     this.renderList(stats);
                 } else if (this.currentTab === 'Dashboard') {
                     this.renderDashboard(stats);
-                    this.renderYearlyDashboard(); // เรนเดอร์กราฟปีเตรียมไว้เสมอ
+                    this.renderYearlyDashboard();
                 }
             },
 
@@ -801,7 +806,6 @@
                     if (status === 'pass') pass++;
                     if (status === 'fail') {
                         fail++;
-                        // นับ Defect Topics
                         let topics = [];
                         if (localInfo && localInfo.failTopics) topics = localInfo.failTopics;
                         else if (cloudInfo && cloudInfo.failReason) topics = [cloudInfo.failReason];
@@ -818,12 +822,16 @@
             renderList(preCalcStats) {
                 const list = document.getElementById('list-container');
                 const search = document.getElementById('searchInput').value.toLowerCase();
+                const locFilter = document.getElementById('locFilter').value; // [NEW] ดึงค่าตัวกรองโซน
+
                 if(!list) return;
-                
                 const stats = preCalcStats || this.calculateStats();
                 list.innerHTML = '';
 
                 this.data.forEach(item => {
+                    // [NEW] กรองด้วย Location ก่อน
+                    if(locFilter && !item.loc.startsWith(locFilter)) return;
+
                     const cloudInfo = this.cloudStatus[item.id];
                     const localInfo = item.history[this.month];
                     
@@ -854,13 +862,13 @@
                         div.onclick = () => this.openInspect(item.id);
                         
                         let statusBadge = isInspected 
-                            ? (status==='pass' ? `<span style="color:var(--success)">✅ ปกติ (${timeShow})</span>` : `<span style="color:var(--warning)">⚠️ พบปัญหา (${timeShow})</span>`)
+                            ? (status==='pass' ? `<span style="color:var(--success)">✅ ปกติ (${timeShow})</span>` : `<span style="color:var(--primary)">⚠️ พบปัญหา (${timeShow})</span>`)
                             : `<span style="color:#999">รอตรวจ</span>`;
 
                         div.innerHTML = `
                             <div class="card-info">
                                 <h3>${item.id} - ${item.loc}</h3>
-                                <p>${item.type} ${statusBadge}</p>
+                                <p>${item.type} &bull; ${statusBadge}</p>
                                 ${isInspected ? `<span class="inspector-badge"><i class="fa-solid fa-user"></i> ${inspectorName}</span>` : ''}
                             </div>
                             <div class="status-icon"><i class="fa-solid ${status==='pass'?'fa-circle-check':(status==='fail'?'fa-triangle-exclamation':'fa-circle')}"></i></div>
@@ -869,7 +877,6 @@
                     }
                 });
 
-                // Update Mini Dashboard
                 const percent = stats.total ? Math.round((stats.done/stats.total)*100) : 0;
                 document.getElementById('progressFill').style.width = percent + '%';
                 document.getElementById('statsPercent').innerText = percent + '%';
@@ -878,29 +885,23 @@
 
                 const tagsDiv = document.getElementById('defectTags');
                 tagsDiv.innerHTML = Object.entries(stats.defectCounts)
-                    .map(([k,v]) => `<span class="d-tag">${k} ${v}</span>`).join('');
+                    .map(([k,v]) => `<span class="d-tag">${k} (${v})</span>`).join('');
             },
 
             renderDashboard(stats) {
-                // Update Labels
                 const mNames = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
                 const [y, m] = this.month.split('-');
-                document.getElementById('dashMonthLabel').innerText = `${mNames[parseInt(m)-1]} ${parseInt(y)+543}`;
+                document.getElementById('dashMonthLabel').innerText = `ประจำเดือน ${mNames[parseInt(m)-1]} ${parseInt(y)+543}`;
 
-                // Update Value Cards
                 document.getElementById('dashValTotal').innerText = stats.total;
                 document.getElementById('dashValPending').innerText = stats.pending;
                 document.getElementById('dashValPass').innerText = stats.pass;
                 document.getElementById('dashValFail').innerText = stats.fail;
 
-                // Update Donut Chart
                 const total = stats.total || 1;
                 const passPct = (stats.pass / total) * 100;
                 const failPct = (stats.fail / total) * 100;
-                // const pendingPct = (stats.pending / total) * 100;
                 
-                // CSS Conic Gradient string
-                // Pass (Green) -> Fail (Red) -> Pending (Gray)
                 const cPass = `var(--success) 0% ${passPct}%`;
                 const cFail = `var(--primary) ${passPct}% ${passPct + failPct}%`;
                 const cPend = `#ECEFF1 ${passPct + failPct}% 100%`;
@@ -908,7 +909,6 @@
                 document.getElementById('dashDonut').style.background = `conic-gradient(${cPass}, ${cFail}, ${cPend})`;
                 document.getElementById('dashDonutPct').innerText = Math.round((stats.done/total)*100) + '%';
 
-                // Update Top Defects List
                 const defectListEl = document.getElementById('dashDefectList');
                 defectListEl.innerHTML = '';
                 
@@ -935,7 +935,6 @@
                 }
             },
 
-            // [NEW] เรนเดอร์แดชบอร์ดรายปี
             renderYearlyDashboard() {
                 const year = this.month.split('-')[0];
                 document.getElementById('dashYearLabel').innerText = `ภาพรวมปี พ.ศ. ${parseInt(year) + 543}`;
@@ -948,7 +947,7 @@
 
                 let totalYearPass = 0;
                 let totalYearFail = 0;
-                const totalDevices = this.data.length; // จำนวนจุดตรวจตั้งต้นทั้งหมด
+                const totalDevices = this.data.length;
 
                 months.forEach((m, idx) => {
                     const targetMonth = `${year}-${m}`;
@@ -972,7 +971,6 @@
                     totalYearPass += pass;
                     totalYearFail += fail;
 
-                    // คำนวณความสูงของกราฟแท่ง (เทียบจากจำนวนจุดทั้งหมด)
                     const passPct = (pass / totalDevices) * 100;
                     const failPct = (fail / totalDevices) * 100;
 
@@ -991,21 +989,21 @@
                 document.getElementById('yearTotalFail').innerText = totalYearFail;
             },
 
-            // --- REST OF APP LOGIC ---
             addDevice() {
                 const id = document.getElementById('addId').value.toUpperCase().trim();
                 const loc = document.getElementById('addLoc').value.trim();
                 const type = document.getElementById('addType').value.trim();
                 const size = document.getElementById('addSize').value.trim();
 
-                if(!id || !loc) return alert('กรุณากรอกรหัสและสถานที่');
-                if(this.data.find(d => d.id === id)) return alert('รหัสถังนี้มีอยู่แล้ว');
+                if(!id || !loc) return Toast.show('กรุณากรอกรหัสและสถานที่', 'warning');
+                if(this.data.find(d => d.id === id)) return Toast.show('รหัสถังนี้มีอยู่แล้ว', 'error');
 
                 this.data.push({ id, loc, type, size, history: {} });
                 this.saveToStorage();
                 UI.closeModal('modalAdd');
+                this.populateLocationFilter(); // อัปเดต dropdown เผื่อมีโซนใหม่
                 this.renderAll();
-                alert('เพิ่มจุดตรวจสำเร็จ!');
+                Toast.show('เพิ่มจุดตรวจสำเร็จ!', 'success');
             },
 
             getChecklistItems(type) {
@@ -1018,7 +1016,8 @@
                 this.currentId = id;
                 const item = this.data.find(d => d.id === id);
                 const cloudInfo = this.cloudStatus[id];
-                if (cloudInfo) alert(`⚠️ จุดนี้ตรวจแล้วโดย: ${cloudInfo.inspector}\nเวลา: ${cloudInfo.time}\n(คุณสามารถบันทึกทับเพื่อแก้ไขได้)`);
+                
+                if (cloudInfo) Toast.show(`ตรวจแล้วโดย: ${cloudInfo.inspector} (สามารถแก้ได้)`, 'info');
 
                 const h = item.history[this.month];
                 document.getElementById('inspectTitle').innerText = `${item.id} : ${item.loc}`;
@@ -1107,7 +1106,7 @@
 
             save() {
                 const name = document.getElementById('inspectName').value.trim();
-                if (!name) return alert('กรุณาระบุชื่อผู้ตรวจสอบ');
+                if (!name) return Toast.show('กรุณาระบุชื่อผู้ตรวจสอบ', 'warning');
                 
                 const btn = document.getElementById('btnSave');
                 btn.disabled = true;
@@ -1153,11 +1152,17 @@
                         method: 'POST', mode: 'no-cors',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
-                    }).then(() => { alert("✅ บันทึกสำเร็จ!"); UI.closeModal('modalInspect'); })
-                    .catch(err => { alert("⚠️ บันทึกในเครื่องแล้ว (แต่ส่งออนไลน์ไม่ผ่าน)"); UI.closeModal('modalInspect'); })
+                    }).then(() => { 
+                        Toast.show("บันทึกเข้าระบบคลาวด์สำเร็จ!", "success"); 
+                        UI.closeModal('modalInspect'); 
+                    })
+                    .catch(err => { 
+                        Toast.show("บันทึกในเครื่องแล้ว (ส่งออนไลน์ไม่ผ่าน)", "warning"); 
+                        UI.closeModal('modalInspect'); 
+                    })
                     .finally(() => { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> บันทึกข้อมูล'; });
                 } else {
-                    alert("✅ บันทึกในเครื่องเรียบร้อย (Offline)");
+                    Toast.show("บันทึกในเครื่องเรียบร้อย (Offline)", "success");
                     UI.closeModal('modalInspect');
                     btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> บันทึกข้อมูล';
                 }
@@ -1174,14 +1179,6 @@
                 this.month = document.getElementById('monthPicker').value; 
                 this.cloudStatus = this.cloudData[this.month] || {}; 
                 this.renderAll(); 
-            },
-            
-            changeMonthFromMenu() {
-                this.month = document.getElementById('monthPickerMenu').value;
-                document.getElementById('monthPicker').value = this.month;
-                this.cloudStatus = this.cloudData[this.month] || {};
-                this.renderAll();
-                UI.closeModal('modalMenu');
             },
             
             exportExcel() {
@@ -1218,6 +1215,7 @@
                 link.href = URL.createObjectURL(blob);
                 link.download = `FireReport_${this.month}.csv`;
                 link.click();
+                Toast.show("ดาวน์โหลด Excel แล้ว", "success");
             },
 
             backupData() {
@@ -1226,6 +1224,7 @@
                 dl.setAttribute("href", dataStr);
                 dl.setAttribute("download", `FireCheck_Backup_${new Date().toISOString().slice(0,10)}.json`);
                 document.body.appendChild(dl); dl.click(); dl.remove();
+                Toast.show("สำรองข้อมูลสำเร็จ", "success");
             },
 
             restoreData(input) {
@@ -1233,14 +1232,26 @@
                 if(!file) return;
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    try { this.data = JSON.parse(e.target.result); this.saveToStorage(); this.renderAll(); alert('กู้คืนข้อมูลสำเร็จ!'); UI.closeModal('modalMenu'); } 
-                    catch(err) { alert('ไฟล์ไม่ถูกต้อง'); }
+                    try { 
+                        this.data = JSON.parse(e.target.result); 
+                        this.saveToStorage(); 
+                        this.populateLocationFilter();
+                        this.renderAll(); 
+                        Toast.show('กู้คืนข้อมูลสำเร็จ!', 'success'); 
+                        UI.closeModal('modalMenu'); 
+                    } 
+                    catch(err) { Toast.show('ไฟล์ไม่ถูกต้อง', 'error'); }
                 };
                 reader.readAsText(file);
             },
 
             saveToStorage() { localStorage.setItem('firePins_Ent_V5', JSON.stringify(this.data)); },
-            clearData() { if(confirm('ยืนยันลบข้อมูลการตรวจทั้งหมด? (ข้อมูลถัง 90 ใบจะยังอยู่)')) { localStorage.removeItem('firePins_Ent_V5'); location.reload(); } },
+            clearData() { 
+                if(confirm('ยืนยันลบข้อมูลการตรวจทั้งหมด? (ข้อมูลถัง 90 ใบจะยังอยู่)')) { 
+                    localStorage.removeItem('firePins_Ent_V5'); 
+                    location.reload(); 
+                } 
+            },
             
             handleDeepLink() {
                 const pid = new URLSearchParams(window.location.search).get('id');
@@ -1253,14 +1264,14 @@
                 this.scanner.render((txt) => {
                     let id = txt; if(txt.includes('id=')) id = txt.split('id=')[1];
                     const item = this.data.find(d => d.id === id);
-                    if(item) { UI.stopScanner(); this.openInspect(id); } else alert('ไม่พบรหัส: '+id);
+                    if(item) { UI.stopScanner(); this.openInspect(id); } else Toast.show('ไม่พบรหัส: '+id, 'error');
                 });
             },
 
             manualScan() {
                 const id = document.getElementById('manualId').value.toUpperCase().trim();
                 const item = this.data.find(d => d.id === id);
-                if(item) { UI.stopScanner(); this.openInspect(id); } else alert('ไม่พบรหัส');
+                if(item) { UI.stopScanner(); this.openInspect(id); } else Toast.show('ไม่พบรหัสในระบบ', 'error');
             }
         };
 
