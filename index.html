@@ -5,18 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>FireCheck Enterprise V5</title>
     
-    <!-- PWA & Mobile Web App Tags -->
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#D32F2F">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="FireCheck">
     <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Fire_extinguisher_icon.svg/512px-Fire_extinguisher_icon.svg.png">
     
-    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
-    <!-- QR Scanner Engine -->
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
     <style>
@@ -174,19 +172,19 @@
         
         .box-total { border-left: 4px solid var(--info); }
         .box-total .value { color: var(--info); }
-        .box-total::after { content: '\f1fb'; color: var(--info); } /* extinguisher */
+        .box-total::after { content: '\f1fb'; color: var(--info); }
 
         .box-pending { border-left: 4px solid var(--warning); }
         .box-pending .value { color: var(--warning); }
-        .box-pending::after { content: '\f017'; color: var(--warning); } /* clock */
+        .box-pending::after { content: '\f017'; color: var(--warning); }
 
         .box-pass { border-left: 4px solid var(--success); }
         .box-pass .value { color: var(--success); }
-        .box-pass::after { content: '\f058'; color: var(--success); } /* check-circle */
+        .box-pass::after { content: '\f058'; color: var(--success); }
 
         .box-fail { border-left: 4px solid var(--primary); background: #FFF5F6;}
         .box-fail .value { color: var(--primary); }
-        .box-fail::after { content: '\f071'; color: var(--primary); } /* exclamation-triangle */
+        .box-fail::after { content: '\f071'; color: var(--primary); }
 
         /* Donut Chart */
         .chart-card { background: white; border-radius: var(--radius); padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid #ECEFF1; margin-bottom: 20px; text-align: center; }
@@ -221,8 +219,6 @@
         .modal.show { display: flex; }
         .sheet { background: var(--surface); width: 100%; max-width: 600px; border-radius: 24px 24px 0 0; padding: 25px; max-height: 90dvh; overflow-y: auto; animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); padding-bottom: env(safe-area-inset-bottom); }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        
-        .sheet-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
         
         /* FORM COMPONENTS */
         .quick-pass-btn { width: 100%; padding: 14px; border: 2px solid var(--success); color: var(--success); background: rgba(46, 125, 50, 0.05); border-radius: 12px; font-weight: 600; font-family: 'Prompt'; cursor: pointer; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; font-size: 1rem;}
@@ -260,7 +256,6 @@
 </head>
 <body>
 
-    <!-- Toast Notification Container -->
     <div id="toast" class="toast"></div>
 
     <header>
@@ -276,9 +271,6 @@
 
     <div id="mainContent">
         
-        <!-- ======================= -->
-        <!-- VIEW: LIST (หน้าหลักเดิม) -->
-        <!-- ======================= -->
         <div id="viewList" class="view-section active">
             <div class="dashboard-mini">
                 <div class="progress-card">
@@ -295,12 +287,10 @@
                 <div class="defect-tags" id="defectTags"></div>
             </div>
 
-            <!-- ค้นหา + กรองสถานที่ -->
             <div class="search-container">
                 <input type="text" id="searchInput" class="input-box" placeholder="🔍 ค้นหารหัสถัง..." onkeyup="App.renderList()">
                 <select id="locFilter" class="loc-select" onchange="App.renderList()">
                     <option value="">ทุกโซนพื้นที่</option>
-                    <!-- ตัวเลือกจะถูกสร้างอัตโนมัติจาก JS -->
                 </select>
             </div>
             
@@ -313,25 +303,18 @@
             <div id="list-container"></div>
         </div>
 
-
-        <!-- ======================= -->
-        <!-- VIEW: DASHBOARD (หน้าแดชบอร์ด) -->
-        <!-- ======================= -->
         <div id="viewDashboard" class="view-section">
             <h2 class="dash-title"><i class="fa-solid fa-chart-pie" style="color:var(--primary)"></i> สรุปผลการตรวจ </h2>
             
-            <!-- Toggle Month / Year -->
             <div class="dash-toggle">
                 <button id="toggleMonth" class="active" onclick="App.switchDashMode('month')">รายเดือน</button>
                 <button id="toggleYear" onclick="App.switchDashMode('year')">รายปี</button>
             </div>
 
-            <!-- === MONTHLY VIEW === -->
             <div id="dashMonthView">
                 <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
                     <span style="font-size:0.9rem; color:#888; font-weight:500;" id="dashMonthLabel"></span>
                 </div>
-                <!-- Grid 4 Cards -->
                 <div class="dash-grid">
                     <div class="dash-box box-total">
                         <span class="label">รวมทั้งหมด</span>
@@ -351,7 +334,6 @@
                     </div>
                 </div>
 
-                <!-- Donut Chart -->
                 <div class="chart-card">
                     <div class="donut-wrapper">
                         <div class="donut-chart" id="dashDonut"></div>
@@ -367,16 +349,12 @@
                     </div>
                 </div>
 
-                <!-- Top Defects -->
                 <div class="chart-card">
                     <h3 style="margin: 0 0 15px 0; font-size: 1rem; text-align:left; color:var(--text-main);"><i class="fa-solid fa-list-ul"></i> อันดับปัญหาที่พบ</h3>
-                    <div id="dashDefectList" class="defect-list">
-                        <!-- จะถูกสร้างด้วย JS -->
-                    </div>
+                    <div id="dashDefectList" class="defect-list"></div>
                 </div>
             </div>
 
-            <!-- === YEARLY VIEW === -->
             <div id="dashYearView" style="display:none;">
                 <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
                     <span style="font-size:0.9rem; color:#888; font-weight:500;" id="dashYearLabel"></span>
@@ -395,9 +373,7 @@
 
                 <div class="chart-card">
                     <h3 style="margin: 0 0 5px 0; font-size: 1rem; text-align:left; color:var(--text-main);">สถิติการตรวจ 12 เดือน</h3>
-                    <div class="year-chart" id="yearChart">
-                        <!-- กราฟจะถูกสร้างด้วย JS -->
-                    </div>
+                    <div class="year-chart" id="yearChart"></div>
                     <div class="chart-legend" style="margin-top:10px;">
                         <div class="legend-item"><div class="legend-color" style="background:var(--success)"></div> ปกติ</div>
                         <div class="legend-item"><div class="legend-color" style="background:var(--primary)"></div> มีปัญหา</div>
@@ -407,43 +383,44 @@
             
             <div style="height: 60px;"></div>
         </div>
+    </div> 
 
-    </div> <!-- End Main Content -->
-
-
-    <!-- ======================= -->
-    <!-- BOTTOM NAVIGATION -->
-    <!-- ======================= -->
     <nav class="bottom-nav">
         <button class="nav-item active" id="navBtnList" onclick="App.switchTab('List')">
-            <i class="fa-solid fa-list-check"></i>
-            รายการตรวจ
+            <i class="fa-solid fa-list-check"></i> รายการตรวจ
         </button>
         <button class="nav-item" id="navBtnDashboard" onclick="App.switchTab('Dashboard')">
-            <i class="fa-solid fa-chart-line"></i>
-            แดชบอร์ด
+            <i class="fa-solid fa-chart-line"></i> แดชบอร์ด
         </button>
     </nav>
 
-
-    <!-- Floating Action Buttons -->
     <div class="fab-wrapper" id="fabGroup">
         <div class="fab fab-refresh" onclick="App.syncCloud()" title="อัปเดตข้อมูล"><i class="fa-solid fa-rotate"></i></div>
         <div class="fab fab-excel" onclick="App.exportExcel()" title="ส่งออก Excel"><i class="fa-solid fa-file-excel"></i></div>
         <div class="fab fab-scan" onclick="App.openScanner()" title="สแกน QR"><i class="fa-solid fa-qrcode"></i></div>
     </div>
 
-    <!-- INSPECT MODAL -->
     <div id="modalInspect" class="modal">
         <div class="sheet">
             <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                 <div>
-                    <h2 style="margin:0; color:var(--text-main); font-size:1.4rem;">บันทึกผล</h2>
+                    <h2 style="margin:0; color:var(--text-main); font-size:1.4rem;">
+                        บันทึกผล 
+                        <button onclick="App.openEdit()" style="background:none; border:none; color:var(--info); font-size:1rem; cursor:pointer; margin-left:8px;" title="แก้ไข">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                    </h2>
                     <p id="inspectTitle" style="color:var(--text-muted); margin:4px 0 0 0; font-size:0.9rem; font-weight:600;">FE-XX</p>
                     <p id="inspectSubtitle" style="font-size:0.8rem; color:#888;">ประเภท: -</p>
+                    <p id="inspectExpDate" style="font-size:0.75rem; color:var(--warning); margin-top:2px; font-weight:500;"></p>
                     <p id="lastCheckInfo" style="font-size:0.75rem; color:var(--success); margin-top:4px; display:none; font-weight:500;"><i class="fa-solid fa-clock-rotate-left"></i> ตรวจล่าสุด: <span id="lastCheckDate"></span></p>
                 </div>
-                <button onclick="UI.closeModal('modalInspect')" style="background:none; border:none; font-size:1.8rem; color:#DDD; line-height:1;">&times;</button>
+                <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
+                    <button onclick="UI.closeModal('modalInspect')" style="background:none; border:none; font-size:1.8rem; color:#DDD; line-height:1;">&times;</button>
+                    <button onclick="App.showHistory()" style="background:var(--bg-body); border:1px solid #CFD8DC; padding:6px 12px; border-radius:16px; font-size:0.75rem; font-family:'Prompt'; color:var(--secondary); cursor:pointer;">
+                        <i class="fa-solid fa-list"></i> ดูประวัติ
+                    </button>
+                </div>
             </div>
 
             <div style="margin-top:20px;">
@@ -471,7 +448,6 @@
         </div>
     </div>
 
-    <!-- MENU MODAL -->
     <div id="modalMenu" class="modal">
         <div class="sheet">
             <h2 style="margin-top:0; margin-bottom: 20px;">เมนูจัดการ</h2>
@@ -492,7 +468,6 @@
         </div>
     </div>
     
-    <!-- ADD MODAL -->
     <div id="modalAdd" class="modal">
         <div class="sheet">
             <h2 style="margin-top:0;">เพิ่มจุดตรวจใหม่</h2>
@@ -506,7 +481,41 @@
         </div>
     </div>
 
-    <!-- SCANNER MODAL -->
+    <div id="modalEdit" class="modal">
+        <div class="sheet">
+            <h2 style="margin-top:0;"><i class="fa-solid fa-pen-to-square" style="color:var(--info)"></i> แก้ไขข้อมูลถัง</h2>
+
+            <input type="text" id="editId" class="form-control" readonly style="background:#ECEFF1; color:#90A4AE; margin-top:0; margin-bottom: 15px;" placeholder="รหัสถัง">
+            <input type="text" id="editLoc" class="form-control" placeholder="สถานที่ติดตั้ง" style="margin-top:0; margin-bottom: 15px;">
+            <input type="text" id="editType" class="form-control" placeholder="ชนิดถัง (เช่น เคมีแห้ง)" style="margin-top:0; margin-bottom: 15px;">
+            <input type="text" id="editSize" class="form-control" placeholder="ขนาด (เช่น 10 ปอนด์)" style="margin-top:0; margin-bottom: 15px;">
+            
+            <label style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px; display: block;">วันหมดอายุ / วันทดสอบแรงดัน (Hydro Test)</label>
+            <input type="date" id="editExp" class="form-control" style="margin-top:0; margin-bottom: 20px;">
+            
+            <button class="btn-save" onclick="App.saveEditDevice()" style="background:var(--info); box-shadow: 0 4px 10px rgba(2, 136, 209, 0.25);">
+                <i class="fa-solid fa-floppy-disk"></i> บันทึกการแก้ไข
+            </button>
+            <button class="btn-save" onclick="App.deleteDevice()" style="background:#FFF; color:var(--primary); border: 2px solid var(--primary); margin-top:10px; box-shadow:none;">
+                <i class="fa-solid fa-trash"></i> ลบข้อมูลถังนี้
+            </button>
+            <button onclick="UI.closeModal('modalEdit')" style="width:100%; margin-top:10px; background:none; border:none; padding:10px; font-family:'Prompt'; color:#666; cursor:pointer;">ยกเลิก</button>
+        </div>
+    </div>
+
+    <div id="modalHistory" class="modal">
+        <div class="sheet">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h2 style="margin:0;"><i class="fa-solid fa-clock-rotate-left"></i> ประวัติการตรวจ</h2>
+                <button onclick="UI.closeModal('modalHistory')" style="background:none; border:none; font-size:1.8rem; color:#DDD; line-height:1;">&times;</button>
+            </div>
+            <p id="historyTitle" style="color:var(--text-muted); margin-top:0; font-size:0.9rem; font-weight:600;"></p>
+            
+            <div id="historyList" style="display:flex; flex-direction:column; gap:10px; max-height: 60vh; overflow-y:auto; padding-bottom:20px; margin-top:15px;">
+            </div>
+        </div>
+    </div>
+
     <div id="modalScan" class="modal">
         <div class="sheet">
             <div style="text-align:center;">
@@ -618,10 +627,9 @@
             { id: "FE-87", type: "Halotron", size: "10 ปอนด์", loc: "Production Area" },
             { id: "FE-88", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Production Area" },
             { id: "FE-89", type: "Halotron", size: "10 ปอนด์", loc: "Warehouse" },
-            { id: "FE-90", type: "BF2000", size: "10 ปอนด์", loc: "AHU. Room" },
+            { id: "FE-90", type: "BF2000", size: "10 ปอนด์", loc: "AHU. Room" }
         ];
 
-        // --- TOAST NOTIFICATION SYSTEM ---
         const Toast = {
             show(msg, type = 'info') {
                 const el = document.getElementById('toast');
@@ -632,7 +640,6 @@
                 el.innerHTML = `${icon} <span>${msg}</span>`;
                 el.classList.add('show');
                 
-                // Clear existing timeout if multiple toasts are called
                 if(this.timeout) clearTimeout(this.timeout);
                 this.timeout = setTimeout(() => el.classList.remove('show'), 3000);
             }
@@ -658,7 +665,7 @@
                 this.month = new Date().toISOString().slice(0, 7);
                 document.getElementById('monthPicker').value = this.month;
                 
-                this.populateLocationFilter(); // [NEW] จัดการ Dropdown สถานที่
+                this.populateLocationFilter();
                 this.updateOnlineStatus();
                 this.renderAll();
                 
@@ -667,15 +674,10 @@
                 this.handleDeepLink();
             },
 
-            // [NEW] ดึงสถานที่ทั้งหมดมาใส่ใน Dropdown กรอง
             populateLocationFilter() {
                 const select = document.getElementById('locFilter');
-                // หาค่าสถานที่ที่ไม่ซ้ำกัน
-                const uniqueLocs = [...new Set(this.data.map(item => {
-                    // ทำความสะอาดชื่อโซนเพื่อจัดกลุ่ม (ตัด (FHCx) ออก)
-                    return item.loc.split(' (')[0].trim();
-                }))].sort();
-
+                select.innerHTML = '<option value="">ทุกโซนพื้นที่</option>'; // Reset
+                const uniqueLocs = [...new Set(this.data.map(item => item.loc.split(' (')[0].trim()))].sort();
                 uniqueLocs.forEach(loc => {
                     const opt = document.createElement('option');
                     opt.value = loc;
@@ -684,7 +686,6 @@
                 });
             },
 
-            // --- TAB NAVIGATION ---
             switchTab(tabName) {
                 this.currentTab = tabName;
                 document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
@@ -822,14 +823,13 @@
             renderList(preCalcStats) {
                 const list = document.getElementById('list-container');
                 const search = document.getElementById('searchInput').value.toLowerCase();
-                const locFilter = document.getElementById('locFilter').value; // [NEW] ดึงค่าตัวกรองโซน
+                const locFilter = document.getElementById('locFilter').value; 
 
                 if(!list) return;
                 const stats = preCalcStats || this.calculateStats();
                 list.innerHTML = '';
 
                 this.data.forEach(item => {
-                    // [NEW] กรองด้วย Location ก่อน
                     if(locFilter && !item.loc.startsWith(locFilter)) return;
 
                     const cloudInfo = this.cloudStatus[item.id];
@@ -947,7 +947,7 @@
 
                 let totalYearPass = 0;
                 let totalYearFail = 0;
-                const totalDevices = this.data.length;
+                const totalDevices = this.data.length || 1;
 
                 months.forEach((m, idx) => {
                     const targetMonth = `${year}-${m}`;
@@ -998,10 +998,10 @@
                 if(!id || !loc) return Toast.show('กรุณากรอกรหัสและสถานที่', 'warning');
                 if(this.data.find(d => d.id === id)) return Toast.show('รหัสถังนี้มีอยู่แล้ว', 'error');
 
-                this.data.push({ id, loc, type, size, history: {} });
+                this.data.push({ id, loc, type, size, expDate: '', history: {} });
                 this.saveToStorage();
                 UI.closeModal('modalAdd');
-                this.populateLocationFilter(); // อัปเดต dropdown เผื่อมีโซนใหม่
+                this.populateLocationFilter();
                 this.renderAll();
                 Toast.show('เพิ่มจุดตรวจสำเร็จ!', 'success');
             },
@@ -1015,13 +1015,23 @@
             openInspect(id) {
                 this.currentId = id;
                 const item = this.data.find(d => d.id === id);
+                if(!item) return;
+
                 const cloudInfo = this.cloudStatus[id];
-                
-                if (cloudInfo) Toast.show(`ตรวจแล้วโดย: ${cloudInfo.inspector} (สามารถแก้ได้)`, 'info');
+                if (cloudInfo) Toast.show(`ตรวจแล้วโดย: ${cloudInfo.inspector}`, 'info');
 
                 const h = item.history[this.month];
                 document.getElementById('inspectTitle').innerText = `${item.id} : ${item.loc}`;
                 document.getElementById('inspectSubtitle').innerText = `ประเภท: ${item.type} (${item.size})`;
+                
+                const expEl = document.getElementById('inspectExpDate');
+                if(item.expDate) {
+                    expEl.innerHTML = `<i class="fa-solid fa-calendar-xmark"></i> วันหมดอายุ/เทสต์: ${item.expDate}`;
+                    expEl.style.display = 'block';
+                } else {
+                    expEl.style.display = 'none';
+                }
+
                 document.getElementById('inspectName').value = h?.inspector || '';
                 document.getElementById('inspectNote').value = h?.note || '';
                 
@@ -1051,6 +1061,94 @@
 
                 this.checkStatus();
                 UI.openModal('modalInspect');
+            },
+
+            openEdit() {
+                const item = this.data.find(d => d.id === this.currentId);
+                if(!item) return;
+                
+                document.getElementById('editId').value = item.id;
+                document.getElementById('editLoc').value = item.loc;
+                document.getElementById('editType').value = item.type;
+                document.getElementById('editSize').value = item.size;
+                document.getElementById('editExp').value = item.expDate || '';
+                
+                UI.openModal('modalEdit');
+            },
+
+            saveEditDevice() {
+                const id = document.getElementById('editId').value;
+                const loc = document.getElementById('editLoc').value.trim();
+                const type = document.getElementById('editType').value.trim();
+                const size = document.getElementById('editSize').value.trim();
+                const expDate = document.getElementById('editExp').value;
+
+                if(!loc) return Toast.show('กรุณาระบุสถานที่ติดตั้ง', 'warning');
+
+                const itemIndex = this.data.findIndex(d => d.id === id);
+                if(itemIndex > -1) {
+                    this.data[itemIndex].loc = loc;
+                    this.data[itemIndex].type = type;
+                    this.data[itemIndex].size = size;
+                    this.data[itemIndex].expDate = expDate;
+                    
+                    this.saveToStorage();
+                    this.populateLocationFilter();
+                    this.renderAll();
+                    UI.closeModal('modalEdit');
+                    this.openInspect(id);
+                    Toast.show('อัปเดตข้อมูลถังสำเร็จ!', 'success');
+                }
+            },
+
+            deleteDevice() {
+                const id = document.getElementById('editId').value;
+                if(confirm(`⚠️ คุณแน่ใจหรือไม่ว่าต้องการลบถังรหัส ${id} ออกจากระบบ?\n(ข้อมูลประวัติการตรวจทั้งหมดของถังนี้จะหายไป)`)) {
+                    this.data = this.data.filter(d => d.id !== id);
+                    this.saveToStorage();
+                    this.populateLocationFilter();
+                    this.renderAll();
+                    UI.closeModal('modalEdit');
+                    UI.closeModal('modalInspect');
+                    Toast.show(`ลบถัง ${id} เรียบร้อยแล้ว`, 'success');
+                }
+            },
+
+            showHistory() {
+                const item = this.data.find(d => d.id === this.currentId);
+                if(!item) return;
+
+                document.getElementById('historyTitle').innerText = `${item.id} - ${item.loc}`;
+                const listEl = document.getElementById('historyList');
+                listEl.innerHTML = '';
+
+                const monthsChecked = Object.keys(item.history).sort().reverse();
+
+                if(monthsChecked.length === 0) {
+                    listEl.innerHTML = '<div style="text-align:center; padding:20px; color:#999; font-size:0.9rem; background:#F5F5F5; border-radius:12px;">ยังไม่มีประวัติการตรวจในระบบเครื่องนี้</div>';
+                } else {
+                    monthsChecked.forEach(m => {
+                        const h = item.history[m];
+                        const isPass = h.status === 'pass';
+                        const color = isPass ? 'var(--success)' : 'var(--primary)';
+                        const icon = isPass ? 'fa-circle-check' : 'fa-triangle-exclamation';
+                        const failText = !isPass && h.failTopics ? `<br><span style="color:var(--primary); font-size:0.8rem;">ปัญหา: ${h.failTopics.join(', ')}</span>` : '';
+                        
+                        listEl.innerHTML += `
+                            <div style="border:1px solid #ECEFF1; border-radius:12px; padding:12px; background:#FFF; border-left:4px solid ${color};">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                    <span style="font-weight:600; font-size:0.95rem;">เดือน ${m}</span>
+                                    <span style="color:${color}; font-size:0.85rem; font-weight:600;"><i class="fa-solid ${icon}"></i> ${isPass ? 'ปกติ' : 'พบปัญหา'}</span>
+                                </div>
+                                <div style="font-size:0.85rem; color:var(--text-muted); line-height:1.4;">
+                                    <i class="fa-solid fa-user"></i> ผู้ตรวจ: ${h.inspector || '-'}<br>
+                                    <i class="fa-solid fa-calendar"></i> เวลา: ${h.time || '-'}${failText}
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                UI.openModal('modalHistory');
             },
 
             setAllPass() {
@@ -1247,7 +1345,7 @@
 
             saveToStorage() { localStorage.setItem('firePins_Ent_V5', JSON.stringify(this.data)); },
             clearData() { 
-                if(confirm('ยืนยันลบข้อมูลการตรวจทั้งหมด? (ข้อมูลถัง 90 ใบจะยังอยู่)')) { 
+                if(confirm('ยืนยันลบข้อมูลการตรวจทั้งหมด? (ข้อมูลถังจะยังอยู่)')) { 
                     localStorage.removeItem('firePins_Ent_V5'); 
                     location.reload(); 
                 } 
@@ -1260,11 +1358,23 @@
 
             openScanner() {
                 UI.openModal('modalScan');
-                this.scanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: 250 });
+                
+                // ปรับจูนกล้องมือถือให้สมูทและโฟกัสง่ายขึ้น
+                const config = { 
+                    fps: 15, 
+                    qrbox: { width: 250, height: 250 },
+                    aspectRatio: 1.0,
+                    videoConstraints: { facingMode: "environment" } // บังคับกล้องหลัง
+                };
+
+                this.scanner = new Html5QrcodeScanner("qr-reader", config, false);
                 this.scanner.render((txt) => {
                     let id = txt; if(txt.includes('id=')) id = txt.split('id=')[1];
                     const item = this.data.find(d => d.id === id);
-                    if(item) { UI.stopScanner(); this.openInspect(id); } else Toast.show('ไม่พบรหัส: '+id, 'error');
+                    if(item) { 
+                        UI.stopScanner(); 
+                        setTimeout(() => this.openInspect(id), 300); 
+                    } else { Toast.show('ไม่พบรหัส: '+id, 'error'); }
                 });
             },
 
@@ -1280,6 +1390,11 @@
             closeModal(id) { document.getElementById(id).classList.remove('show'); },
             stopScanner() { if(App.scanner) App.scanner.clear(); this.closeModal('modalScan'); }
         };
+
+        // สำหรับ PWA (ให้ติดตั้งแอปได้)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').then(() => console.log('Service Worker Registered'));
+        }
 
         window.onload = () => App.init();
     </script>
