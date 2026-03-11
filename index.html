@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FireCheck Enterprise V5</title>
+    <title>FireCheck Enterprise V6</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#D32F2F">
@@ -164,7 +164,7 @@
         .qr-card-screen img { width: 100px; height: 100px; margin-bottom: 8px; }
         .del-qr-btn { position: absolute; top: -5px; right: -5px; background: #D32F2F; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 
-        /* PRINT MEDIA QUERIES (รองรับทั้งปริ้น QR และ ปริ้น Report PDF) */
+        /* PRINT MEDIA QUERIES */
         @media print {
             body { background: white !important; height: auto !important; overflow: visible !important; }
             #toast, header, #mainContent, .bottom-nav, .fab-wrapper, #modalMenu, #modalAdd, #modalEdit, #modalHistory, #modalScan, #modalInspect { display: none !important; }
@@ -181,7 +181,7 @@
             /* Print PDF Report Mode */
             body.print-mode-report #modalReport { display: block !important; position: static !important; background: white !important; z-index: auto !important; padding: 0 !important; }
             body.print-mode-report #modalReport .sheet { max-width: none !important; width: 100% !important; background: transparent !important; border-radius: 0 !important; padding: 0 !important; max-height: none !important; overflow: visible !important; animation: none !important; }
-            body.print-mode-report #reportContainer { width: 100% !important; padding: 0 !important; margin: 0 !important; }
+            body.print-mode-report #reportContainer { width: 100% !important; padding: 0 !important; margin: 0 !important; box-shadow: none !important;}
             body.print-mode-report #modalPrintQR { display: none !important; }
         }
     </style>
@@ -224,7 +224,7 @@
             <div class="filter-chips">
                 <div class="chip active" id="filter-all" onclick="App.filter('all', this)">ทั้งหมด</div>
                 <div class="chip" id="filter-pending" onclick="App.filter('pending', this)">รอตรวจ</div>
-                <div class="chip" id="filter-fail" onclick="App.filter('fail', this)">มีปัญหา</div>
+                <div class="chip" id="filter-fail" onclick="App.filter('fail', this)">พบปัญหา</div>
             </div>
 
             <div id="list-container"></div>
@@ -257,7 +257,7 @@
                     <div class="donut-wrapper"><div class="donut-chart" id="dashDonut"></div><div class="donut-hole"><span class="pct" id="dashDonutPct">0%</span><span class="lbl">ความคืบหน้า</span></div></div>
                     <div class="chart-legend">
                         <div class="legend-item"><div class="legend-color" style="background:var(--success)"></div> ปกติ</div>
-                        <div class="legend-item"><div class="legend-color" style="background:var(--primary)"></div> มีปัญหา</div>
+                        <div class="legend-item"><div class="legend-color" style="background:var(--primary)"></div> พบปัญหา</div>
                         <div class="legend-item"><div class="legend-color" style="background:#ECEFF1"></div> รอตรวจ</div>
                     </div>
                 </div>
@@ -281,7 +281,7 @@
                     <div class="year-chart" id="yearChart"></div>
                     <div class="chart-legend" style="margin-top:10px;">
                         <div class="legend-item"><div class="legend-color" style="background:var(--success)"></div> ปกติ</div>
-                        <div class="legend-item"><div class="legend-color" style="background:var(--primary)"></div> มีปัญหา</div>
+                        <div class="legend-item"><div class="legend-color" style="background:var(--primary)"></div> พบปัญหา</div>
                     </div>
                 </div>
             </div>
@@ -370,7 +370,7 @@
     <div id="modalReport" class="modal" style="background: white; z-index: 9999; align-items: flex-start;">
         <div class="sheet" style="max-width: none; width: 100%; height: 100%; border-radius: 0; padding: 0; display: flex; flex-direction: column; background: white;">
             <div class="no-print" style="padding: 15px 20px; background: #F5F7FA; border-bottom: 1px solid #ECEFF1; display: flex; justify-content: space-between; align-items: center;">
-                <h2 style="margin:0; font-size: 1.2rem;"><i class="fa-solid fa-file-pdf" style="color:var(--primary)"></i> รายงานประจำเดือน</h2>
+                <h2 style="margin:0; font-size: 1.2rem;"><i class="fa-solid fa-file-pdf" style="color:var(--primary)"></i> รายงานประจำเดือน (รูปแบบทางการ)</h2>
                 <button onclick="UI.closeModal('modalReport')" style="background:none; border:none; font-size:1.8rem; color:#999; line-height:1;">&times;</button>
             </div>
             <div class="no-print" style="padding: 15px; text-align: center; background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.05); z-index: 10;">
@@ -576,8 +576,9 @@
                 let total=0, done=0, pass=0, fail=0; const defectCounts = {};
                 this.data.forEach(item => {
                     total++; const cloudInfo = this.cloudStatus[item.id]; const localInfo = item.history[this.month]; let status = 'pending';
-                    if (cloudInfo) { const s = String(cloudInfo.status).toLowerCase(); status = (s === 'pass' || (s.includes('ปกติ') && !s.includes('ผิด'))) ? 'pass' : 'fail'; } 
-                    if (localInfo) status = localInfo.status;
+                    if (localInfo) { status = localInfo.status; }
+                    else if (cloudInfo) { const s = String(cloudInfo.status).toLowerCase(); status = (s === 'pass' || (s.includes('ปกติ') && !s.includes('ผิด'))) ? 'pass' : 'fail'; } 
+                    
                     if (status !== 'pending') done++;
                     if (status === 'pass') pass++;
                     if (status === 'fail') {
@@ -589,6 +590,14 @@
                 return { total, done, pass, fail, pending: total - done, defectCounts };
             },
 
+            // ✅ บั๊กเรื่องปุ่มกรองแก้ไขแล้วที่นี่ครับ
+            filter(type, btn) {
+                this.filterType = type;
+                document.querySelectorAll('.chip').forEach(b => b.classList.remove('active')); 
+                if(btn) btn.classList.add('active'); 
+                this.renderAll();
+            },
+
             renderList(preCalcStats) {
                 const list = document.getElementById('list-container'); const search = document.getElementById('searchInput').value.toLowerCase(); const locFilter = document.getElementById('locFilter').value; 
                 if(!list) return; const stats = preCalcStats || this.calculateStats(); list.innerHTML = '';
@@ -598,14 +607,15 @@
                     const cloudInfo = this.cloudStatus[item.id]; const localInfo = item.history[this.month];
                     let status = 'pending'; let inspectorName = ''; let timeShow = '';
                     
-                    if (cloudInfo) { const s = String(cloudInfo.status).toLowerCase(); status = (s === 'pass' || (s.includes('ปกติ') && !s.includes('ผิด'))) ? 'pass' : 'fail'; inspectorName = cloudInfo.inspector; timeShow = cloudInfo.time.split(' ')[1] || ''; } 
                     if (localInfo) { status = localInfo.status; inspectorName = localInfo.inspector; timeShow = localInfo.time.split(' ')[1] || ''; }
+                    else if (cloudInfo) { const s = String(cloudInfo.status).toLowerCase(); status = (s === 'pass' || (s.includes('ปกติ') && !s.includes('ผิด'))) ? 'pass' : 'fail'; inspectorName = cloudInfo.inspector; timeShow = cloudInfo.time.split(' ')[1] || ''; } 
 
-                    const isInspected = status !== 'pending';
-                    if (this.filterType === 'pending' && isInspected) return;
+                    // กรองข้อมูลตามปุ่มให้ถูกต้อง
+                    if (this.filterType === 'pending' && status !== 'pending') return;
                     if (this.filterType === 'fail' && status !== 'fail') return;
                     
                     if(!search || (item.id+item.loc+item.type).toLowerCase().includes(search)) {
+                        const isInspected = status !== 'pending';
                         const div = document.createElement('div'); div.className = `card ${status}`; div.onclick = () => this.openInspect(item.id);
                         let statusBadge = isInspected ? (status==='pass' ? `<span style="color:var(--success)">✅ ปกติ (${timeShow})</span>` : `<span style="color:var(--primary)">⚠️ พบปัญหา (${timeShow})</span>`) : `<span style="color:#999">รอตรวจ</span>`;
                         div.innerHTML = `<div class="card-info"><h3>${item.id} - ${item.loc}</h3><p>${item.type} &bull; ${statusBadge}</p>${isInspected ? `<span class="inspector-badge"><i class="fa-solid fa-user"></i> ${inspectorName}</span>` : ''}</div><div class="status-icon"><i class="fa-solid ${status==='pass'?'fa-circle-check':(status==='fail'?'fa-triangle-exclamation':'fa-circle')}"></i></div>`;
@@ -626,7 +636,7 @@
                 const cPass = `var(--success) 0% ${passPct}%`; const cFail = `var(--primary) ${passPct}% ${passPct + failPct}%`; const cPend = `#ECEFF1 ${passPct + failPct}% 100%`;
                 document.getElementById('dashDonut').style.background = `conic-gradient(${cPass}, ${cFail}, ${cPend})`; document.getElementById('dashDonutPct').innerText = Math.round((stats.done/total)*100) + '%';
                 const defectListEl = document.getElementById('dashDefectList'); defectListEl.innerHTML = ''; const sortedDefects = Object.entries(stats.defectCounts).sort((a,b) => b[1] - a[1]);
-                if(sortedDefects.length === 0) { defectListEl.innerHTML = '<div class="no-data-msg">ยังไม่พบปัญหาในเดือนนี้ 🎉</div>'; } else {
+                if(sortedDefects.length === 0) { defectListEl.innerHTML = '<div class="no-data-msg">ไม่พบปัญหาในเดือนนี้ 🎉</div>'; } else {
                     let maxDefect = sortedDefects[0][1];
                     sortedDefects.forEach(([topic, count]) => {
                         const barWidth = (count / maxDefect) * 100;
@@ -644,13 +654,13 @@
                     const targetMonth = `${year}-${m}`; let pass = 0, fail = 0;
                     this.data.forEach(item => {
                         let status = 'pending'; const cloudInfo = this.cloudData[targetMonth] ? this.cloudData[targetMonth][item.id] : null; const localInfo = item.history[targetMonth];
-                        if (cloudInfo) { const s = String(cloudInfo.status).toLowerCase(); status = (s === 'pass' || (s.includes('ปกติ') && !s.includes('ผิด'))) ? 'pass' : 'fail'; }
-                        if (localInfo) status = localInfo.status;
+                        if (localInfo) { status = localInfo.status; }
+                        else if (cloudInfo) { const s = String(cloudInfo.status).toLowerCase(); status = (s === 'pass' || (s.includes('ปกติ') && !s.includes('ผิด'))) ? 'pass' : 'fail'; }
                         if(status === 'pass') pass++; if(status === 'fail') fail++;
                     });
                     totalYearPass += pass; totalYearFail += fail;
                     const passPct = (pass / totalDevices) * 100; const failPct = (fail / totalDevices) * 100;
-                    chartEl.innerHTML += `<div class="y-col"><div class="y-bar-wrap"><div class="y-bar-fail" style="height: ${failPct}%;" title="ปัญหา ${fail}"></div><div class="y-bar-pass" style="height: ${passPct}%;" title="ปกติ ${pass}"></div></div><span class="y-lbl">${mNames[idx]}</span></div>`;
+                    chartEl.innerHTML += `<div class="y-col"><div class="y-bar-wrap"><div class="y-bar-fail" style="height: ${failPct}%;" title="พบปัญหา ${fail}"></div><div class="y-bar-pass" style="height: ${passPct}%;" title="ปกติ ${pass}"></div></div><span class="y-lbl">${mNames[idx]}</span></div>`;
                 });
                 document.getElementById('yearTotalPass').innerText = totalYearPass; document.getElementById('yearTotalFail').innerText = totalYearFail;
             },
@@ -688,23 +698,27 @@
                 });
                 this.checkStatus();
                 
-                // ตรวจสอบว่าต้องโชว์ปุ่มปิดจ็อบซ่อมไหม (ถ้าสถานะปัจจุบันคือ Fail)
+                // ควบคุมปุ่ม ปิดจ็อบซ่อม
                 const currentStatus = h?.status || (cloudInfo && (String(cloudInfo.status).toLowerCase() === 'pass' || String(cloudInfo.status).includes('ปกติ') ? 'pass' : 'fail'));
                 document.getElementById('btnResolve').style.display = (currentStatus === 'fail') ? 'flex' : 'none';
 
                 UI.openModal('modalInspect');
             },
 
-            // --- ฟังก์ชันสำหรับ จป. ปิดจ็อบงานซ่อม ---
+            // 🌟 อัปเกรด: แจ้งรายละเอียดการซ่อม
             resolveIssue() {
-                if(!confirm('ยืนยันว่า "ถังดับเพลิงใบนี้ได้รับการซ่อมแซมเรียบร้อยแล้ว" ใช่หรือไม่?')) return;
-                this.setAllPass(); // ติ๊กถูกทุกข้อ
+                const detail = prompt('กรุณาระบุรายละเอียดการซ่อมแซม/เปลี่ยนอะไหล่:', 'เปลี่ยนอะไหล่เรียบร้อยแล้ว');
+                if(detail === null) return; // กดยกเลิก
+                
+                this.setAllPass(); 
                 const noteEl = document.getElementById('inspectNote');
-                noteEl.value = (noteEl.value ? noteEl.value + " | " : "") + "ได้รับการซ่อมแซม/เปลี่ยนอะไหล่เรียบร้อยแล้ว";
-                this.save(); // กดเซฟอัตโนมัติ
+                const prefix = noteEl.value ? noteEl.value + " | " : "";
+                noteEl.value = prefix + "[ซ่อมแล้ว: " + detail + "]";
+                this.save();
+                Toast.show("บันทึกการซ่อมแซมสำเร็จ!", "success");
             },
 
-            // --- ฟังก์ชันสร้างรายงานประจำเดือน PDF สำหรับ จป. ---
+            // 🌟 อัปเกรด: แบบฟอร์มรายงาน PDF มาตรฐาน ISO
             generateReport() {
                 UI.closeModal('modalMenu');
                 const stats = this.calculateStats();
@@ -714,66 +728,83 @@
                 const monthTh = `${mNames[parseInt(m)-1]} ${parseInt(y)+543}`;
 
                 let failItemsHtml = '';
+                let noFailMessage = '';
+                let runNo = 1;
+                
                 this.data.forEach(item => {
                     const cloudInfo = this.cloudStatus[item.id];
                     const localInfo = item.history[this.month];
                     let status = 'pending'; let failReason = ''; let note = '';
 
-                    if (cloudInfo) {
-                        const s = String(cloudInfo.status).toLowerCase();
-                        status = (s === 'pass' || (s.includes('ปกติ') && !s.includes('ผิด'))) ? 'pass' : 'fail';
-                        failReason = cloudInfo.failReason || ''; note = cloudInfo.note || '';
-                    }
-                    if (localInfo) {
-                        status = localInfo.status; failReason = localInfo.failTopics ? localInfo.failTopics.join(', ') : ''; note = localInfo.note || '';
-                    }
+                    if (localInfo) { status = localInfo.status; failReason = localInfo.failTopics ? localInfo.failTopics.join(', ') : ''; note = localInfo.note || ''; }
+                    else if (cloudInfo) { const s = String(cloudInfo.status).toLowerCase(); status = (s === 'pass' || (s.includes('ปกติ') && !s.includes('ผิด'))) ? 'pass' : 'fail'; failReason = cloudInfo.failReason || ''; note = cloudInfo.note || ''; }
 
-                    if (status === 'fail') {
-                        failItemsHtml += `<tr><td style="border: 1px solid #000; padding: 10px; text-align:center;">${item.id}</td><td style="border: 1px solid #000; padding: 10px;">${item.loc}</td><td style="border: 1px solid #000; padding: 10px; color:red;">${failReason}</td><td style="border: 1px solid #000; padding: 10px;">${note}</td></tr>`;
+                    // ถ้าเป็นถังที่พัง หรือเพิ่งถูกซ่อม (มีคำว่า [ซ่อมแล้ว] ในหมายเหตุ) ก็จะดึงมาโชว์ในรายงานด้วย
+                    if (status === 'fail' || note.includes('[ซ่อมแล้ว')) {
+                        let finalStatus = status === 'fail' ? '<span style="color:red; font-weight:bold;">พบปัญหา</span>' : '<span style="color:green; font-weight:bold;">ซ่อมแล้ว</span>';
+                        failItemsHtml += `<tr><td style="border: 1px solid #000; padding: 8px; text-align:center;">${runNo}</td><td style="border: 1px solid #000; padding: 8px; text-align:center;">${item.id}</td><td style="border: 1px solid #000; padding: 8px;">${item.loc}</td><td style="border: 1px solid #000; padding: 8px; text-align:center;">${finalStatus}</td><td style="border: 1px solid #000; padding: 8px;">${failReason} ${note ? '<br><span style="color:#666; font-size:12px;">หมายเหตุ: '+note+'</span>' : ''}</td></tr>`;
+                        runNo++;
                     }
                 });
 
-                if (failItemsHtml === '') { failItemsHtml = `<tr><td colspan="4" style="border: 1px solid #000; padding: 15px; text-align:center; color:green; font-weight:bold;">🎉 ไม่พบอุปกรณ์ชำรุดในเดือนนี้ (100% Pass)</td></tr>`; }
+                if (failItemsHtml === '') { noFailMessage = `<tr><td colspan="5" style="border: 1px solid #000; padding: 20px; text-align:center; color:green; font-weight:bold;">ไม่พบอุปกรณ์ชำรุดในเดือนนี้</td></tr>`; }
 
                 reportEl.innerHTML = `
-                    <div style="text-align:center; margin-bottom:30px;">
-                        <h2 style="font-size:28px; margin:0 0 5px 0;">รายงานผลการตรวจสอบอุปกรณ์ดับเพลิง</h2>
-                        <h3 style="font-size:20px; margin:0; font-weight:normal; color:#666;">ประจำเดือน ${monthTh}</h3>
+                    <div style="display:flex; justify-content:space-between; border-bottom: 3px solid #000; padding-bottom:15px; margin-bottom: 20px;">
+                        <div>
+                            <h2 style="margin:0; font-size: 24px; text-transform:uppercase;">รายงานการตรวจสอบอุปกรณ์ดับเพลิง</h2>
+                            <p style="margin:5px 0 0 0; color:#555; font-size: 16px;">(Monthly Fire Extinguisher Inspection Report)</p>
+                            <p style="margin:5px 0 0 0; font-weight:bold; color:var(--primary);">ประจำเดือน: ${monthTh}</p>
+                        </div>
+                        <div style="text-align:right; font-size:12px; line-height:1.5;">
+                            <table style="border-collapse: collapse; text-align:left; float:right;">
+                                <tr><td style="border:1px solid #000; padding:2px 8px; font-weight:bold;">Doc No.</td><td style="border:1px solid #000; padding:2px 8px;">FM-OHS-001</td></tr>
+                                <tr><td style="border:1px solid #000; padding:2px 8px; font-weight:bold;">Rev.</td><td style="border:1px solid #000; padding:2px 8px;">00</td></tr>
+                                <tr><td style="border:1px solid #000; padding:2px 8px; font-weight:bold;">Date</td><td style="border:1px solid #000; padding:2px 8px;">${new Date().toLocaleDateString('th-TH')}</td></tr>
+                            </table>
+                        </div>
                     </div>
-                    <div style="display:flex; justify-content:space-between; margin-bottom:30px;">
-                        <div style="width:31%; padding:15px; border:2px solid #333; text-align:center; border-radius:8px;">
-                            <div style="font-size:16px; color:#555;">จำนวนถังทั้งหมด</div><div style="font-size:32px; font-weight:bold;">${stats.total}</div>
+
+                    <div style="display:flex; justify-content:space-between; margin-bottom:25px;">
+                        <div style="width:31%; padding:10px; border:1px solid #333; text-align:center;">
+                            <div style="font-size:14px; color:#555;">จำนวนอุปกรณ์ทั้งหมด (ถัง)</div><div style="font-size:26px; font-weight:bold;">${stats.total}</div>
                         </div>
-                        <div style="width:31%; padding:15px; border:2px solid #2E7D32; background:#E8F5E9; text-align:center; border-radius:8px;">
-                            <div style="font-size:16px; color:#2E7D32;">สภาพปกติ (Pass)</div><div style="font-size:32px; font-weight:bold; color:#2E7D32;">${stats.pass}</div>
+                        <div style="width:31%; padding:10px; border:1px solid #2E7D32; background:#E8F5E9; text-align:center;">
+                            <div style="font-size:14px; color:#2E7D32;">สภาพปกติพร้อมใช้งาน (Pass)</div><div style="font-size:26px; font-weight:bold; color:#2E7D32;">${stats.pass}</div>
                         </div>
-                        <div style="width:31%; padding:15px; border:2px solid #D32F2F; background:#FFEBEE; text-align:center; border-radius:8px;">
-                            <div style="font-size:16px; color:#D32F2F;">พบปัญหา (Fail)</div><div style="font-size:32px; font-weight:bold; color:#D32F2F;">${stats.fail}</div>
+                        <div style="width:31%; padding:10px; border:1px solid #D32F2F; background:#FFEBEE; text-align:center;">
+                            <div style="font-size:14px; color:#D32F2F;">พบปัญหา / รอซ่อม (Fail)</div><div style="font-size:26px; font-weight:bold; color:#D32F2F;">${stats.fail}</div>
                         </div>
                     </div>
-                    <h4 style="margin: 0 0 15px 0; font-size:18px;">⚠️ รายการอุปกรณ์ที่ชำรุด / แจ้งซ่อมบำรุง</h4>
-                    <table style="width:100%; border-collapse: collapse; margin-bottom: 60px; font-size:14px;">
+
+                    <h4 style="margin: 0 0 10px 0; font-size:16px;">ตารางสรุปรายการอุปกรณ์ที่พบปัญหา / การซ่อมบำรุง</h4>
+                    <table style="width:100%; border-collapse: collapse; margin-bottom: 40px; font-size:14px;">
                         <thead>
-                            <tr style="background-color: #333; color:white;">
-                                <th style="border: 1px solid #000; padding: 10px; width:15%;">รหัสถัง</th>
-                                <th style="border: 1px solid #000; padding: 10px; width:25%;">สถานที่ติดตั้ง</th>
-                                <th style="border: 1px solid #000; padding: 10px; width:35%;">สาเหตุที่ชำรุด</th>
-                                <th style="border: 1px solid #000; padding: 10px; width:25%;">หมายเหตุ</th>
+                            <tr style="background-color: #EEE; color:black;">
+                                <th style="border: 1px solid #000; padding: 8px; width:5%;">No.</th>
+                                <th style="border: 1px solid #000; padding: 8px; width:15%;">รหัสถัง</th>
+                                <th style="border: 1px solid #000; padding: 8px; width:25%;">สถานที่ติดตั้ง</th>
+                                <th style="border: 1px solid #000; padding: 8px; width:15%;">สถานะ</th>
+                                <th style="border: 1px solid #000; padding: 8px; width:40%;">รายละเอียดปัญหา / การแก้ไข</th>
                             </tr>
                         </thead>
-                        <tbody>${failItemsHtml}</tbody>
+                        <tbody>${failItemsHtml}${noFailMessage}</tbody>
                     </table>
+
                     <div style="display:flex; justify-content:space-around; margin-top:80px; text-align:center;">
-                        <div style="width:40%;">
-                            <p style="margin:0 0 10px 0; border-bottom:1px dashed #000; display:inline-block; width:80%; height:20px;"></p>
-                            <p style="margin:0;">(.............................................................)</p>
-                            <p style="margin:5px 0 0 0; font-weight:bold;">ผู้ตรวจสอบ</p>
+                        <div style="width:30%;">
+                            <p style="margin:0 0 10px 0; border-bottom:1px solid #000; display:inline-block; width:100%; height:20px;"></p>
+                            <p style="margin:5px 0 0 0; font-weight:bold;">( ผู้ตรวจสอบ )</p>
                             <p style="margin:5px 0 0 0; font-size:14px;">วันที่ ....... / ....... / .......</p>
                         </div>
-                        <div style="width:40%;">
-                            <p style="margin:0 0 10px 0; border-bottom:1px dashed #000; display:inline-block; width:80%; height:20px;"></p>
-                            <p style="margin:0;">(.............................................................)</p>
-                            <p style="margin:5px 0 0 0; font-weight:bold;">เจ้าหน้าที่ความปลอดภัย (จป.วิชาชีพ)</p>
+                        <div style="width:30%;">
+                            <p style="margin:0 0 10px 0; border-bottom:1px solid #000; display:inline-block; width:100%; height:20px;"></p>
+                            <p style="margin:5px 0 0 0; font-weight:bold;">( จป. วิชาชีพ )</p>
+                            <p style="margin:5px 0 0 0; font-size:14px;">วันที่ ....... / ....... / .......</p>
+                        </div>
+                        <div style="width:30%;">
+                            <p style="margin:0 0 10px 0; border-bottom:1px solid #000; display:inline-block; width:100%; height:20px;"></p>
+                            <p style="margin:5px 0 0 0; font-weight:bold;">( ผู้รับรอง / ผู้จัดการ )</p>
                             <p style="margin:5px 0 0 0; font-size:14px;">วันที่ ....... / ....... / .......</p>
                         </div>
                     </div>
