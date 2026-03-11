@@ -14,55 +14,23 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
     <style>
-        /* --- DESIGN SYSTEM (Red Theme) --- */
         :root {
-            --primary: #D32F2F;          
-            --primary-dark: #B71C1C;
-            --secondary: #263238;       
-            --success: #2E7D32;          
-            --warning: #F9A825;
-            --info: #0288D1;          
-            --bg-body: #F5F7FA;
-            --surface: #FFFFFF;
-            --text-main: #201F1E;
-            --text-muted: #605E5C;
-            --radius: 16px;
-            --header-h: 64px;
-            --nav-h: 65px;
+            --primary: #D32F2F; --primary-dark: #B71C1C; --secondary: #263238;       
+            --success: #2E7D32; --warning: #F9A825; --info: #0288D1;          
+            --bg-body: #F5F7FA; --surface: #FFFFFF; --text-main: #201F1E;
+            --text-muted: #605E5C; --radius: 16px; --header-h: 64px; --nav-h: 65px;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { 
-            font-family: 'Prompt', sans-serif; 
-            background-color: var(--bg-body); 
-            color: var(--text-main);
-            margin: 0; height: 100dvh; 
-            display: flex; flex-direction: column; 
-            overflow: hidden;
-            overscroll-behavior-y: none;
-        }
+        body { font-family: 'Prompt', sans-serif; background-color: var(--bg-body); color: var(--text-main); margin: 0; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; overscroll-behavior-y: none; }
 
-        /* TOAST NOTIFICATION */
-        .toast {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
-            background: #333; color: white; padding: 12px 24px; border-radius: 30px;
-            z-index: 9999; opacity: 0; transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.2); font-size: 0.95rem; font-weight: 500;
-            display: flex; align-items: center; gap: 10px; white-space: nowrap; pointer-events: none;
-        }
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: #333; color: white; padding: 12px 24px; border-radius: 30px; z-index: 9999; opacity: 0; transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); box-shadow: 0 6px 16px rgba(0,0,0,0.2); font-size: 0.95rem; font-weight: 500; display: flex; align-items: center; gap: 10px; white-space: nowrap; pointer-events: none; }
         .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
 
-        /* HEADER */
-        header { 
-            height: var(--header-h); background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white;
-            padding: 0 16px; display: flex; justify-content: space-between; align-items: center; 
-            box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3); z-index: 50; flex-shrink: 0; 
-            padding-top: env(safe-area-inset-top);
-        }
+        header { height: var(--header-h); background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 0 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3); z-index: 50; flex-shrink: 0; padding-top: env(safe-area-inset-top); }
         .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 1.25rem; letter-spacing: 0.5px;}
         .brand i { font-size: 1.4rem; color: #FFF; }
         .header-actions { display: flex; align-items: center; gap: 10px; }
@@ -71,56 +39,35 @@
         .header-status { font-size: 0.7rem; background: rgba(0,0,0,0.15); padding: 4px 10px; border-radius: 12px; display: flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.1); font-weight: 500;}
         .dot { width: 8px; height: 8px; background: #EEE; border-radius: 50%; }
         .dot.online { background: #00E676; box-shadow: 0 0 6px #00E676; }
-
-        .month-selector {
-            padding: 6px 12px; border: 1px solid rgba(255,255,255,0.2); 
-            border-radius: 20px; font-family: 'Prompt'; font-size: 0.85rem; 
-            background: rgba(0,0,0,0.1); color: white; outline: none; font-weight: 500;
-        }
+        .month-selector { padding: 6px 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; font-family: 'Prompt'; font-size: 0.85rem; background: rgba(0,0,0,0.1); color: white; outline: none; font-weight: 500; }
         .month-selector option { color: #333; }
 
-        /* VIEW CONTAINER */
         #mainContent { flex: 1; position: relative; overflow: hidden; display: flex; flex-direction: column; }
         .view-section { display: none; flex-direction: column; height: 100%; overflow: hidden; }
         .view-section.active { display: flex; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* DASHBOARD (Mini) - Used in List View */
         .dashboard-mini { padding: 15px 15px 5px 15px; background: var(--surface); border-bottom: 1px solid #ECEFF1; flex-shrink: 0; }
         .progress-card { background: #fff; border: 1px solid #ECEFF1; border-radius: 12px; padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         .progress-bar { height: 8px; background: #F0F2F5; border-radius: 4px; overflow: hidden; margin: 10px 0; }
         .progress-fill { height: 100%; background: linear-gradient(90deg, #FF8A80, #D32F2F); width: 0%; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
         .stat-row { display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--text-muted); font-weight: 500; }
-        
         .defect-tags { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none;}
         .defect-tags::-webkit-scrollbar { display: none; }
         .d-tag { font-size: 0.75rem; background: #FFF0F2; color: var(--primary); padding: 4px 12px; border-radius: 16px; white-space: nowrap; border: 1px solid #FFE4E8; font-weight: 500;}
 
-        /* LIST & FILTER */
         .search-container { padding: 10px 15px; flex-shrink: 0; display: flex; gap: 8px; background: var(--surface); }
         .input-box { flex: 2; padding: 12px 16px; border: 1px solid #E0E0E0; border-radius: 24px; font-family: 'Prompt'; font-size: 0.95rem; outline: none; background: #F9FAFB; transition: 0.2s;}
         .input-box:focus { border-color: var(--primary); background: #FFF; box-shadow: 0 0 0 3px rgba(211,47,47,0.1); }
-        
         .loc-select { flex: 1; padding: 12px; border: 1px solid #E0E0E0; border-radius: 24px; font-family: 'Prompt'; font-size: 0.85rem; outline: none; background: #F9FAFB; color: var(--text-muted); text-overflow: ellipsis; white-space: nowrap; overflow: hidden; transition: 0.2s; }
-        .loc-select:focus { border-color: var(--primary); color: var(--text-main); }
-
+        
         .filter-chips { padding: 0 15px 12px 15px; display: flex; gap: 8px; overflow-x: auto; flex-shrink: 0; scrollbar-width: none; background: var(--surface); border-bottom: 1px solid #ECEFF1; }
         .filter-chips::-webkit-scrollbar { display: none; }
-        .chip { 
-            border: 1px solid #E0E0E0; padding: 6px 16px; border-radius: 20px; 
-            font-size: 0.85rem; color: var(--text-muted); background: white; 
-            white-space: nowrap; cursor: pointer; transition: all 0.2s; font-weight: 500;
-        }
+        .chip { border: 1px solid #E0E0E0; padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; color: var(--text-muted); background: white; white-space: nowrap; cursor: pointer; transition: all 0.2s; font-weight: 500; }
         .chip.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 2px 6px rgba(211,47,47,0.2); }
 
         #list-container { flex: 1; overflow-y: auto; padding: 12px 15px; display: grid; gap: 12px; padding-bottom: 90px; }
-        
-        .card { 
-            background: var(--surface); padding: 16px; border-radius: var(--radius); 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04); 
-            display: flex; justify-content: space-between; align-items: center; 
-            border-left: 6px solid #E0E0E0; cursor: pointer; transition: transform 0.1s, box-shadow 0.2s; 
-        }
+        .card { background: var(--surface); padding: 16px; border-radius: var(--radius); box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; justify-content: space-between; align-items: center; border-left: 6px solid #E0E0E0; cursor: pointer; transition: transform 0.1s, box-shadow 0.2s; }
         .card:active { transform: scale(0.98); box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
         .card.pass { border-left-color: var(--success); }
         .card.fail { border-left-color: var(--primary); background: #FFF5F6; }
@@ -131,7 +78,6 @@
         .card.fail .status-icon { color: var(--primary); }
         .inspector-badge { font-size: 0.7rem; background: rgba(0,0,0,0.04); padding: 3px 8px; border-radius: 6px; display:inline-block; margin-top:4px; font-weight: 500;}
 
-        /* FAB */
         .fab-wrapper { position: fixed; bottom: calc(var(--nav-h) + 20px); right: 20px; display: flex; flex-direction: column; gap: 15px; z-index: 40; }
         .fab { width: 56px; height: 56px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.25); cursor: pointer; font-size: 1.2rem; transition: transform 0.2s; }
         .fab:active { transform: scale(0.95); }
@@ -139,51 +85,27 @@
         .fab-excel { background: var(--success); }
         .fab-refresh { background: var(--text-main); width: 48px; height: 48px; font-size: 1.1rem; }
 
-        /* BOTTOM NAVIGATION */
-        .bottom-nav {
-            height: var(--nav-h); background: var(--surface); display: flex;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.06); z-index: 50; flex-shrink: 0;
-            padding-bottom: env(safe-area-inset-bottom); border-radius: 20px 20px 0 0;
-        }
-        .nav-item {
-            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: #90A4AE; font-size: 0.75rem; text-decoration: none; cursor: pointer;
-            transition: 0.2s; border: none; background: none; font-family: 'Prompt'; padding-top: 5px;
-        }
+        .bottom-nav { height: var(--nav-h); background: var(--surface); display: flex; box-shadow: 0 -4px 20px rgba(0,0,0,0.06); z-index: 50; flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom); border-radius: 20px 20px 0 0; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #90A4AE; font-size: 0.75rem; text-decoration: none; cursor: pointer; transition: 0.2s; border: none; background: none; font-family: 'Prompt'; padding-top: 5px; }
         .nav-item i { font-size: 1.4rem; margin-bottom: 4px; transition: 0.2s; }
         .nav-item.active { color: var(--primary); font-weight: 600; }
         .nav-item.active i { transform: translateY(-2px); }
 
-        /* MAIN DASHBOARD VIEW */
         #viewDashboard { overflow-y: auto; padding: 15px; padding-bottom: 30px; }
         .dash-title { margin: 0 0 15px 0; font-size: 1.2rem; color: var(--text-main); font-weight: 700; display:flex; align-items:center; gap:8px;}
-        
         .dash-toggle { display: flex; background: #E4E7EB; border-radius: 10px; padding: 4px; margin-bottom: 20px; }
         .dash-toggle button { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 8px; font-family: 'Prompt'; font-size: 0.9rem; cursor: pointer; color: var(--text-muted); transition: 0.2s; }
         .dash-toggle button.active { background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.05); color: var(--primary); font-weight: 600; }
-
         .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
         .dash-box { background: white; border-radius: var(--radius); padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid #ECEFF1; display:flex; flex-direction:column; align-items:flex-start; position: relative; overflow: hidden;}
         .dash-box::after { content: ''; position: absolute; right: -15px; bottom: -15px; opacity: 0.08; font-family: "Font Awesome 6 Free"; font-weight: 900; font-size: 4.5rem; z-index: 0; transition: transform 0.3s;}
-        .dash-box:hover::after { transform: scale(1.1); }
-        
         .dash-box .label { font-size: 0.85rem; color: var(--text-muted); z-index: 1;}
         .dash-box .value { font-size: 1.8rem; font-weight: 700; color: var(--text-main); z-index: 1;}
-        
-        .box-total { border-left: 4px solid var(--info); }
-        .box-total .value { color: var(--info); }
-        .box-total::after { content: '\f1fb'; color: var(--info); }
-        .box-pending { border-left: 4px solid var(--warning); }
-        .box-pending .value { color: var(--warning); }
-        .box-pending::after { content: '\f017'; color: var(--warning); }
-        .box-pass { border-left: 4px solid var(--success); }
-        .box-pass .value { color: var(--success); }
-        .box-pass::after { content: '\f058'; color: var(--success); }
-        .box-fail { border-left: 4px solid var(--primary); background: #FFF5F6;}
-        .box-fail .value { color: var(--primary); }
-        .box-fail::after { content: '\f071'; color: var(--primary); }
+        .box-total { border-left: 4px solid var(--info); } .box-total .value { color: var(--info); } .box-total::after { content: '\f1fb'; color: var(--info); }
+        .box-pending { border-left: 4px solid var(--warning); } .box-pending .value { color: var(--warning); } .box-pending::after { content: '\f017'; color: var(--warning); }
+        .box-pass { border-left: 4px solid var(--success); } .box-pass .value { color: var(--success); } .box-pass::after { content: '\f058'; color: var(--success); }
+        .box-fail { border-left: 4px solid var(--primary); background: #FFF5F6;} .box-fail .value { color: var(--primary); } .box-fail::after { content: '\f071'; color: var(--primary); }
 
-        /* Donut Chart & Year Chart */
         .chart-card { background: white; border-radius: var(--radius); padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid #ECEFF1; margin-bottom: 20px; text-align: center; }
         .donut-wrapper { position: relative; width: 140px; height: 140px; margin: 0 auto 15px auto; }
         .donut-chart { width: 100%; height: 100%; border-radius: 50%; background: #ECEFF1; transition: background 0.5s; }
@@ -206,18 +128,15 @@
         .defect-bar-fill { height: 100%; background: var(--primary); border-radius: 4px; transition: width 0.5s; width: 0%; }
         .no-data-msg { text-align: center; color: var(--text-muted); font-size: 0.9rem; padding: 20px 0; background: #FAFAFA; border-radius: 8px; border: 1px dashed #CFD8DC;}
 
-        /* MODALS */
         .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 100; display: none; justify-content: center; align-items: flex-end; backdrop-filter: blur(3px); }
         .modal.show { display: flex; }
         .sheet { background: var(--surface); width: 100%; max-width: 600px; border-radius: 24px 24px 0 0; padding: 25px; max-height: 90dvh; overflow-y: auto; animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); padding-bottom: env(safe-area-inset-bottom); }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         
-        /* FORM COMPONENTS */
         .quick-pass-btn { width: 100%; padding: 14px; border: 2px solid var(--success); color: var(--success); background: rgba(46, 125, 50, 0.05); border-radius: 12px; font-weight: 600; font-family: 'Prompt'; cursor: pointer; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; font-size: 1rem;}
         .quick-pass-btn:active { background: var(--success); color: white; }
         .check-item { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #F5F5F5; align-items: center; }
         .check-label { font-size: 0.95rem; font-weight: 500; color: var(--text-main); width: 75%; }
-        
         .switch { position: relative; width: 50px; height: 28px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #CFD8DC; border-radius: 34px; transition: .3s; }
@@ -230,39 +149,40 @@
         .btn-save { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; margin-top: 25px; font-size: 1.1rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 10px rgba(211, 47, 47, 0.25); display: flex; justify-content: center; align-items: center; gap: 10px; transition: 0.2s;}
         .btn-save:active { transform: scale(0.98); }
         
-        /* PHOTO UPLOAD */
         #photoSection { display: none; animation: fadeIn 0.3s; }
         .photo-area { margin-top: 20px; border: 2px dashed #CFD8DC; border-radius: 12px; padding: 25px; text-align: center; color: var(--text-muted); cursor: pointer; background: #FAFAFA; transition: 0.2s; }
         .photo-area:active { background: #ECEFF1; border-color: var(--text-muted); }
         .photo-preview { max-width: 100%; max-height: 250px; border-radius: 8px; display: none; margin-top: 15px; margin-left: auto; margin-right: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-
         #qr-reader { width: 100%; border-radius: 16px; overflow: hidden; background: black; }
         
-        /* MENU */
         .menu-btn { width: 100%; padding: 15px; text-align: left; background: none; border: none; border-bottom: 1px solid #F0F0F0; font-family: 'Prompt'; font-size: 1rem; color: var(--text-main); cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.2s;}
         .menu-btn:active { background: #F9FAFB; }
         .menu-btn i { width: 24px; color: var(--text-muted); text-align: center;}
 
-        /* --- QR PRINT SYSTEM CSS --- */
+        /* QR PRINT SYSTEM CSS */
         .qr-card-screen { border: 2px dashed #B0BEC5; padding: 15px; text-align: center; border-radius: 8px; width: calc(50% - 10px); background: #FFF; display: flex; flex-direction: column; align-items: center; position: relative; }
         .qr-card-screen img { width: 100px; height: 100px; margin-bottom: 8px; }
         .del-qr-btn { position: absolute; top: -5px; right: -5px; background: #D32F2F; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 
-        /* --- CSS สำหรับจัดหน้ากระดาษพิมพ์โดยเฉพาะ --- */
+        /* PRINT MEDIA QUERIES (รองรับทั้งปริ้น QR และ ปริ้น Report PDF) */
         @media print {
             body { background: white !important; height: auto !important; overflow: visible !important; }
-            /* ซ่อนทุกอย่างที่ไม่ใช่หน้าต่างปริ้น */
             #toast, header, #mainContent, .bottom-nav, .fab-wrapper, #modalMenu, #modalAdd, #modalEdit, #modalHistory, #modalScan, #modalInspect { display: none !important; }
-            
-            #modalPrintQR { display: block !important; position: static !important; background: white !important; z-index: auto !important; padding: 0 !important; }
-            #modalPrintQR .sheet { max-width: none !important; width: 100% !important; background: transparent !important; border-radius: 0 !important; padding: 0 !important; max-height: none !important; overflow: visible !important; animation: none !important; }
-            
             .no-print { display: none !important; }
             
-            /* จัด Layout QR Code บนกระดาษ A4 (4 ดวงต่อแถว) */
-            #qrPrintContainer { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 10mm !important; overflow: visible !important; padding: 10mm !important; align-content: start !important; }
-            .qr-card-screen { border: 1px dashed #999 !important; width: auto !important; padding: 15px !important; page-break-inside: avoid !important; border-radius: 0 !important; }
-            .del-qr-btn { display: none !important; }
+            /* Print QR Mode */
+            body.print-mode-qr #modalPrintQR { display: block !important; position: static !important; background: white !important; z-index: auto !important; padding: 0 !important; }
+            body.print-mode-qr #modalPrintQR .sheet { max-width: none !important; width: 100% !important; background: transparent !important; border-radius: 0 !important; padding: 0 !important; max-height: none !important; overflow: visible !important; animation: none !important; }
+            body.print-mode-qr #qrPrintContainer { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 10mm !important; overflow: visible !important; padding: 10mm !important; align-content: start !important; }
+            body.print-mode-qr .qr-card-screen { border: 1px dashed #999 !important; width: auto !important; padding: 15px !important; page-break-inside: avoid !important; border-radius: 0 !important; }
+            body.print-mode-qr .del-qr-btn { display: none !important; }
+            body.print-mode-qr #modalReport { display: none !important; }
+
+            /* Print PDF Report Mode */
+            body.print-mode-report #modalReport { display: block !important; position: static !important; background: white !important; z-index: auto !important; padding: 0 !important; }
+            body.print-mode-report #modalReport .sheet { max-width: none !important; width: 100% !important; background: transparent !important; border-radius: 0 !important; padding: 0 !important; max-height: none !important; overflow: visible !important; animation: none !important; }
+            body.print-mode-report #reportContainer { width: 100% !important; padding: 0 !important; margin: 0 !important; }
+            body.print-mode-report #modalPrintQR { display: none !important; }
         }
     </style>
 </head>
@@ -271,9 +191,7 @@
     <div id="toast" class="toast"></div>
 
     <header>
-        <div class="brand">
-            <i class="fa-solid fa-fire-extinguisher"></i> FireCheck
-        </div>
+        <div class="brand"><i class="fa-solid fa-fire-extinguisher"></i> FireCheck</div>
         <div class="header-actions">
             <div id="statusBadge" class="header-status"><span id="statusDot" class="dot"></span> <span id="statusText">Offline</span></div>
             <input type="month" id="monthPicker" class="month-selector" onchange="App.changeMonth()">
@@ -282,7 +200,6 @@
     </header>
 
     <div id="mainContent">
-        
         <div id="viewList" class="view-section active">
             <div class="dashboard-mini">
                 <div class="progress-card">
@@ -301,9 +218,7 @@
 
             <div class="search-container">
                 <input type="text" id="searchInput" class="input-box" placeholder="🔍 ค้นหารหัสถัง..." onkeyup="App.renderList()">
-                <select id="locFilter" class="loc-select" onchange="App.renderList()">
-                    <option value="">ทุกโซนพื้นที่</option>
-                </select>
+                <select id="locFilter" class="loc-select" onchange="App.renderList()"><option value="">ทุกโซนพื้นที่</option></select>
             </div>
             
             <div class="filter-chips">
@@ -327,33 +242,19 @@
                 <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
                     <span style="font-size:0.9rem; color:#888; font-weight:500;" id="dashMonthLabel"></span>
                 </div>
+                <button class="btn-save" style="margin-top:0; margin-bottom:15px; background:var(--secondary); padding:10px;" onclick="App.generateReport()">
+                    <i class="fa-solid fa-file-pdf"></i> พิมพ์รายงานประจำเดือน (PDF)
+                </button>
+
                 <div class="dash-grid">
-                    <div class="dash-box box-total">
-                        <span class="label">รวมทั้งหมด</span>
-                        <span class="value" id="dashValTotal">0</span>
-                    </div>
-                    <div class="dash-box box-pending">
-                        <span class="label">รอตรวจสอบ</span>
-                        <span class="value" id="dashValPending">0</span>
-                    </div>
-                    <div class="dash-box box-pass">
-                        <span class="label">ปกติ (Pass)</span>
-                        <span class="value" id="dashValPass">0</span>
-                    </div>
-                    <div class="dash-box box-fail">
-                        <span class="label">พบปัญหา (Fail)</span>
-                        <span class="value" id="dashValFail">0</span>
-                    </div>
+                    <div class="dash-box box-total"><span class="label">รวมทั้งหมด</span><span class="value" id="dashValTotal">0</span></div>
+                    <div class="dash-box box-pending"><span class="label">รอตรวจสอบ</span><span class="value" id="dashValPending">0</span></div>
+                    <div class="dash-box box-pass"><span class="label">ปกติ (Pass)</span><span class="value" id="dashValPass">0</span></div>
+                    <div class="dash-box box-fail"><span class="label">พบปัญหา (Fail)</span><span class="value" id="dashValFail">0</span></div>
                 </div>
 
                 <div class="chart-card">
-                    <div class="donut-wrapper">
-                        <div class="donut-chart" id="dashDonut"></div>
-                        <div class="donut-hole">
-                            <span class="pct" id="dashDonutPct">0%</span>
-                            <span class="lbl">ความคืบหน้า</span>
-                        </div>
-                    </div>
+                    <div class="donut-wrapper"><div class="donut-chart" id="dashDonut"></div><div class="donut-hole"><span class="pct" id="dashDonutPct">0%</span><span class="lbl">ความคืบหน้า</span></div></div>
                     <div class="chart-legend">
                         <div class="legend-item"><div class="legend-color" style="background:var(--success)"></div> ปกติ</div>
                         <div class="legend-item"><div class="legend-color" style="background:var(--primary)"></div> มีปัญหา</div>
@@ -371,18 +272,10 @@
                 <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
                     <span style="font-size:0.9rem; color:#888; font-weight:500;" id="dashYearLabel"></span>
                 </div>
-                
                 <div class="dash-grid">
-                    <div class="dash-box box-pass" style="background: rgba(46, 125, 50, 0.05); border-color:var(--success);">
-                        <span class="label">ตรวจผ่านทั้งปี (ครั้ง)</span>
-                        <span class="value" id="yearTotalPass">0</span>
-                    </div>
-                    <div class="dash-box box-fail" style="background: rgba(211, 47, 47, 0.05); border-color:var(--primary);">
-                        <span class="label">พบปัญหาทั้งปี (ครั้ง)</span>
-                        <span class="value" id="yearTotalFail">0</span>
-                    </div>
+                    <div class="dash-box box-pass" style="background: rgba(46, 125, 50, 0.05); border-color:var(--success);"><span class="label">ตรวจผ่านทั้งปี (ครั้ง)</span><span class="value" id="yearTotalPass">0</span></div>
+                    <div class="dash-box box-fail" style="background: rgba(211, 47, 47, 0.05); border-color:var(--primary);"><span class="label">พบปัญหาทั้งปี (ครั้ง)</span><span class="value" id="yearTotalFail">0</span></div>
                 </div>
-
                 <div class="chart-card">
                     <h3 style="margin: 0 0 5px 0; font-size: 1rem; text-align:left; color:var(--text-main);">สถิติการตรวจ 12 เดือน</h3>
                     <div class="year-chart" id="yearChart"></div>
@@ -392,18 +285,13 @@
                     </div>
                 </div>
             </div>
-            
             <div style="height: 60px;"></div>
         </div>
     </div> 
 
     <nav class="bottom-nav">
-        <button class="nav-item active" id="navBtnList" onclick="App.switchTab('List')">
-            <i class="fa-solid fa-list-check"></i> รายการตรวจ
-        </button>
-        <button class="nav-item" id="navBtnDashboard" onclick="App.switchTab('Dashboard')">
-            <i class="fa-solid fa-chart-line"></i> แดชบอร์ด
-        </button>
+        <button class="nav-item active" id="navBtnList" onclick="App.switchTab('List')"><i class="fa-solid fa-list-check"></i> รายการตรวจ</button>
+        <button class="nav-item" id="navBtnDashboard" onclick="App.switchTab('Dashboard')"><i class="fa-solid fa-chart-line"></i> แดชบอร์ด</button>
     </nav>
 
     <div class="fab-wrapper" id="fabGroup">
@@ -416,12 +304,7 @@
         <div class="sheet">
             <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                 <div>
-                    <h2 style="margin:0; color:var(--text-main); font-size:1.4rem;">
-                        บันทึกผล 
-                        <button onclick="App.openEdit()" style="background:none; border:none; color:var(--info); font-size:1rem; cursor:pointer; margin-left:8px;" title="แก้ไข">
-                            <i class="fa-solid fa-pen-to-square"></i>
-                        </button>
-                    </h2>
+                    <h2 style="margin:0; color:var(--text-main); font-size:1.4rem;">บันทึกผล <button onclick="App.openEdit()" style="background:none; border:none; color:var(--info); font-size:1rem; cursor:pointer; margin-left:8px;" title="แก้ไข"><i class="fa-solid fa-pen-to-square"></i></button></h2>
                     <p id="inspectTitle" style="color:var(--text-muted); margin:4px 0 0 0; font-size:0.9rem; font-weight:600;">FE-XX</p>
                     <p id="inspectSubtitle" style="font-size:0.8rem; color:#888;">ประเภท: -</p>
                     <p id="inspectExpDate" style="font-size:0.75rem; color:var(--warning); margin-top:2px; font-weight:500;"></p>
@@ -429,16 +312,12 @@
                 </div>
                 <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
                     <button onclick="UI.closeModal('modalInspect')" style="background:none; border:none; font-size:1.8rem; color:#DDD; line-height:1;">&times;</button>
-                    <button onclick="App.showHistory()" style="background:var(--bg-body); border:1px solid #CFD8DC; padding:6px 12px; border-radius:16px; font-size:0.75rem; font-family:'Prompt'; color:var(--secondary); cursor:pointer;">
-                        <i class="fa-solid fa-list"></i> ดูประวัติ
-                    </button>
+                    <button onclick="App.showHistory()" style="background:var(--bg-body); border:1px solid #CFD8DC; padding:6px 12px; border-radius:16px; font-size:0.75rem; font-family:'Prompt'; color:var(--secondary); cursor:pointer;"><i class="fa-solid fa-list"></i> ดูประวัติ</button>
                 </div>
             </div>
 
             <div style="margin-top:20px;">
-                <button class="quick-pass-btn" onclick="App.setAllPass()">
-                    <i class="fa-solid fa-check-double"></i> ปกติทั้งหมด (All Pass)
-                </button>
+                <button class="quick-pass-btn" onclick="App.setAllPass()"><i class="fa-solid fa-check-double"></i> ปกติทั้งหมด (All Pass)</button>
                 <div id="checklistForm"></div>
             </div>
 
@@ -454,8 +333,10 @@
             <textarea id="inspectNote" class="form-control" placeholder="หมายเหตุ (ถ้ามี)..."></textarea>
             <input type="text" id="inspectName" class="form-control" placeholder="ชื่อผู้ตรวจสอบ" required>
             
-            <button id="btnSave" class="btn-save" onclick="App.save()">
-                <i class="fa-solid fa-cloud-arrow-up"></i> บันทึกข้อมูล
+            <button id="btnSave" class="btn-save" onclick="App.save()"><i class="fa-solid fa-cloud-arrow-up"></i> บันทึกข้อมูล</button>
+            
+            <button id="btnResolve" class="btn-save" style="background:#F9A825; color:#FFF; display:none; margin-top:10px; box-shadow:none;" onclick="App.resolveIssue()">
+                <i class="fa-solid fa-wrench"></i> บันทึกว่า "ซ่อมแซมเรียบร้อยแล้ว"
             </button>
         </div>
     </div>
@@ -463,117 +344,46 @@
     <div id="modalMenu" class="modal">
         <div class="sheet">
             <h2 style="margin-top:0; margin-bottom: 20px;">เมนูจัดการ</h2>
-            
-            <button class="menu-btn" onclick="UI.openModal('modalAdd'); UI.closeModal('modalMenu')">
-                <i class="fa-solid fa-plus-circle" style="color:var(--success)"></i> เพิ่มจุดตรวจใหม่
-            </button>
-            
-            <button class="menu-btn" onclick="App.openPrintQR()">
-                <i class="fa-solid fa-qrcode" style="color:var(--info)"></i> ระบบพิมพ์ QR Code
-            </button>
-
+            <button class="menu-btn" onclick="UI.openModal('modalAdd'); UI.closeModal('modalMenu')"><i class="fa-solid fa-plus-circle" style="color:var(--success)"></i> เพิ่มจุดตรวจใหม่</button>
+            <button class="menu-btn" onclick="App.openPrintQR()"><i class="fa-solid fa-qrcode" style="color:var(--info)"></i> ระบบพิมพ์ QR Code</button>
             <button class="menu-btn" onclick="App.backupData()"><i class="fa-solid fa-download"></i> สำรองข้อมูล (Backup)</button>
             <button class="menu-btn" onclick="document.getElementById('fileRestore').click()"><i class="fa-solid fa-upload"></i> กู้คืนข้อมูล (Restore)</button>
             <input type="file" id="fileRestore" style="display:none" accept=".json" onchange="App.restoreData(this)">
-            
             <button class="menu-btn" onclick="App.clearData()" style="color:var(--primary); border-bottom:none;"><i class="fa-solid fa-trash"></i> ล้างข้อมูลทั้งหมด (Reset)</button>
-            
-            <div style="text-align:center; margin-top:30px;">
-                <button onclick="UI.closeModal('modalMenu')" style="background:none; border:1px solid #ddd; padding:10px 30px; border-radius:24px; color:#666; font-family:'Prompt';">ปิดเมนู</button>
-            </div>
+            <div style="text-align:center; margin-top:30px;"><button onclick="UI.closeModal('modalMenu')" style="background:none; border:1px solid #ddd; padding:10px 30px; border-radius:24px; color:#666; font-family:'Prompt';">ปิดเมนู</button></div>
         </div>
     </div>
     
-    <div id="modalAdd" class="modal">
-        <div class="sheet">
-            <h2 style="margin-top:0;">เพิ่มจุดตรวจใหม่</h2>
-            <input type="text" id="addId" class="form-control" placeholder="รหัสถัง (เช่น FE-91)" style="text-transform:uppercase;">
-            <input type="text" id="addLoc" class="form-control" placeholder="สถานที่ติดตั้ง">
-            <input type="text" id="addType" class="form-control" placeholder="ชนิดถัง (เช่น เคมีแห้ง)">
-            <input type="text" id="addSize" class="form-control" placeholder="ขนาด (เช่น 10 ปอนด์)">
-            
-            <button class="btn-save" onclick="App.addDevice()">บันทึกจุดใหม่</button>
-            <button onclick="UI.closeModal('modalAdd')" style="width:100%; margin-top:10px; background:none; border:none; padding:10px; font-family:'Prompt'; color:#666;">ยกเลิก</button>
-        </div>
-    </div>
+    <div id="modalAdd" class="modal"><div class="sheet"><h2 style="margin-top:0;">เพิ่มจุดตรวจใหม่</h2><input type="text" id="addId" class="form-control" placeholder="รหัสถัง (เช่น FE-91)" style="text-transform:uppercase;"><input type="text" id="addLoc" class="form-control" placeholder="สถานที่ติดตั้ง"><input type="text" id="addType" class="form-control" placeholder="ชนิดถัง (เช่น เคมีแห้ง)"><input type="text" id="addSize" class="form-control" placeholder="ขนาด (เช่น 10 ปอนด์)"><button class="btn-save" onclick="App.addDevice()">บันทึกจุดใหม่</button><button onclick="UI.closeModal('modalAdd')" style="width:100%; margin-top:10px; background:none; border:none; padding:10px; font-family:'Prompt'; color:#666;">ยกเลิก</button></div></div>
+    <div id="modalEdit" class="modal"><div class="sheet"><h2 style="margin-top:0;"><i class="fa-solid fa-pen-to-square" style="color:var(--info)"></i> แก้ไขข้อมูลถัง</h2><input type="text" id="editId" class="form-control" readonly style="background:#ECEFF1; color:#90A4AE; margin-top:0; margin-bottom: 15px;" placeholder="รหัสถัง"><input type="text" id="editLoc" class="form-control" placeholder="สถานที่ติดตั้ง" style="margin-top:0; margin-bottom: 15px;"><input type="text" id="editType" class="form-control" placeholder="ชนิดถัง" style="margin-top:0; margin-bottom: 15px;"><input type="text" id="editSize" class="form-control" placeholder="ขนาด" style="margin-top:0; margin-bottom: 15px;"><label style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px; display: block;">วันหมดอายุ / วันทดสอบแรงดัน</label><input type="date" id="editExp" class="form-control" style="margin-top:0; margin-bottom: 20px;"><button class="btn-save" onclick="App.saveEditDevice()" style="background:var(--info);"><i class="fa-solid fa-floppy-disk"></i> บันทึกการแก้ไข</button><button class="btn-save" onclick="App.deleteDevice()" style="background:#FFF; color:var(--primary); border: 2px solid var(--primary); margin-top:10px; box-shadow:none;"><i class="fa-solid fa-trash"></i> ลบข้อมูลถังนี้</button><button onclick="UI.closeModal('modalEdit')" style="width:100%; margin-top:10px; background:none; border:none; padding:10px; font-family:'Prompt'; color:#666; cursor:pointer;">ยกเลิก</button></div></div>
 
-    <div id="modalEdit" class="modal">
-        <div class="sheet">
-            <h2 style="margin-top:0;"><i class="fa-solid fa-pen-to-square" style="color:var(--info)"></i> แก้ไขข้อมูลถัง</h2>
-
-            <input type="text" id="editId" class="form-control" readonly style="background:#ECEFF1; color:#90A4AE; margin-top:0; margin-bottom: 15px;" placeholder="รหัสถัง">
-            <input type="text" id="editLoc" class="form-control" placeholder="สถานที่ติดตั้ง" style="margin-top:0; margin-bottom: 15px;">
-            <input type="text" id="editType" class="form-control" placeholder="ชนิดถัง (เช่น เคมีแห้ง)" style="margin-top:0; margin-bottom: 15px;">
-            <input type="text" id="editSize" class="form-control" placeholder="ขนาด (เช่น 10 ปอนด์)" style="margin-top:0; margin-bottom: 15px;">
-            
-            <label style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px; display: block;">วันหมดอายุ / วันทดสอบแรงดัน (Hydro Test)</label>
-            <input type="date" id="editExp" class="form-control" style="margin-top:0; margin-bottom: 20px;">
-            
-            <button class="btn-save" onclick="App.saveEditDevice()" style="background:var(--info); box-shadow: 0 4px 10px rgba(2, 136, 209, 0.25);">
-                <i class="fa-solid fa-floppy-disk"></i> บันทึกการแก้ไข
-            </button>
-            <button class="btn-save" onclick="App.deleteDevice()" style="background:#FFF; color:var(--primary); border: 2px solid var(--primary); margin-top:10px; box-shadow:none;">
-                <i class="fa-solid fa-trash"></i> ลบข้อมูลถังนี้
-            </button>
-            <button onclick="UI.closeModal('modalEdit')" style="width:100%; margin-top:10px; background:none; border:none; padding:10px; font-family:'Prompt'; color:#666; cursor:pointer;">ยกเลิก</button>
-        </div>
-    </div>
-
-    <div id="modalHistory" class="modal">
-        <div class="sheet">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h2 style="margin:0;"><i class="fa-solid fa-clock-rotate-left"></i> ประวัติการตรวจ</h2>
-                <button onclick="UI.closeModal('modalHistory')" style="background:none; border:none; font-size:1.8rem; color:#DDD; line-height:1;">&times;</button>
-            </div>
-            <p id="historyTitle" style="color:var(--text-muted); margin-top:0; font-size:0.9rem; font-weight:600;"></p>
-            
-            <div id="historyList" style="display:flex; flex-direction:column; gap:10px; max-height: 60vh; overflow-y:auto; padding-bottom:20px; margin-top:15px;">
-            </div>
-        </div>
-    </div>
+    <div id="modalHistory" class="modal"><div class="sheet"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h2 style="margin:0;"><i class="fa-solid fa-clock-rotate-left"></i> ประวัติการตรวจ</h2><button onclick="UI.closeModal('modalHistory')" style="background:none; border:none; font-size:1.8rem; color:#DDD; line-height:1;">&times;</button></div><p id="historyTitle" style="color:var(--text-muted); margin-top:0; font-size:0.9rem; font-weight:600;"></p><div id="historyList" style="display:flex; flex-direction:column; gap:10px; max-height: 60vh; overflow-y:auto; padding-bottom:20px; margin-top:15px;"></div></div></div>
 
     <div id="modalPrintQR" class="modal" style="background: white; z-index: 9999; align-items: flex-start;">
         <div class="sheet" style="max-width: none; width: 100%; height: 100%; border-radius: 0; padding: 0; display: flex; flex-direction: column; background: white;">
-            
+            <div class="no-print" style="padding: 15px 20px; background: #F5F7FA; border-bottom: 1px solid #ECEFF1; display: flex; justify-content: space-between; align-items: center;"><h2 style="margin:0; font-size: 1.2rem;"><i class="fa-solid fa-qrcode" style="color:var(--info)"></i> ระบบพิมพ์ QR Code</h2><button onclick="UI.closeModal('modalPrintQR')" style="background:none; border:none; font-size:1.8rem; color:#999; line-height:1;">&times;</button></div>
+            <div class="no-print" style="padding: 15px; background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.05); z-index: 10;"><div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;"><button class="btn-save" style="width: auto; margin:0; padding: 10px 15px; font-size:0.9rem; background:#4CAF50;" onclick="App.generateAllQR()">📦 โหลดถังทั้งหมด</button><div style="display: flex; gap: 5px;"><input type="text" id="customQrId" class="form-control" style="margin:0; width: 120px; padding: 10px; font-size: 0.9rem; text-transform: uppercase;" placeholder="เช่น FE-91"><button class="btn-save" style="width: auto; margin:0; padding: 10px 15px; font-size:0.9rem;" onclick="App.generateSingleQR()">➕ สร้างทีละดวง</button></div></div><div style="text-align: center; margin-top: 15px;"><button class="btn-save" style="width: 100%; max-width: 400px; margin:0 auto; padding: 12px 20px; background: var(--secondary);" onclick="window.print()">🖨️ สั่งปริ้น (Print A4)</button><button onclick="document.getElementById('qrPrintContainer').innerHTML=''" style="margin-top:10px; background:none; border:none; color:#999; font-family:'Prompt'; font-size:0.85rem; cursor:pointer; text-decoration:underline;">ล้างหน้ากระดาษ</button></div></div>
+            <div id="qrPrintContainer" style="flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; align-content: flex-start; background: #eee;"><div class="no-print" style="color:#999; margin-top:50px; width:100%; text-align:center;">กดปุ่มด้านบนเพื่อโหลด QR Code ขึ้นมาบนกระดาษ</div></div>
+        </div>
+    </div>
+
+    <div id="modalReport" class="modal" style="background: white; z-index: 9999; align-items: flex-start;">
+        <div class="sheet" style="max-width: none; width: 100%; height: 100%; border-radius: 0; padding: 0; display: flex; flex-direction: column; background: white;">
             <div class="no-print" style="padding: 15px 20px; background: #F5F7FA; border-bottom: 1px solid #ECEFF1; display: flex; justify-content: space-between; align-items: center;">
-                <h2 style="margin:0; font-size: 1.2rem;"><i class="fa-solid fa-qrcode" style="color:var(--info)"></i> ระบบพิมพ์ QR Code</h2>
-                <button onclick="UI.closeModal('modalPrintQR')" style="background:none; border:none; font-size:1.8rem; color:#999; line-height:1;">&times;</button>
+                <h2 style="margin:0; font-size: 1.2rem;"><i class="fa-solid fa-file-pdf" style="color:var(--primary)"></i> รายงานประจำเดือน</h2>
+                <button onclick="UI.closeModal('modalReport')" style="background:none; border:none; font-size:1.8rem; color:#999; line-height:1;">&times;</button>
             </div>
-            
-            <div class="no-print" style="padding: 15px; background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.05); z-index: 10;">
-                <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
-                    <button class="btn-save" style="width: auto; margin:0; padding: 10px 15px; font-size:0.9rem; background:#4CAF50;" onclick="App.generateAllQR()">📦 โหลดถังทั้งหมดในระบบ</button>
-                    <div style="display: flex; gap: 5px;">
-                        <input type="text" id="customQrId" class="form-control" style="margin:0; width: 120px; padding: 10px; font-size: 0.9rem; text-transform: uppercase;" placeholder="เช่น FE-91">
-                        <button class="btn-save" style="width: auto; margin:0; padding: 10px 15px; font-size:0.9rem;" onclick="App.generateSingleQR()">➕ สร้างทีละดวง</button>
-                    </div>
-                </div>
-                <div style="text-align: center; margin-top: 15px;">
-                    <button class="btn-save" style="width: 100%; max-width: 400px; margin:0 auto; padding: 12px 20px; background: var(--secondary);" onclick="window.print()">🖨️ สั่งปริ้น (Print A4)</button>
-                    <button onclick="document.getElementById('qrPrintContainer').innerHTML=''" style="margin-top:10px; background:none; border:none; color:#999; font-family:'Prompt'; font-size:0.85rem; cursor:pointer; text-decoration:underline;">ล้างหน้ากระดาษ</button>
-                </div>
+            <div class="no-print" style="padding: 15px; text-align: center; background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.05); z-index: 10;">
+                <button class="btn-save" style="width: auto; padding: 10px 20px; margin: 0 auto; background: var(--secondary);" onclick="window.print()"><i class="fa-solid fa-print"></i> พิมพ์เอกสาร / Save as PDF</button>
             </div>
-            
-            <div id="qrPrintContainer" style="flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; align-content: flex-start; background: #eee;">
-                <div class="no-print" style="color:#999; margin-top:50px; width:100%; text-align:center;">กดปุ่มด้านบนเพื่อโหลด QR Code ขึ้นมาบนกระดาษ</div>
+            <div style="flex: 1; overflow-y: auto; background: #888; padding: 20px;">
+                <div id="reportContainer" style="width: 210mm; min-height: 297mm; margin: 0 auto; background: white; padding: 20mm; color: black; font-family: 'Prompt', sans-serif; box-shadow: 0 0 10px rgba(0,0,0,0.5);">
+                   </div>
             </div>
         </div>
     </div>
 
-    <div id="modalScan" class="modal">
-        <div class="sheet">
-            <div style="text-align:center;">
-                <h2 style="margin-bottom:20px;">สแกน QR Code</h2>
-                <div id="qr-reader"></div>
-                <p style="color:#90A4AE; margin:20px 0 10px; font-size:0.9rem;">หรือกรอกรหัสด้วยมือ</p>
-                <div style="display:flex; gap:10px; justify-content:center;">
-                    <input type="text" id="manualId" class="form-control" style="margin:0; width:130px; text-transform:uppercase;" placeholder="เช่น FE-01">
-                    <button onclick="App.manualScan()" class="btn-save" style="margin-top:0; width:auto; padding:10px 24px;">ค้นหา</button>
-                </div>
-            </div>
-            <button onclick="UI.stopScanner()" style="width:100%; padding:14px; border:none; background:#F5F5F5; color:var(--text-muted); border-radius:12px; margin-top:20px; font-size:1rem; font-family:'Prompt';">ปิดกล้อง</button>
-        </div>
-    </div>
+    <div id="modalScan" class="modal"><div class="sheet"><div style="text-align:center;"><h2 style="margin-bottom:20px;">สแกน QR Code</h2><div id="qr-reader"></div><p style="color:#90A4AE; margin:20px 0 10px; font-size:0.9rem;">หรือกรอกรหัสด้วยมือ</p><div style="display:flex; gap:10px; justify-content:center;"><input type="text" id="manualId" class="form-control" style="margin:0; width:130px; text-transform:uppercase;" placeholder="เช่น FE-01"><button onclick="App.manualScan()" class="btn-save" style="margin-top:0; width:auto; padding:10px 24px;">ค้นหา</button></div></div><button onclick="UI.stopScanner()" style="width:100%; padding:14px; border:none; background:#F5F5F5; color:var(--text-muted); border-radius:12px; margin-top:20px; font-size:1rem; font-family:'Prompt';">ปิดกล้อง</button></div></div>
 
     <script>
         // ============================================
@@ -680,42 +490,23 @@
                 let icon = '<i class="fa-solid fa-info-circle" style="color:#40C4FF;"></i>';
                 if(type === 'success') icon = '<i class="fa-solid fa-circle-check" style="color:#00E676;"></i>';
                 if(type === 'error' || type === 'warning') icon = '<i class="fa-solid fa-circle-exclamation" style="color:#FF5252;"></i>';
-                
                 el.innerHTML = `${icon} <span>${msg}</span>`;
                 el.classList.add('show');
-                
                 if(this.timeout) clearTimeout(this.timeout);
                 this.timeout = setTimeout(() => el.classList.remove('show'), 3000);
             }
         };
 
         const App = {
-            data: [],
-            cloudData: {}, 
-            cloudStatus: {}, 
-            month: '',
-            filterType: 'all',
-            currentId: null,
-            currentCheckList: [],
-            scanner: null,
-            tempPhoto: null,
-            autoSyncInterval: null,
-            currentTab: 'List',
-            dashMode: 'month', 
+            data: [], cloudData: {}, cloudStatus: {}, month: '', filterType: 'all', currentId: null, currentCheckList: [], scanner: null, tempPhoto: null, autoSyncInterval: null, currentTab: 'List', dashMode: 'month', 
 
             init() {
                 const stored = localStorage.getItem('firePins_Ent_V5');
                 this.data = stored ? JSON.parse(stored) : DB_INIT.map(d => ({ ...d, history: {} }));
                 this.month = new Date().toISOString().slice(0, 7);
                 document.getElementById('monthPicker').value = this.month;
-                
-                this.populateLocationFilter();
-                this.updateOnlineStatus();
-                this.renderAll();
-                
-                this.syncCloud();
-                this.startAutoSync();
-                this.handleDeepLink();
+                this.populateLocationFilter(); this.updateOnlineStatus(); this.renderAll();
+                this.syncCloud(); this.startAutoSync(); this.handleDeepLink();
             },
 
             populateLocationFilter() {
@@ -723,10 +514,7 @@
                 select.innerHTML = '<option value="">ทุกโซนพื้นที่</option>'; 
                 const uniqueLocs = [...new Set(this.data.map(item => item.loc.split(' (')[0].trim()))].sort();
                 uniqueLocs.forEach(loc => {
-                    const opt = document.createElement('option');
-                    opt.value = loc;
-                    opt.innerText = loc;
-                    select.appendChild(opt);
+                    const opt = document.createElement('option'); opt.value = loc; opt.innerText = loc; select.appendChild(opt);
                 });
             },
 
@@ -734,55 +522,30 @@
                 this.currentTab = tabName;
                 document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
                 document.getElementById('navBtn' + tabName).classList.add('active');
-                
                 document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active'));
                 document.getElementById('view' + tabName).classList.add('active');
-
                 const fabGroup = document.getElementById('fabGroup');
-                if(tabName === 'Dashboard') fabGroup.style.display = 'none'; 
-                else fabGroup.style.display = 'flex';
-
+                if(tabName === 'Dashboard') fabGroup.style.display = 'none'; else fabGroup.style.display = 'flex';
                 this.renderAll();
             },
 
             switchDashMode(mode) {
                 this.dashMode = mode;
-                document.getElementById('toggleMonth').classList.remove('active');
-                document.getElementById('toggleYear').classList.remove('active');
+                document.getElementById('toggleMonth').classList.remove('active'); document.getElementById('toggleYear').classList.remove('active');
                 if(mode === 'month') document.getElementById('toggleMonth').classList.add('active');
                 if(mode === 'year') document.getElementById('toggleYear').classList.add('active');
-                
                 document.getElementById('dashMonthView').style.display = mode === 'month' ? 'block' : 'none';
                 document.getElementById('dashYearView').style.display = mode === 'year' ? 'block' : 'none';
-                
                 this.renderAll();
             },
 
-            startAutoSync() {
-                if(this.autoSyncInterval) clearInterval(this.autoSyncInterval);
-                this.autoSyncInterval = setInterval(() => { this.syncCloud(true); }, 15000);
-            },
-
-            updateOnlineStatus() {
-                const badge = document.querySelector('.dot');
-                const text = document.querySelector('#statusText');
-                if(CLOUD_URL.startsWith('http')) {
-                    badge.classList.add('online');
-                    text.innerText = 'Real-time';
-                } else {
-                    badge.classList.remove('online');
-                    text.innerText = 'Offline';
-                }
-            },
+            startAutoSync() { if(this.autoSyncInterval) clearInterval(this.autoSyncInterval); this.autoSyncInterval = setInterval(() => { this.syncCloud(true); }, 15000); },
+            updateOnlineStatus() { const badge = document.querySelector('.dot'); const text = document.querySelector('#statusText'); if(CLOUD_URL.startsWith('http')) { badge.classList.add('online'); text.innerText = 'Real-time'; } else { badge.classList.remove('online'); text.innerText = 'Offline'; } },
 
             syncCloud(silent = false) {
                 if(!CLOUD_URL) return;
-                const btn = document.querySelector('.fab-refresh i');
-                if(!silent && btn) btn.classList.add('fa-spin');
-
-                fetch(CLOUD_URL + "?action=read")
-                .then(res => res.json())
-                .then(data => {
+                const btn = document.querySelector('.fab-refresh i'); if(!silent && btn) btn.classList.add('fa-spin');
+                fetch(CLOUD_URL + "?action=read").then(res => res.json()).then(data => {
                     this.cloudData = {}; 
                     data.forEach(row => {
                         let rowMonth = row.month;
@@ -790,264 +553,114 @@
                             const timeStr = String(row.time);
                             if (timeStr.includes('/')) {
                                 const parts = timeStr.split(/[/\s]/);
-                                if (parts.length >= 3) {
-                                    let m = parts[1].padStart(2, '0');
-                                    let y = parseInt(parts[2]);
-                                    if (y > 2500) y -= 543;
-                                    rowMonth = `${y}-${m}`;
-                                }
-                            } else if (timeStr.match(/^\d{4}-\d{2}/)) {
-                                rowMonth = timeStr.substring(0, 7);
-                            }
+                                if (parts.length >= 3) { let m = parts[1].padStart(2, '0'); let y = parseInt(parts[2]); if (y > 2500) y -= 543; rowMonth = `${y}-${m}`; }
+                            } else if (timeStr.match(/^\d{4}-\d{2}/)) { rowMonth = timeStr.substring(0, 7); }
                         }
-
                         if (rowMonth) {
                             if (!this.cloudData[rowMonth]) this.cloudData[rowMonth] = {};
-                            this.cloudData[rowMonth][row.id] = { 
-                                status: row.status, inspector: row.inspector, time: row.time,
-                                image: row.image || '', note: row.note || '', failReason: row.failReason || '' 
-                            };
+                            this.cloudData[rowMonth][row.id] = { status: row.status, inspector: row.inspector, time: row.time, image: row.image || '', note: row.note || '', failReason: row.failReason || '' };
                         }
                     });
-
-                    this.cloudStatus = this.cloudData[this.month] || {};
-                    this.renderAll();
+                    this.cloudStatus = this.cloudData[this.month] || {}; this.renderAll();
                     if(!silent) Toast.show("ซิงค์ข้อมูลล่าสุดแล้ว", "success");
-                })
-                .catch(err => {
-                    console.error("Sync Error:", err);
-                    if(!silent) Toast.show("ซิงค์ข้อมูลล้มเหลว", "error");
-                })
-                .finally(() => { if(!silent && btn) btn.classList.remove('fa-spin'); });
+                }).catch(err => { console.error("Sync Error:", err); if(!silent) Toast.show("ซิงค์ข้อมูลล้มเหลว", "error"); }).finally(() => { if(!silent && btn) btn.classList.remove('fa-spin'); });
             },
 
             renderAll() {
                 const stats = this.calculateStats();
-                if(this.currentTab === 'List') {
-                    this.renderList(stats);
-                    document.getElementById('statsCount').innerText = `${stats.done}/${stats.total} จุด`;
-                } else if (this.currentTab === 'Dashboard') {
-                    this.renderDashboard(stats);
-                    this.renderYearlyDashboard();
-                }
+                if(this.currentTab === 'List') { this.renderList(stats); document.getElementById('statsCount').innerText = `${stats.done}/${stats.total} จุด`; } 
+                else if (this.currentTab === 'Dashboard') { this.renderDashboard(stats); this.renderYearlyDashboard(); }
             },
 
             calculateStats() {
-                let total=0, done=0, pass=0, fail=0;
-                const defectCounts = {};
-
+                let total=0, done=0, pass=0, fail=0; const defectCounts = {};
                 this.data.forEach(item => {
-                    total++;
-                    const cloudInfo = this.cloudStatus[item.id];
-                    const localInfo = item.history[this.month];
-                    let status = 'pending';
-                    
-                    if (cloudInfo) {
-                        const s = String(cloudInfo.status).toLowerCase();
-                        status = (s === 'pass' || (s.includes('ปกติ') && !s.includes('ผิด'))) ? 'pass' : 'fail';
-                    } 
+                    total++; const cloudInfo = this.cloudStatus[item.id]; const localInfo = item.history[this.month]; let status = 'pending';
+                    if (cloudInfo) { const s = String(cloudInfo.status).toLowerCase(); status = (s === 'pass' || (s.includes('ปกติ') && !s.includes('ผิด'))) ? 'pass' : 'fail'; } 
                     if (localInfo) status = localInfo.status;
-
                     if (status !== 'pending') done++;
                     if (status === 'pass') pass++;
                     if (status === 'fail') {
-                        fail++;
-                        let topics = [];
-                        if (localInfo && localInfo.failTopics) topics = localInfo.failTopics;
-                        else if (cloudInfo && cloudInfo.failReason) topics = [cloudInfo.failReason];
-
-                        topics.forEach(topic => {
-                            if(topic) defectCounts[topic] = (defectCounts[topic] || 0) + 1;
-                        });
+                        fail++; let topics = [];
+                        if (localInfo && localInfo.failTopics) topics = localInfo.failTopics; else if (cloudInfo && cloudInfo.failReason) topics = [cloudInfo.failReason];
+                        topics.forEach(topic => { if(topic) defectCounts[topic] = (defectCounts[topic] || 0) + 1; });
                     }
                 });
-
                 return { total, done, pass, fail, pending: total - done, defectCounts };
             },
 
             renderList(preCalcStats) {
-                const list = document.getElementById('list-container');
-                const search = document.getElementById('searchInput').value.toLowerCase();
-                const locFilter = document.getElementById('locFilter').value; 
-
-                if(!list) return;
-                const stats = preCalcStats || this.calculateStats();
-                list.innerHTML = '';
+                const list = document.getElementById('list-container'); const search = document.getElementById('searchInput').value.toLowerCase(); const locFilter = document.getElementById('locFilter').value; 
+                if(!list) return; const stats = preCalcStats || this.calculateStats(); list.innerHTML = '';
 
                 this.data.forEach(item => {
                     if(locFilter && !item.loc.startsWith(locFilter)) return;
-
-                    const cloudInfo = this.cloudStatus[item.id];
-                    const localInfo = item.history[this.month];
+                    const cloudInfo = this.cloudStatus[item.id]; const localInfo = item.history[this.month];
+                    let status = 'pending'; let inspectorName = ''; let timeShow = '';
                     
-                    let status = 'pending';
-                    let inspectorName = '';
-                    let timeShow = '';
-                    
-                    if (cloudInfo) {
-                        const s = String(cloudInfo.status).toLowerCase();
-                        status = (s === 'pass' || (s.includes('ปกติ') && !s.includes('ผิด'))) ? 'pass' : 'fail';
-                        inspectorName = cloudInfo.inspector;
-                        timeShow = cloudInfo.time.split(' ')[1] || '';
-                    } 
-                    if (localInfo) {
-                        status = localInfo.status;
-                        inspectorName = localInfo.inspector;
-                        timeShow = localInfo.time.split(' ')[1] || '';
-                    }
+                    if (cloudInfo) { const s = String(cloudInfo.status).toLowerCase(); status = (s === 'pass' || (s.includes('ปกติ') && !s.includes('ผิด'))) ? 'pass' : 'fail'; inspectorName = cloudInfo.inspector; timeShow = cloudInfo.time.split(' ')[1] || ''; } 
+                    if (localInfo) { status = localInfo.status; inspectorName = localInfo.inspector; timeShow = localInfo.time.split(' ')[1] || ''; }
 
                     const isInspected = status !== 'pending';
-
                     if (this.filterType === 'pending' && isInspected) return;
                     if (this.filterType === 'fail' && status !== 'fail') return;
                     
                     if(!search || (item.id+item.loc+item.type).toLowerCase().includes(search)) {
-                        const div = document.createElement('div');
-                        div.className = `card ${status}`;
-                        div.onclick = () => this.openInspect(item.id);
-                        
-                        let statusBadge = isInspected 
-                            ? (status==='pass' ? `<span style="color:var(--success)">✅ ปกติ (${timeShow})</span>` : `<span style="color:var(--primary)">⚠️ พบปัญหา (${timeShow})</span>`)
-                            : `<span style="color:#999">รอตรวจ</span>`;
-
-                        div.innerHTML = `
-                            <div class="card-info">
-                                <h3>${item.id} - ${item.loc}</h3>
-                                <p>${item.type} &bull; ${statusBadge}</p>
-                                ${isInspected ? `<span class="inspector-badge"><i class="fa-solid fa-user"></i> ${inspectorName}</span>` : ''}
-                            </div>
-                            <div class="status-icon"><i class="fa-solid ${status==='pass'?'fa-circle-check':(status==='fail'?'fa-triangle-exclamation':'fa-circle')}"></i></div>
-                        `;
+                        const div = document.createElement('div'); div.className = `card ${status}`; div.onclick = () => this.openInspect(item.id);
+                        let statusBadge = isInspected ? (status==='pass' ? `<span style="color:var(--success)">✅ ปกติ (${timeShow})</span>` : `<span style="color:var(--primary)">⚠️ พบปัญหา (${timeShow})</span>`) : `<span style="color:#999">รอตรวจ</span>`;
+                        div.innerHTML = `<div class="card-info"><h3>${item.id} - ${item.loc}</h3><p>${item.type} &bull; ${statusBadge}</p>${isInspected ? `<span class="inspector-badge"><i class="fa-solid fa-user"></i> ${inspectorName}</span>` : ''}</div><div class="status-icon"><i class="fa-solid ${status==='pass'?'fa-circle-check':(status==='fail'?'fa-triangle-exclamation':'fa-circle')}"></i></div>`;
                         list.appendChild(div);
                     }
                 });
 
                 const percent = stats.total ? Math.round((stats.done/stats.total)*100) : 0;
-                document.getElementById('progressFill').style.width = percent + '%';
-                document.getElementById('statsPercent').innerText = percent + '%';
-                document.getElementById('statsFail').innerText = stats.fail > 0 ? `พบปัญหา ${stats.fail}` : '';
-
-                const tagsDiv = document.getElementById('defectTags');
-                tagsDiv.innerHTML = Object.entries(stats.defectCounts)
-                    .map(([k,v]) => `<span class="d-tag">${k} (${v})</span>`).join('');
+                document.getElementById('progressFill').style.width = percent + '%'; document.getElementById('statsPercent').innerText = percent + '%'; document.getElementById('statsFail').innerText = stats.fail > 0 ? `พบปัญหา ${stats.fail}` : '';
+                document.getElementById('defectTags').innerHTML = Object.entries(stats.defectCounts).map(([k,v]) => `<span class="d-tag">${k} (${v})</span>`).join('');
             },
 
             renderDashboard(stats) {
                 const mNames = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
-                const [y, m] = this.month.split('-');
-                document.getElementById('dashMonthLabel').innerText = `ประจำเดือน ${mNames[parseInt(m)-1]} ${parseInt(y)+543}`;
-
-                document.getElementById('dashValTotal').innerText = stats.total;
-                document.getElementById('dashValPending').innerText = stats.pending;
-                document.getElementById('dashValPass').innerText = stats.pass;
-                document.getElementById('dashValFail').innerText = stats.fail;
-
-                const total = stats.total || 1;
-                const passPct = (stats.pass / total) * 100;
-                const failPct = (stats.fail / total) * 100;
-                
-                const cPass = `var(--success) 0% ${passPct}%`;
-                const cFail = `var(--primary) ${passPct}% ${passPct + failPct}%`;
-                const cPend = `#ECEFF1 ${passPct + failPct}% 100%`;
-                
-                document.getElementById('dashDonut').style.background = `conic-gradient(${cPass}, ${cFail}, ${cPend})`;
-                document.getElementById('dashDonutPct').innerText = Math.round((stats.done/total)*100) + '%';
-
-                const defectListEl = document.getElementById('dashDefectList');
-                defectListEl.innerHTML = '';
-                
-                const sortedDefects = Object.entries(stats.defectCounts).sort((a,b) => b[1] - a[1]);
-                
-                if(sortedDefects.length === 0) {
-                    defectListEl.innerHTML = '<div class="no-data-msg">ยังไม่พบปัญหาในเดือนนี้ 🎉</div>';
-                } else {
+                const [y, m] = this.month.split('-'); document.getElementById('dashMonthLabel').innerText = `ประจำเดือน ${mNames[parseInt(m)-1]} ${parseInt(y)+543}`;
+                document.getElementById('dashValTotal').innerText = stats.total; document.getElementById('dashValPending').innerText = stats.pending; document.getElementById('dashValPass').innerText = stats.pass; document.getElementById('dashValFail').innerText = stats.fail;
+                const total = stats.total || 1; const passPct = (stats.pass / total) * 100; const failPct = (stats.fail / total) * 100;
+                const cPass = `var(--success) 0% ${passPct}%`; const cFail = `var(--primary) ${passPct}% ${passPct + failPct}%`; const cPend = `#ECEFF1 ${passPct + failPct}% 100%`;
+                document.getElementById('dashDonut').style.background = `conic-gradient(${cPass}, ${cFail}, ${cPend})`; document.getElementById('dashDonutPct').innerText = Math.round((stats.done/total)*100) + '%';
+                const defectListEl = document.getElementById('dashDefectList'); defectListEl.innerHTML = ''; const sortedDefects = Object.entries(stats.defectCounts).sort((a,b) => b[1] - a[1]);
+                if(sortedDefects.length === 0) { defectListEl.innerHTML = '<div class="no-data-msg">ยังไม่พบปัญหาในเดือนนี้ 🎉</div>'; } else {
                     let maxDefect = sortedDefects[0][1];
                     sortedDefects.forEach(([topic, count]) => {
                         const barWidth = (count / maxDefect) * 100;
-                        defectListEl.innerHTML += `
-                            <div class="defect-item">
-                                <div class="defect-lbl-row">
-                                    <span>${topic}</span>
-                                    <span style="font-weight:600; color:var(--primary);">${count} จุด</span>
-                                </div>
-                                <div class="defect-bar-bg">
-                                    <div class="defect-bar-fill" style="width: ${barWidth}%"></div>
-                                </div>
-                            </div>
-                        `;
+                        defectListEl.innerHTML += `<div class="defect-item"><div class="defect-lbl-row"><span>${topic}</span><span style="font-weight:600; color:var(--primary);">${count} จุด</span></div><div class="defect-bar-bg"><div class="defect-bar-fill" style="width: ${barWidth}%"></div></div></div>`;
                     });
                 }
             },
 
             renderYearlyDashboard() {
-                const year = this.month.split('-')[0];
-                document.getElementById('dashYearLabel').innerText = `ภาพรวมปี พ.ศ. ${parseInt(year) + 543}`;
-
-                const months = ['01','02','03','04','05','06','07','08','09','10','11','12'];
-                const mNames = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-
-                const chartEl = document.getElementById('yearChart');
-                chartEl.innerHTML = '';
-
-                let totalYearPass = 0;
-                let totalYearFail = 0;
-                const totalDevices = this.data.length || 1;
-
+                const year = this.month.split('-')[0]; document.getElementById('dashYearLabel').innerText = `ภาพรวมปี พ.ศ. ${parseInt(year) + 543}`;
+                const months = ['01','02','03','04','05','06','07','08','09','10','11','12']; const mNames = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+                const chartEl = document.getElementById('yearChart'); chartEl.innerHTML = '';
+                let totalYearPass = 0; let totalYearFail = 0; const totalDevices = this.data.length || 1;
                 months.forEach((m, idx) => {
-                    const targetMonth = `${year}-${m}`;
-                    let pass = 0, fail = 0;
-
+                    const targetMonth = `${year}-${m}`; let pass = 0, fail = 0;
                     this.data.forEach(item => {
-                        let status = 'pending';
-                        const cloudInfo = this.cloudData[targetMonth] ? this.cloudData[targetMonth][item.id] : null;
-                        const localInfo = item.history[targetMonth];
-
-                        if (cloudInfo) {
-                            const s = String(cloudInfo.status).toLowerCase();
-                            status = (s === 'pass' || (s.includes('ปกติ') && !s.includes('ผิด'))) ? 'pass' : 'fail';
-                        }
+                        let status = 'pending'; const cloudInfo = this.cloudData[targetMonth] ? this.cloudData[targetMonth][item.id] : null; const localInfo = item.history[targetMonth];
+                        if (cloudInfo) { const s = String(cloudInfo.status).toLowerCase(); status = (s === 'pass' || (s.includes('ปกติ') && !s.includes('ผิด'))) ? 'pass' : 'fail'; }
                         if (localInfo) status = localInfo.status;
-
-                        if(status === 'pass') pass++;
-                        if(status === 'fail') fail++;
+                        if(status === 'pass') pass++; if(status === 'fail') fail++;
                     });
-
-                    totalYearPass += pass;
-                    totalYearFail += fail;
-
-                    const passPct = (pass / totalDevices) * 100;
-                    const failPct = (fail / totalDevices) * 100;
-
-                    chartEl.innerHTML += `
-                        <div class="y-col">
-                            <div class="y-bar-wrap">
-                                <div class="y-bar-fail" style="height: ${failPct}%;" title="ปัญหา ${fail}"></div>
-                                <div class="y-bar-pass" style="height: ${passPct}%;" title="ปกติ ${pass}"></div>
-                            </div>
-                            <span class="y-lbl">${mNames[idx]}</span>
-                        </div>
-                    `;
+                    totalYearPass += pass; totalYearFail += fail;
+                    const passPct = (pass / totalDevices) * 100; const failPct = (fail / totalDevices) * 100;
+                    chartEl.innerHTML += `<div class="y-col"><div class="y-bar-wrap"><div class="y-bar-fail" style="height: ${failPct}%;" title="ปัญหา ${fail}"></div><div class="y-bar-pass" style="height: ${passPct}%;" title="ปกติ ${pass}"></div></div><span class="y-lbl">${mNames[idx]}</span></div>`;
                 });
-
-                document.getElementById('yearTotalPass').innerText = totalYearPass;
-                document.getElementById('yearTotalFail').innerText = totalYearFail;
+                document.getElementById('yearTotalPass').innerText = totalYearPass; document.getElementById('yearTotalFail').innerText = totalYearFail;
             },
 
             addDevice() {
-                const id = document.getElementById('addId').value.toUpperCase().trim();
-                const loc = document.getElementById('addLoc').value.trim();
-                const type = document.getElementById('addType').value.trim();
-                const size = document.getElementById('addSize').value.trim();
-
+                const id = document.getElementById('addId').value.toUpperCase().trim(); const loc = document.getElementById('addLoc').value.trim(); const type = document.getElementById('addType').value.trim(); const size = document.getElementById('addSize').value.trim();
                 if(!id || !loc) return Toast.show('กรุณากรอกรหัสและสถานที่', 'warning');
                 if(this.data.find(d => d.id === id)) return Toast.show('รหัสถังนี้มีอยู่แล้ว', 'error');
-
                 this.data.push({ id, loc, type, size, expDate: '', history: {} });
-                this.saveToStorage();
-                UI.closeModal('modalAdd');
-                this.populateLocationFilter();
-                this.renderAll();
-                Toast.show('เพิ่มจุดตรวจสำเร็จ!', 'success');
+                this.saveToStorage(); UI.closeModal('modalAdd'); this.populateLocationFilter(); this.renderAll(); Toast.show('เพิ่มจุดตรวจสำเร็จ!', 'success');
             },
 
             getChecklistItems(type) {
@@ -1057,433 +670,175 @@
             },
 
             openInspect(id) {
-                this.currentId = id;
-                const item = this.data.find(d => d.id === id);
-                if(!item) return;
-
-                const cloudInfo = this.cloudStatus[id];
-                if (cloudInfo) Toast.show(`ตรวจแล้วโดย: ${cloudInfo.inspector}`, 'info');
-
+                this.currentId = id; const item = this.data.find(d => d.id === id); if(!item) return;
+                const cloudInfo = this.cloudStatus[id]; if (cloudInfo) Toast.show(`ตรวจแล้วโดย: ${cloudInfo.inspector}`, 'info');
                 const h = item.history[this.month];
-                document.getElementById('inspectTitle').innerText = `${item.id} : ${item.loc}`;
-                document.getElementById('inspectSubtitle').innerText = `ประเภท: ${item.type} (${item.size})`;
-                
+                document.getElementById('inspectTitle').innerText = `${item.id} : ${item.loc}`; document.getElementById('inspectSubtitle').innerText = `ประเภท: ${item.type} (${item.size})`;
                 const expEl = document.getElementById('inspectExpDate');
-                if(item.expDate) {
-                    expEl.innerHTML = `<i class="fa-solid fa-calendar-xmark"></i> วันหมดอายุ/เทสต์: ${item.expDate}`;
-                    expEl.style.display = 'block';
-                } else {
-                    expEl.style.display = 'none';
-                }
+                if(item.expDate) { expEl.innerHTML = `<i class="fa-solid fa-calendar-xmark"></i> วันหมดอายุ/เทสต์: ${item.expDate}`; expEl.style.display = 'block'; } else { expEl.style.display = 'none'; }
+                document.getElementById('inspectName').value = h?.inspector || ''; document.getElementById('inspectNote').value = h?.note || '';
+                const lastCheckEl = document.getElementById('lastCheckDate'); const lastCheckInfo = document.getElementById('lastCheckInfo');
+                if(h && h.time) { lastCheckEl.innerText = h.time; lastCheckInfo.style.display = 'block'; } else { lastCheckInfo.style.display = 'none'; }
+                this.tempPhoto = h?.photo || null; this.updatePhotoUI();
 
-                document.getElementById('inspectName').value = h?.inspector || '';
-                document.getElementById('inspectNote').value = h?.note || '';
-                
-                const lastCheckEl = document.getElementById('lastCheckDate');
-                const lastCheckInfo = document.getElementById('lastCheckInfo');
-                if(h && h.time) { lastCheckEl.innerText = h.time; lastCheckInfo.style.display = 'block'; } 
-                else { lastCheckInfo.style.display = 'none'; }
-
-                this.tempPhoto = h?.photo || null;
-                this.updatePhotoUI();
-
-                const checksDiv = document.getElementById('checklistForm');
-                checksDiv.innerHTML = '';
-                this.currentCheckList = this.getChecklistItems(item.type);
-
+                const checksDiv = document.getElementById('checklistForm'); checksDiv.innerHTML = ''; this.currentCheckList = this.getChecklistItems(item.type);
                 this.currentCheckList.forEach((q, i) => {
                     const isChecked = h && h.checks ? h.checks[i] : false; 
-                    checksDiv.innerHTML += `
-                        <div class="check-item">
-                            <span class="check-label">${i+1}. ${q}</span>
-                            <label class="switch">
-                                <input type="checkbox" id="chk_${i}" ${isChecked ? 'checked' : ''} onchange="App.checkStatus()">
-                                <span class="slider"></span>
-                            </label>
-                        </div>`;
+                    checksDiv.innerHTML += `<div class="check-item"><span class="check-label">${i+1}. ${q}</span><label class="switch"><input type="checkbox" id="chk_${i}" ${isChecked ? 'checked' : ''} onchange="App.checkStatus()"><span class="slider"></span></label></div>`;
                 });
-
                 this.checkStatus();
+                
+                // ตรวจสอบว่าต้องโชว์ปุ่มปิดจ็อบซ่อมไหม (ถ้าสถานะปัจจุบันคือ Fail)
+                const currentStatus = h?.status || (cloudInfo && (String(cloudInfo.status).toLowerCase() === 'pass' || String(cloudInfo.status).includes('ปกติ') ? 'pass' : 'fail'));
+                document.getElementById('btnResolve').style.display = (currentStatus === 'fail') ? 'flex' : 'none';
+
                 UI.openModal('modalInspect');
             },
 
-            openEdit() {
-                const item = this.data.find(d => d.id === this.currentId);
-                if(!item) return;
-                
-                document.getElementById('editId').value = item.id;
-                document.getElementById('editLoc').value = item.loc;
-                document.getElementById('editType').value = item.type;
-                document.getElementById('editSize').value = item.size;
-                document.getElementById('editExp').value = item.expDate || '';
-                
-                UI.openModal('modalEdit');
+            // --- ฟังก์ชันสำหรับ จป. ปิดจ็อบงานซ่อม ---
+            resolveIssue() {
+                if(!confirm('ยืนยันว่า "ถังดับเพลิงใบนี้ได้รับการซ่อมแซมเรียบร้อยแล้ว" ใช่หรือไม่?')) return;
+                this.setAllPass(); // ติ๊กถูกทุกข้อ
+                const noteEl = document.getElementById('inspectNote');
+                noteEl.value = (noteEl.value ? noteEl.value + " | " : "") + "ได้รับการซ่อมแซม/เปลี่ยนอะไหล่เรียบร้อยแล้ว";
+                this.save(); // กดเซฟอัตโนมัติ
             },
 
-            saveEditDevice() {
-                const id = document.getElementById('editId').value;
-                const loc = document.getElementById('editLoc').value.trim();
-                const type = document.getElementById('editType').value.trim();
-                const size = document.getElementById('editSize').value.trim();
-                const expDate = document.getElementById('editExp').value;
+            // --- ฟังก์ชันสร้างรายงานประจำเดือน PDF สำหรับ จป. ---
+            generateReport() {
+                UI.closeModal('modalMenu');
+                const stats = this.calculateStats();
+                const reportEl = document.getElementById('reportContainer');
+                const [y, m] = this.month.split('-');
+                const mNames = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
+                const monthTh = `${mNames[parseInt(m)-1]} ${parseInt(y)+543}`;
 
-                if(!loc) return Toast.show('กรุณาระบุสถานที่ติดตั้ง', 'warning');
+                let failItemsHtml = '';
+                this.data.forEach(item => {
+                    const cloudInfo = this.cloudStatus[item.id];
+                    const localInfo = item.history[this.month];
+                    let status = 'pending'; let failReason = ''; let note = '';
 
-                const itemIndex = this.data.findIndex(d => d.id === id);
-                if(itemIndex > -1) {
-                    this.data[itemIndex].loc = loc;
-                    this.data[itemIndex].type = type;
-                    this.data[itemIndex].size = size;
-                    this.data[itemIndex].expDate = expDate;
-                    
-                    this.saveToStorage();
-                    this.populateLocationFilter();
-                    this.renderAll();
-                    UI.closeModal('modalEdit');
-                    this.openInspect(id);
-                    Toast.show('อัปเดตข้อมูลถังสำเร็จ!', 'success');
-                }
+                    if (cloudInfo) {
+                        const s = String(cloudInfo.status).toLowerCase();
+                        status = (s === 'pass' || (s.includes('ปกติ') && !s.includes('ผิด'))) ? 'pass' : 'fail';
+                        failReason = cloudInfo.failReason || ''; note = cloudInfo.note || '';
+                    }
+                    if (localInfo) {
+                        status = localInfo.status; failReason = localInfo.failTopics ? localInfo.failTopics.join(', ') : ''; note = localInfo.note || '';
+                    }
+
+                    if (status === 'fail') {
+                        failItemsHtml += `<tr><td style="border: 1px solid #000; padding: 10px; text-align:center;">${item.id}</td><td style="border: 1px solid #000; padding: 10px;">${item.loc}</td><td style="border: 1px solid #000; padding: 10px; color:red;">${failReason}</td><td style="border: 1px solid #000; padding: 10px;">${note}</td></tr>`;
+                    }
+                });
+
+                if (failItemsHtml === '') { failItemsHtml = `<tr><td colspan="4" style="border: 1px solid #000; padding: 15px; text-align:center; color:green; font-weight:bold;">🎉 ไม่พบอุปกรณ์ชำรุดในเดือนนี้ (100% Pass)</td></tr>`; }
+
+                reportEl.innerHTML = `
+                    <div style="text-align:center; margin-bottom:30px;">
+                        <h2 style="font-size:28px; margin:0 0 5px 0;">รายงานผลการตรวจสอบอุปกรณ์ดับเพลิง</h2>
+                        <h3 style="font-size:20px; margin:0; font-weight:normal; color:#666;">ประจำเดือน ${monthTh}</h3>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:30px;">
+                        <div style="width:31%; padding:15px; border:2px solid #333; text-align:center; border-radius:8px;">
+                            <div style="font-size:16px; color:#555;">จำนวนถังทั้งหมด</div><div style="font-size:32px; font-weight:bold;">${stats.total}</div>
+                        </div>
+                        <div style="width:31%; padding:15px; border:2px solid #2E7D32; background:#E8F5E9; text-align:center; border-radius:8px;">
+                            <div style="font-size:16px; color:#2E7D32;">สภาพปกติ (Pass)</div><div style="font-size:32px; font-weight:bold; color:#2E7D32;">${stats.pass}</div>
+                        </div>
+                        <div style="width:31%; padding:15px; border:2px solid #D32F2F; background:#FFEBEE; text-align:center; border-radius:8px;">
+                            <div style="font-size:16px; color:#D32F2F;">พบปัญหา (Fail)</div><div style="font-size:32px; font-weight:bold; color:#D32F2F;">${stats.fail}</div>
+                        </div>
+                    </div>
+                    <h4 style="margin: 0 0 15px 0; font-size:18px;">⚠️ รายการอุปกรณ์ที่ชำรุด / แจ้งซ่อมบำรุง</h4>
+                    <table style="width:100%; border-collapse: collapse; margin-bottom: 60px; font-size:14px;">
+                        <thead>
+                            <tr style="background-color: #333; color:white;">
+                                <th style="border: 1px solid #000; padding: 10px; width:15%;">รหัสถัง</th>
+                                <th style="border: 1px solid #000; padding: 10px; width:25%;">สถานที่ติดตั้ง</th>
+                                <th style="border: 1px solid #000; padding: 10px; width:35%;">สาเหตุที่ชำรุด</th>
+                                <th style="border: 1px solid #000; padding: 10px; width:25%;">หมายเหตุ</th>
+                            </tr>
+                        </thead>
+                        <tbody>${failItemsHtml}</tbody>
+                    </table>
+                    <div style="display:flex; justify-content:space-around; margin-top:80px; text-align:center;">
+                        <div style="width:40%;">
+                            <p style="margin:0 0 10px 0; border-bottom:1px dashed #000; display:inline-block; width:80%; height:20px;"></p>
+                            <p style="margin:0;">(.............................................................)</p>
+                            <p style="margin:5px 0 0 0; font-weight:bold;">ผู้ตรวจสอบ</p>
+                            <p style="margin:5px 0 0 0; font-size:14px;">วันที่ ....... / ....... / .......</p>
+                        </div>
+                        <div style="width:40%;">
+                            <p style="margin:0 0 10px 0; border-bottom:1px dashed #000; display:inline-block; width:80%; height:20px;"></p>
+                            <p style="margin:0;">(.............................................................)</p>
+                            <p style="margin:5px 0 0 0; font-weight:bold;">เจ้าหน้าที่ความปลอดภัย (จป.วิชาชีพ)</p>
+                            <p style="margin:5px 0 0 0; font-size:14px;">วันที่ ....... / ....... / .......</p>
+                        </div>
+                    </div>
+                `;
+
+                document.body.classList.add('print-mode-report');
+                document.body.classList.remove('print-mode-qr');
+                UI.openModal('modalReport');
             },
 
-            deleteDevice() {
-                const id = document.getElementById('editId').value;
-                if(confirm(`⚠️ คุณแน่ใจหรือไม่ว่าต้องการลบถังรหัส ${id} ออกจากระบบ?\n(ข้อมูลประวัติการตรวจทั้งหมดของถังนี้จะหายไป)`)) {
-                    this.data = this.data.filter(d => d.id !== id);
-                    this.saveToStorage();
-                    this.populateLocationFilter();
-                    this.renderAll();
-                    UI.closeModal('modalEdit');
-                    UI.closeModal('modalInspect');
-                    Toast.show(`ลบถัง ${id} เรียบร้อยแล้ว`, 'success');
-                }
-            },
-
-            showHistory() {
-                const item = this.data.find(d => d.id === this.currentId);
-                if(!item) return;
-
-                document.getElementById('historyTitle').innerText = `${item.id} - ${item.loc}`;
-                const listEl = document.getElementById('historyList');
-                listEl.innerHTML = '';
-
-                const monthsChecked = Object.keys(item.history).sort().reverse();
-
-                if(monthsChecked.length === 0) {
-                    listEl.innerHTML = '<div style="text-align:center; padding:20px; color:#999; font-size:0.9rem; background:#F5F5F5; border-radius:12px;">ยังไม่มีประวัติการตรวจในระบบเครื่องนี้</div>';
-                } else {
-                    monthsChecked.forEach(m => {
-                        const h = item.history[m];
-                        const isPass = h.status === 'pass';
-                        const color = isPass ? 'var(--success)' : 'var(--primary)';
-                        const icon = isPass ? 'fa-circle-check' : 'fa-triangle-exclamation';
-                        const failText = !isPass && h.failTopics ? `<br><span style="color:var(--primary); font-size:0.8rem;">ปัญหา: ${h.failTopics.join(', ')}</span>` : '';
-                        
-                        listEl.innerHTML += `
-                            <div style="border:1px solid #ECEFF1; border-radius:12px; padding:12px; background:#FFF; border-left:4px solid ${color};">
-                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                                    <span style="font-weight:600; font-size:0.95rem;">เดือน ${m}</span>
-                                    <span style="color:${color}; font-size:0.85rem; font-weight:600;"><i class="fa-solid ${icon}"></i> ${isPass ? 'ปกติ' : 'พบปัญหา'}</span>
-                                </div>
-                                <div style="font-size:0.85rem; color:var(--text-muted); line-height:1.4;">
-                                    <i class="fa-solid fa-user"></i> ผู้ตรวจ: ${h.inspector || '-'}<br>
-                                    <i class="fa-solid fa-calendar"></i> เวลา: ${h.time || '-'}${failText}
-                                </div>
-                            </div>
-                        `;
-                    });
-                }
-                UI.openModal('modalHistory');
-            },
-
-            // --- ระบบจัดการพิมพ์ QR Code ฝังลิงก์เว็บ ---
             openPrintQR() {
                 UI.closeModal('modalMenu');
+                document.body.classList.add('print-mode-qr');
+                document.body.classList.remove('print-mode-report');
                 document.getElementById('qrPrintContainer').innerHTML = '<div class="no-print" style="color:#999; margin-top:50px; width:100%; text-align:center;">กดปุ่มด้านบนเพื่อโหลด QR Code ขึ้นมาบนกระดาษ</div>';
                 UI.openModal('modalPrintQR');
             },
 
-            appendQRBlock(id) {
-                const container = document.getElementById('qrPrintContainer');
-                const div = document.createElement('div');
-                div.className = 'qr-card-screen';
-                
-                // ⚠️ ฝังลิงก์แอป เพื่อให้ใช้กล้องมือถือปกติสแกนได้เลย!
-                const appUrl = `https://safetyawareness.github.io/safety-check/?id=${id}`;
-                const qrData = encodeURIComponent(appUrl);
-
-                div.innerHTML = `
-                    <button class="del-qr-btn" onclick="this.parentElement.remove()">✕</button>
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrData}" alt="${id}">
-                    <h3 style="margin: 0; font-size: 1.2rem; color: #263238;">${id}</h3>
-                    <p style="margin: 2px 0 0 0; font-size: 0.7rem; color: #D32F2F; font-weight: 600;">สแกนเพื่อตรวจถังนี้</p>
-                `;
-                container.appendChild(div);
-            },
-
-            generateAllQR() {
-                if(this.data.length === 0) return Toast.show('ไม่มีถังในระบบ', 'warning');
-                document.getElementById('qrPrintContainer').innerHTML = '';
-                Toast.show('กำลังโหลดรูปภาพ QR Code...', 'info');
-                
-                setTimeout(() => {
-                    this.data.forEach(item => this.appendQRBlock(item.id));
-                }, 100);
-            },
-
-            generateSingleQR() {
-                const input = document.getElementById('customQrId');
-                const id = input.value.toUpperCase().trim();
-                if(!id) return Toast.show('กรุณาระบุรหัสถัง', 'warning');
-                
-                const container = document.getElementById('qrPrintContainer');
-                if(container.innerHTML.includes('กดปุ่มด้านบน')) container.innerHTML = '';
-
-                this.appendQRBlock(id);
-                input.value = '';
-            },
-
-            setAllPass() {
-                this.currentCheckList.forEach((_, i) => {
-                    const el = document.getElementById(`chk_${i}`);
-                    if(el) el.checked = true;
-                });
-                this.checkStatus();
-            },
-
-            checkStatus() {
-                const checks = [];
-                for(let i=0; i<this.currentCheckList.length; i++) {
-                    const el = document.getElementById(`chk_${i}`);
-                    if(el) checks.push(el.checked);
-                }
-                const isFail = checks.some(c => !c);
-                const photoSec = document.getElementById('photoSection');
-                
-                if(isFail) photoSec.style.display = 'block';
-                else if(!this.tempPhoto) photoSec.style.display = 'none';
-            },
+            openEdit() { const item = this.data.find(d => d.id === this.currentId); if(!item) return; document.getElementById('editId').value = item.id; document.getElementById('editLoc').value = item.loc; document.getElementById('editType').value = item.type; document.getElementById('editSize').value = item.size; document.getElementById('editExp').value = item.expDate || ''; UI.openModal('modalEdit'); },
+            saveEditDevice() { const id = document.getElementById('editId').value; const loc = document.getElementById('editLoc').value.trim(); const type = document.getElementById('editType').value.trim(); const size = document.getElementById('editSize').value.trim(); const expDate = document.getElementById('editExp').value; if(!loc) return Toast.show('กรุณาระบุสถานที่', 'warning'); const itemIndex = this.data.findIndex(d => d.id === id); if(itemIndex > -1) { this.data[itemIndex].loc = loc; this.data[itemIndex].type = type; this.data[itemIndex].size = size; this.data[itemIndex].expDate = expDate; this.saveToStorage(); this.populateLocationFilter(); this.renderAll(); UI.closeModal('modalEdit'); this.openInspect(id); Toast.show('อัปเดตข้อมูลสำเร็จ!', 'success'); } },
+            deleteDevice() { const id = document.getElementById('editId').value; if(confirm(`⚠️ ลบถังรหัส ${id} ออกจากระบบ?`)) { this.data = this.data.filter(d => d.id !== id); this.saveToStorage(); this.populateLocationFilter(); this.renderAll(); UI.closeModal('modalEdit'); UI.closeModal('modalInspect'); Toast.show(`ลบถัง ${id} เรียบร้อย`, 'success'); } },
+            showHistory() { const item = this.data.find(d => d.id === this.currentId); if(!item) return; document.getElementById('historyTitle').innerText = `${item.id} - ${item.loc}`; const listEl = document.getElementById('historyList'); listEl.innerHTML = ''; const monthsChecked = Object.keys(item.history).sort().reverse(); if(monthsChecked.length === 0) { listEl.innerHTML = '<div style="text-align:center; padding:20px; color:#999; font-size:0.9rem; background:#F5F5F5; border-radius:12px;">ยังไม่มีประวัติการตรวจในเครื่องนี้</div>'; } else { monthsChecked.forEach(m => { const h = item.history[m]; const isPass = h.status === 'pass'; const color = isPass ? 'var(--success)' : 'var(--primary)'; const icon = isPass ? 'fa-circle-check' : 'fa-triangle-exclamation'; const failText = !isPass && h.failTopics ? `<br><span style="color:var(--primary); font-size:0.8rem;">ปัญหา: ${h.failTopics.join(', ')}</span>` : ''; listEl.innerHTML += `<div style="border:1px solid #ECEFF1; border-radius:12px; padding:12px; background:#FFF; border-left:4px solid ${color};"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;"><span style="font-weight:600; font-size:0.95rem;">เดือน ${m}</span><span style="color:${color}; font-size:0.85rem; font-weight:600;"><i class="fa-solid ${icon}"></i> ${isPass ? 'ปกติ' : 'พบปัญหา'}</span></div><div style="font-size:0.85rem; color:var(--text-muted); line-height:1.4;"><i class="fa-solid fa-user"></i> ผู้ตรวจ: ${h.inspector || '-'}<br><i class="fa-solid fa-calendar"></i> เวลา: ${h.time || '-'}${failText}</div></div>`; }); } UI.openModal('modalHistory'); },
             
-            updatePhotoUI() {
-                const img = document.getElementById('photoPreview');
-                if(this.tempPhoto) { img.src = this.tempPhoto; img.style.display = 'block'; } 
-                else { img.style.display = 'none'; img.src = ''; }
-            },
+            appendQRBlock(id) { const container = document.getElementById('qrPrintContainer'); const div = document.createElement('div'); div.className = 'qr-card-screen'; const appUrl = `https://safetyawareness.github.io/safety-check/?id=${id}`; const qrData = encodeURIComponent(appUrl); div.innerHTML = `<button class="del-qr-btn" onclick="this.parentElement.remove()">✕</button><img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrData}" alt="${id}"><h3 style="margin: 0; font-size: 1.2rem; color: #263238;">${id}</h3><p style="margin: 2px 0 0 0; font-size: 0.7rem; color: #D32F2F; font-weight: 600;">สแกนเพื่อตรวจถังนี้</p>`; container.appendChild(div); },
+            generateAllQR() { if(this.data.length === 0) return Toast.show('ไม่มีถังในระบบ', 'warning'); document.getElementById('qrPrintContainer').innerHTML = ''; Toast.show('กำลังโหลดรูปลงกระดาษ...', 'info'); setTimeout(() => { this.data.forEach(item => this.appendQRBlock(item.id)); }, 100); },
+            generateSingleQR() { const input = document.getElementById('customQrId'); const id = input.value.toUpperCase().trim(); if(!id) return Toast.show('กรุณาระบุรหัสถัง', 'warning'); const container = document.getElementById('qrPrintContainer'); if(container.innerHTML.includes('กดปุ่มด้านบน')) container.innerHTML = ''; this.appendQRBlock(id); input.value = ''; },
 
-            handlePhoto(input) {
-                if (input.files && input.files[0]) {
-                    const file = input.files[0];
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const img = new Image();
-                        img.src = e.target.result;
-                        img.onload = () => {
-                            const canvas = document.createElement('canvas');
-                            const ctx = canvas.getContext('2d');
-                            const MAX_SIZE = 500;
-                            let w = img.width, h = img.height;
-                            if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; } } 
-                            else { if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; } }
-                            canvas.width = w; canvas.height = h;
-                            ctx.drawImage(img, 0, 0, w, h);
-                            this.tempPhoto = canvas.toDataURL('image/jpeg', 0.5);
-                            this.updatePhotoUI();
-                        };
-                    };
-                    reader.readAsDataURL(file);
-                }
-            },
+            setAllPass() { this.currentCheckList.forEach((_, i) => { const el = document.getElementById(`chk_${i}`); if(el) el.checked = true; }); this.checkStatus(); },
+            checkStatus() { const checks = []; for(let i=0; i<this.currentCheckList.length; i++) { const el = document.getElementById(`chk_${i}`); if(el) checks.push(el.checked); } const isFail = checks.some(c => !c); const photoSec = document.getElementById('photoSection'); if(isFail) photoSec.style.display = 'block'; else if(!this.tempPhoto) photoSec.style.display = 'none'; },
+            updatePhotoUI() { const img = document.getElementById('photoPreview'); if(this.tempPhoto) { img.src = this.tempPhoto; img.style.display = 'block'; } else { img.style.display = 'none'; img.src = ''; } },
+            handlePhoto(input) { if (input.files && input.files[0]) { const file = input.files[0]; const reader = new FileReader(); reader.onload = (e) => { const img = new Image(); img.src = e.target.result; img.onload = () => { const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d'); const MAX_SIZE = 500; let w = img.width, h = img.height; if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; } } else { if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; } } canvas.width = w; canvas.height = h; ctx.drawImage(img, 0, 0, w, h); this.tempPhoto = canvas.toDataURL('image/jpeg', 0.5); this.updatePhotoUI(); }; }; reader.readAsDataURL(file); } },
 
             save() {
-                const name = document.getElementById('inspectName').value.trim();
-                if (!name) return Toast.show('กรุณาระบุชื่อผู้ตรวจสอบ', 'warning');
-                
-                const btn = document.getElementById('btnSave');
-                btn.disabled = true;
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
-
-                const checks = [];
-                const failTopics = [];
-                for(let i=0; i<this.currentCheckList.length; i++) {
-                    const isChecked = document.getElementById(`chk_${i}`).checked;
-                    checks.push(isChecked);
-                    if(!isChecked) failTopics.push(this.currentCheckList[i]);
-                }
-
+                const name = document.getElementById('inspectName').value.trim(); if (!name) return Toast.show('กรุณาระบุชื่อผู้ตรวจสอบ', 'warning');
+                const btn = document.getElementById('btnSave'); btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
+                const checks = []; const failTopics = [];
+                for(let i=0; i<this.currentCheckList.length; i++) { const isChecked = document.getElementById(`chk_${i}`).checked; checks.push(isChecked); if(!isChecked) failTopics.push(this.currentCheckList[i]); }
                 const status = checks.every(c => c === true) ? 'pass' : 'fail';
-                
-                if(status === 'fail' && !this.tempPhoto) {
-                    if(!confirm("⚠️ พบข้อบกพร่องแต่ยังไม่ได้ถ่ายรูป\nต้องการบันทึกโดยไม่มีรูปหรือไม่?")) {
-                        btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> บันทึกข้อมูล';
-                        return;
-                    }
-                }
+                if(status === 'fail' && !this.tempPhoto) { if(!confirm("⚠️ พบข้อบกพร่องแต่ยังไม่ได้ถ่ายรูป\nต้องการบันทึกโดยไม่มีรูปหรือไม่?")) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> บันทึกข้อมูล'; return; } }
 
                 const item = this.data.find(d => d.id === this.currentId);
-                const payload = {
-                    id: this.currentId, loc: item.loc, type: item.type, month: this.month,
-                    status: status, inspector: name, note: document.getElementById('inspectNote').value,
-                    checks: checks, failTopics: failTopics, time: new Date().toLocaleString('th-TH'), photo: this.tempPhoto
-                };
-
-                item.history[this.month] = { ...payload }; 
+                const payload = { id: this.currentId, loc: item.loc, type: item.type, size: item.size, expDate: item.expDate, month: this.month, status: status, inspector: name, note: document.getElementById('inspectNote').value, checks: checks, failTopics: failTopics, time: new Date().toLocaleString('th-TH'), photo: this.tempPhoto };
                 
+                item.history[this.month] = { ...payload }; 
                 if (!this.cloudData[this.month]) this.cloudData[this.month] = {};
-                this.cloudData[this.month][this.currentId] = {
-                    status: status, inspector: name, time: payload.time, image: this.tempPhoto, failReason: failTopics[0] || ''
-                };
+                this.cloudData[this.month][this.currentId] = { status: status, inspector: name, time: payload.time, image: this.tempPhoto, failReason: failTopics[0] || '', note: payload.note };
                 this.cloudStatus = this.cloudData[this.month];
                 
-                this.saveToStorage();
-                this.renderAll(); 
-
+                this.saveToStorage(); this.renderAll(); 
                 if(CLOUD_URL && CLOUD_URL.startsWith('http')) {
-                    fetch(CLOUD_URL, {
-                        method: 'POST', mode: 'no-cors',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    }).then(() => { 
-                        Toast.show("บันทึกเข้าระบบคลาวด์สำเร็จ!", "success"); 
-                        UI.closeModal('modalInspect'); 
-                    })
-                    .catch(err => { 
-                        Toast.show("บันทึกในเครื่องแล้ว (ส่งออนไลน์ไม่ผ่าน)", "warning"); 
-                        UI.closeModal('modalInspect'); 
-                    })
+                    fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+                    .then(() => { Toast.show("บันทึกเข้าระบบคลาวด์สำเร็จ!", "success"); UI.closeModal('modalInspect'); })
+                    .catch(err => { Toast.show("บันทึกในเครื่องแล้ว (ส่งออนไลน์ไม่ผ่าน)", "warning"); UI.closeModal('modalInspect'); })
                     .finally(() => { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> บันทึกข้อมูล'; });
-                } else {
-                    Toast.show("บันทึกในเครื่องเรียบร้อย (Offline)", "success");
-                    UI.closeModal('modalInspect');
-                    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> บันทึกข้อมูล';
-                }
+                } else { Toast.show("บันทึกในเครื่องเรียบร้อย (Offline)", "success"); UI.closeModal('modalInspect'); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> บันทึกข้อมูล'; }
             },
 
-            filter(type, btn) {
-                this.filterType = type;
-                document.querySelectorAll('.chip').forEach(b => b.classList.remove('active')); 
-                if(btn) btn.classList.add('active'); 
-                this.renderAll();
-            },
-
-            changeMonth() { 
-                this.month = document.getElementById('monthPicker').value; 
-                this.cloudStatus = this.cloudData[this.month] || {}; 
-                this.renderAll(); 
-            },
-            
-            exportExcel() {
-                let csv = `\uFEFFID,Location,Type,Size,Status,Inspector,Timestamp,Note,Check_Result,Image_URL\n`;
-                this.data.forEach(d => {
-                    const local = d.history[this.month];
-                    const cloud = this.cloudStatus[d.id];
-                    let useData = local;
-                    
-                    if(cloud && cloud.status) {
-                        useData = {
-                            status: (String(cloud.status).toLowerCase() === 'pass' || (String(cloud.status).includes('ปกติ') && !String(cloud.status).includes('ผิด'))) ? 'pass' : 'fail',
-                            inspector: cloud.inspector, time: cloud.time,
-                            note: cloud.note || (local?.note || ''), 
-                            failTopics: cloud.failReason ? [cloud.failReason] : (local?.failTopics || []),
-                            image: cloud.image || (local?.photo || '')
-                        };
-                    }
-
-                    if(useData) {
-                        let resultStr = "PASS";
-                        if(useData.status === 'fail') {
-                            resultStr = (useData.failTopics && useData.failTopics.length > 0) ? "FAIL: " + useData.failTopics.join(" | ") : "FAIL (No Details)";
-                        }
-                        const note = (useData.note || '').replace(/,/g, ' ');
-                        const safeResult = resultStr.replace(/,/g, ' ');
-                        const imgLink = useData.image || ''; 
-                        csv += `${d.id},"${d.loc}","${d.type}","${d.size}",${useData.status},"${useData.inspector}",${useData.time},"${note}","${safeResult}","${imgLink}"\n`;
-                    } else { csv += `${d.id},"${d.loc}","${d.type}","${d.size}",PENDING,,,,,\n`; }
-                });
-
-                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement("a");
-                link.href = URL.createObjectURL(blob);
-                link.download = `FireReport_${this.month}.csv`;
-                link.click();
-                Toast.show("ดาวน์โหลด Excel แล้ว", "success");
-            },
-
-            backupData() {
-                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.data));
-                const dl = document.createElement('a');
-                dl.setAttribute("href", dataStr);
-                dl.setAttribute("download", `FireCheck_Backup_${new Date().toISOString().slice(0,10)}.json`);
-                document.body.appendChild(dl); dl.click(); dl.remove();
-                Toast.show("สำรองข้อมูลสำเร็จ", "success");
-            },
-
-            restoreData(input) {
-                const file = input.files[0];
-                if(!file) return;
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try { 
-                        this.data = JSON.parse(e.target.result); 
-                        this.saveToStorage(); 
-                        this.populateLocationFilter();
-                        this.renderAll(); 
-                        Toast.show('กู้คืนข้อมูลสำเร็จ!', 'success'); 
-                        UI.closeModal('modalMenu'); 
-                    } 
-                    catch(err) { Toast.show('ไฟล์ไม่ถูกต้อง', 'error'); }
-                };
-                reader.readAsText(file);
-            },
-
+            exportExcel() { let csv = `\uFEFFID,Location,Type,Size,Status,Inspector,Timestamp,Note,Check_Result,Image_URL\n`; this.data.forEach(d => { const local = d.history[this.month]; const cloud = this.cloudStatus[d.id]; let useData = local; if(cloud && cloud.status) { useData = { status: (String(cloud.status).toLowerCase() === 'pass' || (String(cloud.status).includes('ปกติ') && !String(cloud.status).includes('ผิด'))) ? 'pass' : 'fail', inspector: cloud.inspector, time: cloud.time, note: cloud.note || (local?.note || ''), failTopics: cloud.failReason ? [cloud.failReason] : (local?.failTopics || []), image: cloud.image || (local?.photo || '') }; } if(useData) { let resultStr = "PASS"; if(useData.status === 'fail') { resultStr = (useData.failTopics && useData.failTopics.length > 0) ? "FAIL: " + useData.failTopics.join(" | ") : "FAIL (No Details)"; } const note = (useData.note || '').replace(/,/g, ' '); const safeResult = resultStr.replace(/,/g, ' '); const imgLink = useData.image || ''; csv += `${d.id},"${d.loc}","${d.type}","${d.size}",${useData.status},"${useData.inspector}",${useData.time},"${note}","${safeResult}","${imgLink}"\n`; } else { csv += `${d.id},"${d.loc}","${d.type}","${d.size}",PENDING,,,,,\n`; } }); const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `FireReport_${this.month}.csv`; link.click(); Toast.show("ดาวน์โหลด Excel แล้ว", "success"); },
+            backupData() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.data)); const dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", `FireCheck_Backup_${new Date().toISOString().slice(0,10)}.json`); document.body.appendChild(dl); dl.click(); dl.remove(); Toast.show("สำรองข้อมูลสำเร็จ", "success"); },
+            restoreData(input) { const file = input.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = (e) => { try { this.data = JSON.parse(e.target.result); this.saveToStorage(); this.populateLocationFilter(); this.renderAll(); Toast.show('กู้คืนข้อมูลสำเร็จ!', 'success'); UI.closeModal('modalMenu'); } catch(err) { Toast.show('ไฟล์ไม่ถูกต้อง', 'error'); } }; reader.readAsText(file); },
             saveToStorage() { localStorage.setItem('firePins_Ent_V5', JSON.stringify(this.data)); },
-            clearData() { 
-                if(confirm('ยืนยันลบข้อมูลการตรวจทั้งหมด? (ข้อมูลถังจะยังอยู่)')) { 
-                    localStorage.removeItem('firePins_Ent_V5'); 
-                    location.reload(); 
-                } 
-            },
-            
-            // ตรวจจับตอนมีคนใช้กล้องมือถือสแกนลิงก์แอปเข้ามา
-            handleDeepLink() {
-                const pid = new URLSearchParams(window.location.search).get('id');
-                if(pid) { 
-                    const item = this.data.find(d => d.id === pid); 
-                    if(item) setTimeout(() => this.openInspect(pid), 500); 
-                }
-            },
-
-            // อัปเดตสแกนเนอร์ในแอป ให้ตัดเอาเฉพาะ ID ออกมาจากลิงก์ยาวๆ
-            openScanner() {
-                UI.openModal('modalScan');
-                
-                const config = { 
-                    fps: 15, 
-                    qrbox: { width: 250, height: 250 },
-                    aspectRatio: 1.0,
-                    videoConstraints: { facingMode: "environment" } 
-                };
-
-                this.scanner = new Html5QrcodeScanner("qr-reader", config, false);
-                this.scanner.render((txt) => {
-                    let id = txt; 
-                    if(txt.includes('id=')) {
-                        id = txt.split('id=')[1].split('&')[0]; // ตัดเอาเฉพาะรหัสหลัง id=
-                    }
-                    
-                    const item = this.data.find(d => d.id === id);
-                    if(item) { 
-                        UI.stopScanner(); 
-                        setTimeout(() => this.openInspect(id), 300); 
-                    } else { 
-                        Toast.show('ไม่พบรหัส: '+id, 'error'); 
-                    }
-                });
-            },
-
-            manualScan() {
-                const id = document.getElementById('manualId').value.toUpperCase().trim();
-                const item = this.data.find(d => d.id === id);
-                if(item) { UI.stopScanner(); this.openInspect(id); } else Toast.show('ไม่พบรหัสในระบบ', 'error');
-            }
+            clearData() { if(confirm('ยืนยันลบข้อมูลการตรวจทั้งหมด? (ข้อมูลถังจะยังอยู่)')) { localStorage.removeItem('firePins_Ent_V5'); location.reload(); } },
+            handleDeepLink() { const pid = new URLSearchParams(window.location.search).get('id'); if(pid) { const item = this.data.find(d => d.id === pid); if(item) setTimeout(() => this.openInspect(pid), 500); } },
+            openScanner() { UI.openModal('modalScan'); const config = { fps: 15, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0, videoConstraints: { facingMode: "environment" } }; this.scanner = new Html5QrcodeScanner("qr-reader", config, false); this.scanner.render((txt) => { let id = txt; if(txt.includes('id=')) { id = txt.split('id=')[1].split('&')[0]; } const item = this.data.find(d => d.id === id); if(item) { UI.stopScanner(); setTimeout(() => this.openInspect(id), 300); } else { Toast.show('ไม่พบรหัส: '+id, 'error'); } }); },
+            manualScan() { const id = document.getElementById('manualId').value.toUpperCase().trim(); const item = this.data.find(d => d.id === id); if(item) { UI.stopScanner(); this.openInspect(id); } else Toast.show('ไม่พบรหัสในระบบ', 'error'); }
         };
 
         const UI = {
@@ -1492,10 +847,7 @@
             stopScanner() { if(App.scanner) App.scanner.clear(); this.closeModal('modalScan'); }
         };
 
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').then(() => console.log('Service Worker Registered'));
-        }
-
+        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').then(() => console.log('Service Worker Registered')); }
         window.onload = () => App.init();
     </script>
 </body>
