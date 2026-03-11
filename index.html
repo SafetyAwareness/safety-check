@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FireCheck Enterprise V6</title>
+    <title>FireCheck Enterprise V7</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#D32F2F">
@@ -19,7 +19,7 @@
     <style>
         :root {
             --primary: #D32F2F; --primary-dark: #B71C1C; --secondary: #263238;       
-            --success: #2E7D32; --warning: #F9A825; --info: #0288D1;          
+            --success: #2E7D32; --warning: #F57C00; /* สีส้มสำหรับงานซ่อม */ --info: #0288D1;          
             --bg-body: #F5F7FA; --surface: #FFFFFF; --text-main: #201F1E;
             --text-muted: #605E5C; --radius: 16px; --header-h: 64px; --nav-h: 65px;
         }
@@ -65,17 +65,20 @@
         .filter-chips::-webkit-scrollbar { display: none; }
         .chip { border: 1px solid #E0E0E0; padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; color: var(--text-muted); background: white; white-space: nowrap; cursor: pointer; transition: all 0.2s; font-weight: 500; }
         .chip.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 2px 6px rgba(211,47,47,0.2); }
+        .chip.active-repair { background: var(--warning); color: white; border-color: var(--warning); box-shadow: 0 2px 6px rgba(245,124,0,0.3); }
 
         #list-container { flex: 1; overflow-y: auto; padding: 12px 15px; display: grid; gap: 12px; padding-bottom: 90px; }
         .card { background: var(--surface); padding: 16px; border-radius: var(--radius); box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; justify-content: space-between; align-items: center; border-left: 6px solid #E0E0E0; cursor: pointer; transition: transform 0.1s, box-shadow 0.2s; }
         .card:active { transform: scale(0.98); box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
         .card.pass { border-left-color: var(--success); }
         .card.fail { border-left-color: var(--primary); background: #FFF5F6; }
+        .card.repair { border-left-color: var(--warning); background: #FFF3E0; }
         .card-info h3 { margin: 0 0 6px 0; font-size: 1rem; color: var(--text-main); font-weight: 600; }
         .card-info p { margin: 0; font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px;}
         .status-icon { font-size: 1.5rem; color: #E0E0E0; }
         .card.pass .status-icon { color: var(--success); }
         .card.fail .status-icon { color: var(--primary); }
+        .card.repair .status-icon { color: var(--warning); }
         .inspector-badge { font-size: 0.7rem; background: rgba(0,0,0,0.04); padding: 3px 8px; border-radius: 6px; display:inline-block; margin-top:4px; font-weight: 500;}
 
         .fab-wrapper { position: fixed; bottom: calc(var(--nav-h) + 20px); right: 20px; display: flex; flex-direction: column; gap: 15px; z-index: 40; }
@@ -96,15 +99,17 @@
         .dash-toggle { display: flex; background: #E4E7EB; border-radius: 10px; padding: 4px; margin-bottom: 20px; }
         .dash-toggle button { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 8px; font-family: 'Prompt'; font-size: 0.9rem; cursor: pointer; color: var(--text-muted); transition: 0.2s; }
         .dash-toggle button.active { background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.05); color: var(--primary); font-weight: 600; }
+        
         .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
         .dash-box { background: white; border-radius: var(--radius); padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid #ECEFF1; display:flex; flex-direction:column; align-items:flex-start; position: relative; overflow: hidden;}
         .dash-box::after { content: ''; position: absolute; right: -15px; bottom: -15px; opacity: 0.08; font-family: "Font Awesome 6 Free"; font-weight: 900; font-size: 4.5rem; z-index: 0; transition: transform 0.3s;}
         .dash-box .label { font-size: 0.85rem; color: var(--text-muted); z-index: 1;}
         .dash-box .value { font-size: 1.8rem; font-weight: 700; color: var(--text-main); z-index: 1;}
-        .box-total { border-left: 4px solid var(--info); } .box-total .value { color: var(--info); } .box-total::after { content: '\f1fb'; color: var(--info); }
-        .box-pending { border-left: 4px solid var(--warning); } .box-pending .value { color: var(--warning); } .box-pending::after { content: '\f017'; color: var(--warning); }
+        
         .box-pass { border-left: 4px solid var(--success); } .box-pass .value { color: var(--success); } .box-pass::after { content: '\f058'; color: var(--success); }
         .box-fail { border-left: 4px solid var(--primary); background: #FFF5F6;} .box-fail .value { color: var(--primary); } .box-fail::after { content: '\f071'; color: var(--primary); }
+        .box-repair { border-left: 4px solid var(--warning); background: #FFF8E1;} .box-repair .value { color: var(--warning); } .box-repair::after { content: '\f7d9'; color: var(--warning); }
+        .box-pending { border-left: 4px solid #90A4AE; } .box-pending .value { color: #90A4AE; } .box-pending::after { content: '\f017'; color: #90A4AE; }
 
         .chart-card { background: white; border-radius: var(--radius); padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid #ECEFF1; margin-bottom: 20px; text-align: center; }
         .donut-wrapper { position: relative; width: 140px; height: 140px; margin: 0 auto 15px auto; }
@@ -112,15 +117,18 @@
         .donut-hole { position: absolute; top: 18px; left: 18px; right: 18px; bottom: 18px; background: white; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: inset 0 2px 6px rgba(0,0,0,0.04); }
         .donut-hole .pct { font-size: 1.6rem; font-weight: 700; color: var(--text-main); line-height: 1; }
         .donut-hole .lbl { font-size: 0.7rem; color: var(--text-muted); }
-        .chart-legend { display: flex; justify-content: center; gap: 15px; font-size: 0.8rem; color: var(--text-muted); }
+        .chart-legend { display: flex; justify-content: center; gap: 10px; font-size: 0.75rem; color: var(--text-muted); flex-wrap: wrap;}
         .legend-item { display: flex; align-items: center; gap: 5px; }
         .legend-color { width: 12px; height: 12px; border-radius: 3px; }
+        
         .year-chart { display: flex; align-items: flex-end; justify-content: space-between; height: 180px; padding: 10px 0; border-bottom: 1px solid #ECEFF1; gap: 4px; margin-bottom: 15px;}
         .y-col { display: flex; flex-direction: column; justify-content: flex-end; flex: 1; align-items: center; height: 100%; position: relative; }
         .y-bar-wrap { width: 100%; max-width: 14px; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; border-radius: 4px; overflow: hidden; background: #F5F5F5; }
         .y-bar-fail { background: var(--primary); width: 100%; transition: height 0.5s; }
+        .y-bar-repair { background: var(--warning); width: 100%; transition: height 0.5s; }
         .y-bar-pass { background: var(--success); width: 100%; transition: height 0.5s; }
         .y-lbl { font-size: 0.65rem; color: var(--text-muted); margin-top: 8px; writing-mode: vertical-rl; transform: rotate(180deg); }
+        
         .defect-list { display: flex; flex-direction: column; gap: 12px; }
         .defect-item { display: flex; flex-direction: column; gap: 4px; }
         .defect-lbl-row { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-main); }
@@ -159,7 +167,6 @@
         .menu-btn:active { background: #F9FAFB; }
         .menu-btn i { width: 24px; color: var(--text-muted); text-align: center;}
 
-        /* QR PRINT SYSTEM CSS */
         .qr-card-screen { border: 2px dashed #B0BEC5; padding: 15px; text-align: center; border-radius: 8px; width: calc(50% - 10px); background: #FFF; display: flex; flex-direction: column; align-items: center; position: relative; }
         .qr-card-screen img { width: 100px; height: 100px; margin-bottom: 8px; }
         .del-qr-btn { position: absolute; top: -5px; right: -5px; background: #D32F2F; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
@@ -170,7 +177,6 @@
             #toast, header, #mainContent, .bottom-nav, .fab-wrapper, #modalMenu, #modalAdd, #modalEdit, #modalHistory, #modalScan, #modalInspect { display: none !important; }
             .no-print { display: none !important; }
             
-            /* Print QR Mode */
             body.print-mode-qr #modalPrintQR { display: block !important; position: static !important; background: white !important; z-index: auto !important; padding: 0 !important; }
             body.print-mode-qr #modalPrintQR .sheet { max-width: none !important; width: 100% !important; background: transparent !important; border-radius: 0 !important; padding: 0 !important; max-height: none !important; overflow: visible !important; animation: none !important; }
             body.print-mode-qr #qrPrintContainer { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 10mm !important; overflow: visible !important; padding: 10mm !important; align-content: start !important; }
@@ -178,7 +184,6 @@
             body.print-mode-qr .del-qr-btn { display: none !important; }
             body.print-mode-qr #modalReport { display: none !important; }
 
-            /* Print PDF Report Mode */
             body.print-mode-report #modalReport { display: block !important; position: static !important; background: white !important; z-index: auto !important; padding: 0 !important; }
             body.print-mode-report #modalReport .sheet { max-width: none !important; width: 100% !important; background: transparent !important; border-radius: 0 !important; padding: 0 !important; max-height: none !important; overflow: visible !important; animation: none !important; }
             body.print-mode-report #reportContainer { width: 100% !important; padding: 0 !important; margin: 0 !important; box-shadow: none !important;}
@@ -200,11 +205,12 @@
     </header>
 
     <div id="mainContent">
+        <!-- VIEW: LIST -->
         <div id="viewList" class="view-section active">
             <div class="dashboard-mini">
                 <div class="progress-card">
                     <div class="stat-row">
-                        <span style="font-weight:600; color:var(--text-main);">ความคืบหน้า (Real-time)</span>
+                        <span style="font-weight:600; color:var(--text-main);">ความคืบหน้าของเดือนนี้</span>
                         <span id="statsPercent" style="color:var(--primary); font-weight:700;">0%</span>
                     </div>
                     <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
@@ -225,11 +231,13 @@
                 <div class="chip active" id="filter-all" onclick="App.filter('all', this)">ทั้งหมด</div>
                 <div class="chip" id="filter-pending" onclick="App.filter('pending', this)">รอตรวจ</div>
                 <div class="chip" id="filter-fail" onclick="App.filter('fail', this)">พบปัญหา</div>
+                <div class="chip" id="filter-repair" onclick="App.filter('repair', this)">กำลังซ่อม</div>
             </div>
 
             <div id="list-container"></div>
         </div>
 
+        <!-- VIEW: DASHBOARD -->
         <div id="viewDashboard" class="view-section">
             <h2 class="dash-title"><i class="fa-solid fa-chart-pie" style="color:var(--primary)"></i> สรุปผลการตรวจ </h2>
             
@@ -242,15 +250,16 @@
                 <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
                     <span style="font-size:0.9rem; color:#888; font-weight:500;" id="dashMonthLabel"></span>
                 </div>
+                <!-- ปุ่มสร้าง PDF สำหรับ จป. -->
                 <button class="btn-save" style="margin-top:0; margin-bottom:15px; background:var(--secondary); padding:10px;" onclick="App.generateReport()">
                     <i class="fa-solid fa-file-pdf"></i> พิมพ์รายงานประจำเดือน (PDF)
                 </button>
 
                 <div class="dash-grid">
-                    <div class="dash-box box-total"><span class="label">รวมทั้งหมด</span><span class="value" id="dashValTotal">0</span></div>
-                    <div class="dash-box box-pending"><span class="label">รอตรวจสอบ</span><span class="value" id="dashValPending">0</span></div>
                     <div class="dash-box box-pass"><span class="label">ปกติ (Pass)</span><span class="value" id="dashValPass">0</span></div>
                     <div class="dash-box box-fail"><span class="label">พบปัญหา (Fail)</span><span class="value" id="dashValFail">0</span></div>
+                    <div class="dash-box box-repair"><span class="label">กำลังส่งซ่อม</span><span class="value" id="dashValRepair">0</span></div>
+                    <div class="dash-box box-pending"><span class="label">รอตรวจสอบ</span><span class="value" id="dashValPending">0</span></div>
                 </div>
 
                 <div class="chart-card">
@@ -258,6 +267,7 @@
                     <div class="chart-legend">
                         <div class="legend-item"><div class="legend-color" style="background:var(--success)"></div> ปกติ</div>
                         <div class="legend-item"><div class="legend-color" style="background:var(--primary)"></div> พบปัญหา</div>
+                        <div class="legend-item"><div class="legend-color" style="background:var(--warning)"></div> กำลังซ่อม</div>
                         <div class="legend-item"><div class="legend-color" style="background:#ECEFF1"></div> รอตรวจ</div>
                     </div>
                 </div>
@@ -281,6 +291,7 @@
                     <div class="year-chart" id="yearChart"></div>
                     <div class="chart-legend" style="margin-top:10px;">
                         <div class="legend-item"><div class="legend-color" style="background:var(--success)"></div> ปกติ</div>
+                        <div class="legend-item"><div class="legend-color" style="background:var(--warning)"></div> กำลังซ่อม</div>
                         <div class="legend-item"><div class="legend-color" style="background:var(--primary)"></div> พบปัญหา</div>
                     </div>
                 </div>
@@ -289,17 +300,20 @@
         </div>
     </div> 
 
+    <!-- BOTTOM NAVIGATION -->
     <nav class="bottom-nav">
         <button class="nav-item active" id="navBtnList" onclick="App.switchTab('List')"><i class="fa-solid fa-list-check"></i> รายการตรวจ</button>
         <button class="nav-item" id="navBtnDashboard" onclick="App.switchTab('Dashboard')"><i class="fa-solid fa-chart-line"></i> แดชบอร์ด</button>
     </nav>
 
+    <!-- Floating Action Buttons -->
     <div class="fab-wrapper" id="fabGroup">
         <div class="fab fab-refresh" onclick="App.syncCloud()" title="อัปเดตข้อมูล"><i class="fa-solid fa-rotate"></i></div>
         <div class="fab fab-excel" onclick="App.exportExcel()" title="ส่งออก Excel"><i class="fa-solid fa-file-excel"></i></div>
         <div class="fab fab-scan" onclick="App.openScanner()" title="สแกน QR"><i class="fa-solid fa-qrcode"></i></div>
     </div>
 
+    <!-- INSPECT MODAL -->
     <div id="modalInspect" class="modal">
         <div class="sheet">
             <div style="display:flex; justify-content:space-between; align-items:flex-start;">
@@ -335,12 +349,19 @@
             
             <button id="btnSave" class="btn-save" onclick="App.save()"><i class="fa-solid fa-cloud-arrow-up"></i> บันทึกข้อมูล</button>
             
-            <button id="btnResolve" class="btn-save" style="background:#F9A825; color:#FFF; display:none; margin-top:10px; box-shadow:none;" onclick="App.resolveIssue()">
-                <i class="fa-solid fa-wrench"></i> บันทึกว่า "ซ่อมแซมเรียบร้อยแล้ว"
+            <!-- ปุ่มแจ้งส่งซ่อม (จะโผล่เฉพาะถ้าสถานะคือ Fail แดง) -->
+            <button id="btnSetRepair" class="btn-save" style="background:var(--warning); color:#FFF; display:none; margin-top:10px; box-shadow:none;" onclick="App.markAsRepair()">
+                <i class="fa-solid fa-truck-fast"></i> แจ้งส่งซ่อม / รออะไหล่ (In-Progress)
+            </button>
+
+            <!-- ปุ่มซ่อมเสร็จแล้ว (จะโผล่เฉพาะถ้าสถานะคือ Repair เหลือง) -->
+            <button id="btnResolve" class="btn-save" style="background:var(--success); color:#FFF; display:none; margin-top:10px; box-shadow:none;" onclick="App.resolveIssue()">
+                <i class="fa-solid fa-wrench"></i> ซ่อมเสร็จแล้ว (เปลี่ยนกลับเป็นปกติ)
             </button>
         </div>
     </div>
 
+    <!-- MENU MODAL -->
     <div id="modalMenu" class="modal">
         <div class="sheet">
             <h2 style="margin-top:0; margin-bottom: 20px;">เมนูจัดการ</h2>
@@ -354,11 +375,14 @@
         </div>
     </div>
     
+    <!-- ADD & EDIT MODALS -->
     <div id="modalAdd" class="modal"><div class="sheet"><h2 style="margin-top:0;">เพิ่มจุดตรวจใหม่</h2><input type="text" id="addId" class="form-control" placeholder="รหัสถัง (เช่น FE-91)" style="text-transform:uppercase;"><input type="text" id="addLoc" class="form-control" placeholder="สถานที่ติดตั้ง"><input type="text" id="addType" class="form-control" placeholder="ชนิดถัง (เช่น เคมีแห้ง)"><input type="text" id="addSize" class="form-control" placeholder="ขนาด (เช่น 10 ปอนด์)"><button class="btn-save" onclick="App.addDevice()">บันทึกจุดใหม่</button><button onclick="UI.closeModal('modalAdd')" style="width:100%; margin-top:10px; background:none; border:none; padding:10px; font-family:'Prompt'; color:#666;">ยกเลิก</button></div></div>
     <div id="modalEdit" class="modal"><div class="sheet"><h2 style="margin-top:0;"><i class="fa-solid fa-pen-to-square" style="color:var(--info)"></i> แก้ไขข้อมูลถัง</h2><input type="text" id="editId" class="form-control" readonly style="background:#ECEFF1; color:#90A4AE; margin-top:0; margin-bottom: 15px;" placeholder="รหัสถัง"><input type="text" id="editLoc" class="form-control" placeholder="สถานที่ติดตั้ง" style="margin-top:0; margin-bottom: 15px;"><input type="text" id="editType" class="form-control" placeholder="ชนิดถัง" style="margin-top:0; margin-bottom: 15px;"><input type="text" id="editSize" class="form-control" placeholder="ขนาด" style="margin-top:0; margin-bottom: 15px;"><label style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px; display: block;">วันหมดอายุ / วันทดสอบแรงดัน</label><input type="date" id="editExp" class="form-control" style="margin-top:0; margin-bottom: 20px;"><button class="btn-save" onclick="App.saveEditDevice()" style="background:var(--info);"><i class="fa-solid fa-floppy-disk"></i> บันทึกการแก้ไข</button><button class="btn-save" onclick="App.deleteDevice()" style="background:#FFF; color:var(--primary); border: 2px solid var(--primary); margin-top:10px; box-shadow:none;"><i class="fa-solid fa-trash"></i> ลบข้อมูลถังนี้</button><button onclick="UI.closeModal('modalEdit')" style="width:100%; margin-top:10px; background:none; border:none; padding:10px; font-family:'Prompt'; color:#666; cursor:pointer;">ยกเลิก</button></div></div>
 
+    <!-- HISTORY MODAL -->
     <div id="modalHistory" class="modal"><div class="sheet"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h2 style="margin:0;"><i class="fa-solid fa-clock-rotate-left"></i> ประวัติการตรวจ</h2><button onclick="UI.closeModal('modalHistory')" style="background:none; border:none; font-size:1.8rem; color:#DDD; line-height:1;">&times;</button></div><p id="historyTitle" style="color:var(--text-muted); margin-top:0; font-size:0.9rem; font-weight:600;"></p><div id="historyList" style="display:flex; flex-direction:column; gap:10px; max-height: 60vh; overflow-y:auto; padding-bottom:20px; margin-top:15px;"></div></div></div>
 
+    <!-- PRINT QR MODAL -->
     <div id="modalPrintQR" class="modal" style="background: white; z-index: 9999; align-items: flex-start;">
         <div class="sheet" style="max-width: none; width: 100%; height: 100%; border-radius: 0; padding: 0; display: flex; flex-direction: column; background: white;">
             <div class="no-print" style="padding: 15px 20px; background: #F5F7FA; border-bottom: 1px solid #ECEFF1; display: flex; justify-content: space-between; align-items: center;"><h2 style="margin:0; font-size: 1.2rem;"><i class="fa-solid fa-qrcode" style="color:var(--info)"></i> ระบบพิมพ์ QR Code</h2><button onclick="UI.closeModal('modalPrintQR')" style="background:none; border:none; font-size:1.8rem; color:#999; line-height:1;">&times;</button></div>
@@ -367,6 +391,7 @@
         </div>
     </div>
 
+    <!-- PDF REPORT MODAL (อัปเกรดเป็นมาตรฐาน ISO) -->
     <div id="modalReport" class="modal" style="background: white; z-index: 9999; align-items: flex-start;">
         <div class="sheet" style="max-width: none; width: 100%; height: 100%; border-radius: 0; padding: 0; display: flex; flex-direction: column; background: white;">
             <div class="no-print" style="padding: 15px 20px; background: #F5F7FA; border-bottom: 1px solid #ECEFF1; display: flex; justify-content: space-between; align-items: center;">
@@ -378,19 +403,19 @@
             </div>
             <div style="flex: 1; overflow-y: auto; background: #888; padding: 20px;">
                 <div id="reportContainer" style="width: 210mm; min-height: 297mm; margin: 0 auto; background: white; padding: 20mm; color: black; font-family: 'Prompt', sans-serif; box-shadow: 0 0 10px rgba(0,0,0,0.5);">
-                   </div>
+                   <!-- ข้อมูล Report จะถูกใส่ตรงนี้ -->
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- SCANNER MODAL -->
     <div id="modalScan" class="modal"><div class="sheet"><div style="text-align:center;"><h2 style="margin-bottom:20px;">สแกน QR Code</h2><div id="qr-reader"></div><p style="color:#90A4AE; margin:20px 0 10px; font-size:0.9rem;">หรือกรอกรหัสด้วยมือ</p><div style="display:flex; gap:10px; justify-content:center;"><input type="text" id="manualId" class="form-control" style="margin:0; width:130px; text-transform:uppercase;" placeholder="เช่น FE-01"><button onclick="App.manualScan()" class="btn-save" style="margin-top:0; width:auto; padding:10px 24px;">ค้นหา</button></div></div><button onclick="UI.stopScanner()" style="width:100%; padding:14px; border:none; background:#F5F5F5; color:var(--text-muted); border-radius:12px; margin-top:20px; font-size:1rem; font-family:'Prompt';">ปิดกล้อง</button></div></div>
 
     <script>
-        // ============================================
-        // ⚠️ วางลิงก์ Google Apps Script ตรงนี้ ⚠️
-        // ============================================
         const CLOUD_URL = "https://script.google.com/macros/s/AKfycbyWV9ncnU_mnxX3UTMK0LTnLvefXV0TMIonULZLeGOyjBu6xcfHsOrLSluJHDKrv2_fig/exec"; 
 
+        // ✅ ข้อมูลถังดับเพลิงทั้ง 90 ถังแบบละเอียดที่สุดตามที่ระบุมา
         const DB_INIT = [
             { id: "FE-01", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Workshop" },
             { id: "FE-02", type: "เคมีแห้ง", size: "15 ปอนด์", loc: "Workshop" },
@@ -418,7 +443,7 @@
             { id: "FE-24", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Office 1 Fl. (FHC2)" },
             { id: "FE-25", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Office 2 Fl. (FHC3)" },
             { id: "FE-26", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Office 2 Fl. (FHC4)" },
-            { id: "FE-27", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Production (FHC5)" },
+            { id: "FE-27", type: "Halotron", size: "10 ปอนด์", loc: "Production (FHC5)" },
             { id: "FE-28", type: "Halotron", size: "10 ปอนด์", loc: "Production (FHC6)" },
             { id: "FE-29", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Warehouse (FHC7)" },
             { id: "FE-30", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Production (FHC8)" },
@@ -432,7 +457,7 @@
             { id: "FE-38", type: "CO2", size: "10 ปอนด์", loc: "Canteen" },
             { id: "FE-39", type: "CO2", size: "10 ปอนด์", loc: "Locker Room" },
             { id: "FE-40", type: "Halotron", size: "10 ปอนด์", loc: "Locker Room" },
-            { id: "FE-41", type: "Halotron", size: "10 ปอนด์", loc: "Warehouse" },
+            { id: "FE-41", type: "Halotron", size: "10 ปอนด์", loc: "Yellow Zone 1" },
             { id: "FE-42", type: "Halotron", size: "10 ปอนด์", loc: "Guard House" },
             { id: "FE-43", type: "Halotron", size: "10 ปอนด์", loc: "Lobby 1st Floor" },
             { id: "FE-44", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Production Area" },
@@ -443,34 +468,34 @@
             { id: "FE-49", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Fire Pump Rm." },
             { id: "FE-50", type: "CO2", size: "10 ปอนด์", loc: "Production Area" },
             { id: "FE-51", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Toliet" },
-            { id: "FE-52", type: "Halotron", size: "10 ปอนด์", loc: "Warehouse" },
+            { id: "FE-52", type: "Halotron", size: "10 ปอนด์", loc: "Yellow Zone 2" },
             { id: "FE-53", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Warehouse" },
-            { id: "FE-54", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Warehouse" },
+            { id: "FE-54", type: "Halotron", size: "10 ปอนด์", loc: "Warehouse" },
             { id: "FE-55", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Warehouse" },
             { id: "FE-56", type: "Halotron", size: "10 ปอนด์", loc: "Production Area" },
             { id: "FE-57", type: "Halotron", size: "10 ปอนด์", loc: "Warehouse" },
             { id: "FE-58", type: "เคมีแห้ง", size: "5 ปอนด์", loc: "ห้องพยาบาล" },
             { id: "FE-59", type: "Halotron", size: "10 ปอนด์", loc: "Warehouse" },
             { id: "FE-60", type: "Halotron", size: "10 ปอนด์", loc: "Warehouse" },
-            { id: "FE-61", type: "Halotron", size: "10 ปอนด์", loc: "Warehouse" },
-            { id: "FE-62", type: "Halotron", size: "10 ปอนด์", loc: "Warehouse" },
-            { id: "FE-63", type: "BF2000", size: "10 ปอนด์", loc: "Warehouse" },
+            { id: "FE-61", type: "Halotron", size: "10 ปอนด์", loc: "Yellow Zone 1" },
+            { id: "FE-62", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Yellow Zone 2" },
+            { id: "FE-63", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Warehouse" },
             { id: "FE-64", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Warehouse (FHC11)" },
             { id: "FE-65", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Warehouse (FHC12)" },
             { id: "FE-66", type: "Halotron", size: "10 ปอนด์", loc: "Office 2 Fl." },
             { id: "FE-67", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Locker Room" },
-            { id: "FE-68", type: "Halotron", size: "10 ปอนด์", loc: "M&E Room" },
+            { id: "FE-68", type: "ไฮโดรฟลูออโรคาร์บอน", size: "10 ปอนด์", loc: "M&E Room" },
             { id: "FE-69", type: "Halotron", size: "10 ปอนด์", loc: "M&E Room" },
             { id: "FE-70", type: "เคมีแห้ง", size: "15 ปอนด์", loc: "Utility Plant" },
             { id: "FE-71", type: "BF2000", size: "10 ปอนด์", loc: "Utility Plant" },
             { id: "FE-72", type: "BF2000", size: "10 ปอนด์", loc: "Utility Plant" },
             { id: "FE-73", type: "BF2000", size: "10 ปอนด์", loc: "Warehouse" },
-            { id: "FE-74", type: "BF2000", size: "10 ปอนด์", loc: "Production (FHC13)" },
+            { id: "FE-74", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Production (FHC13)" },
             { id: "FE-75", type: "BF2000", size: "10 ปอนด์", loc: "Production (FHC14)" },
             { id: "FE-76", type: "BF2000", size: "10 ปอนด์", loc: "Production Area" },
             { id: "FE-77", type: "Halotron", size: "10 ปอนด์", loc: "Production Area" },
-            { id: "FE-78", type: "BF2000", size: "10 ปอนด์", loc: "Production (FHC15)" },
-            { id: "FE-79", type: "Halotron", size: "10 ปอนด์", loc: "Fitness Room" },
+            { id: "FE-78", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Production (FHC15)" },
+            { id: "FE-79", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Fitness Room" },
             { id: "FE-80", type: "เคมีแห้ง", size: "5 ปอนด์", loc: "รถโฟล์คลิฟท์ W/H" },
             { id: "FE-81", type: "เคมีแห้ง", size: "5 ปอนด์", loc: "รถโฟล์คลิฟท์ W/H" },
             { id: "FE-82", type: "เคมีแห้ง", size: "5 ปอนด์", loc: "รถโฟล์คลิฟท์ W/H" },
@@ -513,17 +538,13 @@
                 const select = document.getElementById('locFilter');
                 select.innerHTML = '<option value="">ทุกโซนพื้นที่</option>'; 
                 const uniqueLocs = [...new Set(this.data.map(item => item.loc.split(' (')[0].trim()))].sort();
-                uniqueLocs.forEach(loc => {
-                    const opt = document.createElement('option'); opt.value = loc; opt.innerText = loc; select.appendChild(opt);
-                });
+                uniqueLocs.forEach(loc => { const opt = document.createElement('option'); opt.value = loc; opt.innerText = loc; select.appendChild(opt); });
             },
 
             switchTab(tabName) {
                 this.currentTab = tabName;
-                document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
-                document.getElementById('navBtn' + tabName).classList.add('active');
-                document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active'));
-                document.getElementById('view' + tabName).classList.add('active');
+                document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active')); document.getElementById('navBtn' + tabName).classList.add('active');
+                document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active')); document.getElementById('view' + tabName).classList.add('active');
                 const fabGroup = document.getElementById('fabGroup');
                 if(tabName === 'Dashboard') fabGroup.style.display = 'none'; else fabGroup.style.display = 'flex';
                 this.renderAll();
@@ -573,28 +594,37 @@
             },
 
             calculateStats() {
-                let total=0, done=0, pass=0, fail=0; const defectCounts = {};
+                let total=0, done=0, pass=0, fail=0, repair=0; const defectCounts = {};
                 this.data.forEach(item => {
                     total++; const cloudInfo = this.cloudStatus[item.id]; const localInfo = item.history[this.month]; let status = 'pending';
                     if (localInfo) { status = localInfo.status; }
-                    else if (cloudInfo) { const s = String(cloudInfo.status).toLowerCase(); status = (s === 'pass' || (s.includes('ปกติ') && !s.includes('ผิด'))) ? 'pass' : 'fail'; } 
+                    else if (cloudInfo) { 
+                        const s = String(cloudInfo.status).toLowerCase(); 
+                        if (s === 'pass' || (s.includes('ปกติ') && !s.includes('ผิด'))) status = 'pass';
+                        else if (s === 'repair' || s.includes('ซ่อม')) status = 'repair';
+                        else status = 'fail';
+                    } 
                     
                     if (status !== 'pending') done++;
                     if (status === 'pass') pass++;
-                    if (status === 'fail') {
-                        fail++; let topics = [];
+                    if (status === 'repair') repair++;
+                    if (status === 'fail' || status === 'repair') { // เก็บยอดปัญหาทั้งหมด (รวมกำลังซ่อม)
+                        if(status === 'fail') fail++; 
+                        let topics = [];
                         if (localInfo && localInfo.failTopics) topics = localInfo.failTopics; else if (cloudInfo && cloudInfo.failReason) topics = [cloudInfo.failReason];
                         topics.forEach(topic => { if(topic) defectCounts[topic] = (defectCounts[topic] || 0) + 1; });
                     }
                 });
-                return { total, done, pass, fail, pending: total - done, defectCounts };
+                return { total, done, pass, fail, repair, pending: total - done, defectCounts };
             },
 
-            // ✅ บั๊กเรื่องปุ่มกรองแก้ไขแล้วที่นี่ครับ
             filter(type, btn) {
                 this.filterType = type;
-                document.querySelectorAll('.chip').forEach(b => b.classList.remove('active')); 
-                if(btn) btn.classList.add('active'); 
+                document.querySelectorAll('.chip').forEach(b => { b.classList.remove('active'); b.classList.remove('active-repair'); }); 
+                if(btn) {
+                    if(type === 'repair') btn.classList.add('active-repair');
+                    else btn.classList.add('active'); 
+                }
                 this.renderAll();
             },
 
@@ -608,17 +638,30 @@
                     let status = 'pending'; let inspectorName = ''; let timeShow = '';
                     
                     if (localInfo) { status = localInfo.status; inspectorName = localInfo.inspector; timeShow = localInfo.time.split(' ')[1] || ''; }
-                    else if (cloudInfo) { const s = String(cloudInfo.status).toLowerCase(); status = (s === 'pass' || (s.includes('ปกติ') && !s.includes('ผิด'))) ? 'pass' : 'fail'; inspectorName = cloudInfo.inspector; timeShow = cloudInfo.time.split(' ')[1] || ''; } 
+                    else if (cloudInfo) { 
+                        const s = String(cloudInfo.status).toLowerCase(); 
+                        if (s === 'pass' || (s.includes('ปกติ') && !s.includes('ผิด'))) status = 'pass'; else if (s === 'repair' || s.includes('ซ่อม')) status = 'repair'; else status = 'fail'; 
+                        inspectorName = cloudInfo.inspector; timeShow = cloudInfo.time.split(' ')[1] || ''; 
+                    } 
 
-                    // กรองข้อมูลตามปุ่มให้ถูกต้อง
+                    // กรองตามปุ่ม
                     if (this.filterType === 'pending' && status !== 'pending') return;
                     if (this.filterType === 'fail' && status !== 'fail') return;
+                    if (this.filterType === 'repair' && status !== 'repair') return;
                     
                     if(!search || (item.id+item.loc+item.type).toLowerCase().includes(search)) {
                         const isInspected = status !== 'pending';
                         const div = document.createElement('div'); div.className = `card ${status}`; div.onclick = () => this.openInspect(item.id);
-                        let statusBadge = isInspected ? (status==='pass' ? `<span style="color:var(--success)">✅ ปกติ (${timeShow})</span>` : `<span style="color:var(--primary)">⚠️ พบปัญหา (${timeShow})</span>`) : `<span style="color:#999">รอตรวจ</span>`;
-                        div.innerHTML = `<div class="card-info"><h3>${item.id} - ${item.loc}</h3><p>${item.type} &bull; ${statusBadge}</p>${isInspected ? `<span class="inspector-badge"><i class="fa-solid fa-user"></i> ${inspectorName}</span>` : ''}</div><div class="status-icon"><i class="fa-solid ${status==='pass'?'fa-circle-check':(status==='fail'?'fa-triangle-exclamation':'fa-circle')}"></i></div>`;
+                        let statusBadge = `<span style="color:#999">รอตรวจ</span>`;
+                        let iconHTML = `<i class="fa-solid fa-circle"></i>`;
+                        
+                        if (isInspected) {
+                            if (status === 'pass') { statusBadge = `<span style="color:var(--success)">✅ ปกติ (${timeShow})</span>`; iconHTML = `<i class="fa-solid fa-circle-check"></i>`; }
+                            else if (status === 'fail') { statusBadge = `<span style="color:var(--primary)">⚠️ พบปัญหา (${timeShow})</span>`; iconHTML = `<i class="fa-solid fa-triangle-exclamation"></i>`; }
+                            else if (status === 'repair') { statusBadge = `<span style="color:var(--warning)">🚚 กำลังส่งซ่อม (${timeShow})</span>`; iconHTML = `<i class="fa-solid fa-tools"></i>`; }
+                        }
+
+                        div.innerHTML = `<div class="card-info"><h3>${item.id} - ${item.loc}</h3><p>${item.type} &bull; ${statusBadge}</p>${isInspected ? `<span class="inspector-badge"><i class="fa-solid fa-user"></i> ${inspectorName}</span>` : ''}</div><div class="status-icon">${iconHTML}</div>`;
                         list.appendChild(div);
                     }
                 });
@@ -631,10 +674,25 @@
             renderDashboard(stats) {
                 const mNames = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
                 const [y, m] = this.month.split('-'); document.getElementById('dashMonthLabel').innerText = `ประจำเดือน ${mNames[parseInt(m)-1]} ${parseInt(y)+543}`;
-                document.getElementById('dashValTotal').innerText = stats.total; document.getElementById('dashValPending').innerText = stats.pending; document.getElementById('dashValPass').innerText = stats.pass; document.getElementById('dashValFail').innerText = stats.fail;
-                const total = stats.total || 1; const passPct = (stats.pass / total) * 100; const failPct = (stats.fail / total) * 100;
-                const cPass = `var(--success) 0% ${passPct}%`; const cFail = `var(--primary) ${passPct}% ${passPct + failPct}%`; const cPend = `#ECEFF1 ${passPct + failPct}% 100%`;
-                document.getElementById('dashDonut').style.background = `conic-gradient(${cPass}, ${cFail}, ${cPend})`; document.getElementById('dashDonutPct').innerText = Math.round((stats.done/total)*100) + '%';
+                
+                document.getElementById('dashValPass').innerText = stats.pass; 
+                document.getElementById('dashValFail').innerText = stats.fail;
+                document.getElementById('dashValRepair').innerText = stats.repair;
+                document.getElementById('dashValPending').innerText = stats.pending;
+                
+                const total = stats.total || 1; 
+                const passPct = (stats.pass / total) * 100; 
+                const repairPct = (stats.repair / total) * 100;
+                const failPct = (stats.fail / total) * 100;
+                
+                const cPass = `var(--success) 0% ${passPct}%`; 
+                const cRepair = `var(--warning) ${passPct}% ${passPct + repairPct}%`; 
+                const cFail = `var(--primary) ${passPct + repairPct}% ${passPct + repairPct + failPct}%`; 
+                const cPend = `#ECEFF1 ${passPct + repairPct + failPct}% 100%`;
+                
+                document.getElementById('dashDonut').style.background = `conic-gradient(${cPass}, ${cRepair}, ${cFail}, ${cPend})`; 
+                document.getElementById('dashDonutPct').innerText = Math.round((stats.done/total)*100) + '%';
+                
                 const defectListEl = document.getElementById('dashDefectList'); defectListEl.innerHTML = ''; const sortedDefects = Object.entries(stats.defectCounts).sort((a,b) => b[1] - a[1]);
                 if(sortedDefects.length === 0) { defectListEl.innerHTML = '<div class="no-data-msg">ไม่พบปัญหาในเดือนนี้ 🎉</div>'; } else {
                     let maxDefect = sortedDefects[0][1];
@@ -651,16 +709,19 @@
                 const chartEl = document.getElementById('yearChart'); chartEl.innerHTML = '';
                 let totalYearPass = 0; let totalYearFail = 0; const totalDevices = this.data.length || 1;
                 months.forEach((m, idx) => {
-                    const targetMonth = `${year}-${m}`; let pass = 0, fail = 0;
+                    const targetMonth = `${year}-${m}`; let pass = 0, fail = 0, repair = 0;
                     this.data.forEach(item => {
                         let status = 'pending'; const cloudInfo = this.cloudData[targetMonth] ? this.cloudData[targetMonth][item.id] : null; const localInfo = item.history[targetMonth];
                         if (localInfo) { status = localInfo.status; }
-                        else if (cloudInfo) { const s = String(cloudInfo.status).toLowerCase(); status = (s === 'pass' || (s.includes('ปกติ') && !s.includes('ผิด'))) ? 'pass' : 'fail'; }
-                        if(status === 'pass') pass++; if(status === 'fail') fail++;
+                        else if (cloudInfo) { 
+                            const s = String(cloudInfo.status).toLowerCase(); 
+                            if (s === 'pass' || (s.includes('ปกติ') && !s.includes('ผิด'))) status = 'pass'; else if (s === 'repair' || s.includes('ซ่อม')) status = 'repair'; else status = 'fail'; 
+                        }
+                        if(status === 'pass') pass++; if(status === 'fail') fail++; if(status === 'repair') repair++;
                     });
-                    totalYearPass += pass; totalYearFail += fail;
-                    const passPct = (pass / totalDevices) * 100; const failPct = (fail / totalDevices) * 100;
-                    chartEl.innerHTML += `<div class="y-col"><div class="y-bar-wrap"><div class="y-bar-fail" style="height: ${failPct}%;" title="พบปัญหา ${fail}"></div><div class="y-bar-pass" style="height: ${passPct}%;" title="ปกติ ${pass}"></div></div><span class="y-lbl">${mNames[idx]}</span></div>`;
+                    totalYearPass += pass; totalYearFail += (fail + repair);
+                    const passPct = (pass / totalDevices) * 100; const failPct = (fail / totalDevices) * 100; const repairPct = (repair / totalDevices) * 100;
+                    chartEl.innerHTML += `<div class="y-col"><div class="y-bar-wrap"><div class="y-bar-fail" style="height: ${failPct}%;" title="พบปัญหา ${fail}"></div><div class="y-bar-repair" style="height: ${repairPct}%;" title="ซ่อม ${repair}"></div><div class="y-bar-pass" style="height: ${passPct}%;" title="ปกติ ${pass}"></div></div><span class="y-lbl">${mNames[idx]}</span></div>`;
                 });
                 document.getElementById('yearTotalPass').innerText = totalYearPass; document.getElementById('yearTotalFail').innerText = totalYearFail;
             },
@@ -681,7 +742,7 @@
 
             openInspect(id) {
                 this.currentId = id; const item = this.data.find(d => d.id === id); if(!item) return;
-                const cloudInfo = this.cloudStatus[id]; if (cloudInfo) Toast.show(`ตรวจแล้วโดย: ${cloudInfo.inspector}`, 'info');
+                const cloudInfo = this.cloudStatus[id]; if (cloudInfo) Toast.show(`ตรวจล่าสุดโดย: ${cloudInfo.inspector}`, 'info');
                 const h = item.history[this.month];
                 document.getElementById('inspectTitle').innerText = `${item.id} : ${item.loc}`; document.getElementById('inspectSubtitle').innerText = `ประเภท: ${item.type} (${item.size})`;
                 const expEl = document.getElementById('inspectExpDate');
@@ -698,51 +759,88 @@
                 });
                 this.checkStatus();
                 
-                // ควบคุมปุ่ม ปิดจ็อบซ่อม
-                const currentStatus = h?.status || (cloudInfo && (String(cloudInfo.status).toLowerCase() === 'pass' || String(cloudInfo.status).includes('ปกติ') ? 'pass' : 'fail'));
-                document.getElementById('btnResolve').style.display = (currentStatus === 'fail') ? 'flex' : 'none';
+                // ควบคุมปุ่มซ่อมแซมตามสถานะปัจจุบัน
+                let currentStatus = h?.status;
+                if (!currentStatus && cloudInfo) { 
+                    const s = String(cloudInfo.status).toLowerCase(); 
+                    if (s === 'pass' || (s.includes('ปกติ') && !s.includes('ผิด'))) currentStatus = 'pass'; else if (s === 'repair' || s.includes('ซ่อม')) currentStatus = 'repair'; else currentStatus = 'fail'; 
+                }
+
+                document.getElementById('btnSetRepair').style.display = (currentStatus === 'fail') ? 'flex' : 'none';
+                document.getElementById('btnResolve').style.display = (currentStatus === 'repair') ? 'flex' : 'none';
 
                 UI.openModal('modalInspect');
             },
 
-            // 🌟 อัปเกรด: แจ้งรายละเอียดการซ่อม
+            markAsRepair() {
+                const detail = prompt('ระบุรายละเอียดส่งซ่อม (เช่น ถอดไปเติมน้ำยา, รอเบิกสายฉีด):', 'ถอดส่งซ่อม / รออะไหล่');
+                if(detail === null) return; 
+                
+                const noteEl = document.getElementById('inspectNote');
+                const prefix = noteEl.value ? noteEl.value + " | " : "";
+                noteEl.value = prefix + "[ส่งซ่อม: " + detail + "]";
+                this.save('repair'); 
+            },
+
             resolveIssue() {
-                const detail = prompt('กรุณาระบุรายละเอียดการซ่อมแซม/เปลี่ยนอะไหล่:', 'เปลี่ยนอะไหล่เรียบร้อยแล้ว');
-                if(detail === null) return; // กดยกเลิก
+                const detail = prompt('ระบุรายละเอียดการแก้ไข (เช่น เปลี่ยนสายใหม่แล้ว):', 'ซ่อมแซมและนำกลับมาติดตั้งเรียบร้อย');
+                if(detail === null) return; 
                 
                 this.setAllPass(); 
                 const noteEl = document.getElementById('inspectNote');
                 const prefix = noteEl.value ? noteEl.value + " | " : "";
-                noteEl.value = prefix + "[ซ่อมแล้ว: " + detail + "]";
-                this.save();
-                Toast.show("บันทึกการซ่อมแซมสำเร็จ!", "success");
+                noteEl.value = prefix + "[แก้ไขแล้ว: " + detail + "]";
+                this.save('pass');
             },
 
-            // 🌟 อัปเกรด: แบบฟอร์มรายงาน PDF มาตรฐาน ISO
-            generateReport() {
-                UI.closeModal('modalMenu');
-                const stats = this.calculateStats();
-                const reportEl = document.getElementById('reportContainer');
-                const [y, m] = this.month.split('-');
-                const mNames = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
-                const monthTh = `${mNames[parseInt(m)-1]} ${parseInt(y)+543}`;
+            save(overrideStatus) {
+                const name = document.getElementById('inspectName').value.trim(); if (!name) return Toast.show('กรุณาระบุชื่อผู้ตรวจสอบ', 'warning');
+                const btn = document.getElementById('btnSave'); btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
+                
+                const checks = []; const failTopics = [];
+                for(let i=0; i<this.currentCheckList.length; i++) { const isChecked = document.getElementById(`chk_${i}`).checked; checks.push(isChecked); if(!isChecked) failTopics.push(this.currentCheckList[i]); }
+                
+                let status = checks.every(c => c === true) ? 'pass' : 'fail';
+                if (overrideStatus) { status = overrideStatus; } 
 
-                let failItemsHtml = '';
-                let noFailMessage = '';
-                let runNo = 1;
+                if(status === 'fail' && !this.tempPhoto) { if(!confirm("⚠️ พบข้อบกพร่องแต่ยังไม่ได้ถ่ายรูป\nต้องการบันทึกโดยไม่มีรูปหรือไม่?")) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> บันทึกข้อมูล'; return; } }
+
+                const item = this.data.find(d => d.id === this.currentId);
+                const payload = { id: this.currentId, loc: item.loc, type: item.type, size: item.size, expDate: item.expDate, month: this.month, status: status, inspector: name, note: document.getElementById('inspectNote').value, checks: checks, failTopics: failTopics, time: new Date().toLocaleString('th-TH'), photo: this.tempPhoto };
+                
+                item.history[this.month] = { ...payload }; 
+                if (!this.cloudData[this.month]) this.cloudData[this.month] = {};
+                this.cloudData[this.month][this.currentId] = { status: status, inspector: name, time: payload.time, image: this.tempPhoto, failReason: failTopics[0] || '', note: payload.note };
+                this.cloudStatus = this.cloudData[this.month];
+                
+                this.saveToStorage(); this.renderAll(); 
+                if(CLOUD_URL && CLOUD_URL.startsWith('http')) {
+                    fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+                    .then(() => { Toast.show("บันทึกเข้าระบบสำเร็จ!", "success"); UI.closeModal('modalInspect'); })
+                    .catch(err => { Toast.show("บันทึกในเครื่องแล้ว (ส่งออนไลน์ไม่ผ่าน)", "warning"); UI.closeModal('modalInspect'); })
+                    .finally(() => { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> บันทึกข้อมูล'; });
+                } else { Toast.show("บันทึกในเครื่องเรียบร้อย (Offline)", "success"); UI.closeModal('modalInspect'); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> บันทึกข้อมูล'; }
+            },
+
+            generateReport() {
+                UI.closeModal('modalMenu'); const stats = this.calculateStats(); const reportEl = document.getElementById('reportContainer'); const [y, m] = this.month.split('-'); const mNames = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"]; const monthTh = `${mNames[parseInt(m)-1]} ${parseInt(y)+543}`;
+
+                let failItemsHtml = ''; let noFailMessage = ''; let runNo = 1;
                 
                 this.data.forEach(item => {
-                    const cloudInfo = this.cloudStatus[item.id];
-                    const localInfo = item.history[this.month];
+                    const cloudInfo = this.cloudStatus[item.id]; const localInfo = item.history[this.month];
                     let status = 'pending'; let failReason = ''; let note = '';
 
                     if (localInfo) { status = localInfo.status; failReason = localInfo.failTopics ? localInfo.failTopics.join(', ') : ''; note = localInfo.note || ''; }
-                    else if (cloudInfo) { const s = String(cloudInfo.status).toLowerCase(); status = (s === 'pass' || (s.includes('ปกติ') && !s.includes('ผิด'))) ? 'pass' : 'fail'; failReason = cloudInfo.failReason || ''; note = cloudInfo.note || ''; }
+                    else if (cloudInfo) { const s = String(cloudInfo.status).toLowerCase(); if (s === 'pass' || (s.includes('ปกติ') && !s.includes('ผิด'))) status = 'pass'; else if (s === 'repair' || s.includes('ซ่อม')) status = 'repair'; else status = 'fail'; failReason = cloudInfo.failReason || ''; note = cloudInfo.note || ''; }
 
-                    // ถ้าเป็นถังที่พัง หรือเพิ่งถูกซ่อม (มีคำว่า [ซ่อมแล้ว] ในหมายเหตุ) ก็จะดึงมาโชว์ในรายงานด้วย
-                    if (status === 'fail' || note.includes('[ซ่อมแล้ว')) {
-                        let finalStatus = status === 'fail' ? '<span style="color:red; font-weight:bold;">พบปัญหา</span>' : '<span style="color:green; font-weight:bold;">ซ่อมแล้ว</span>';
-                        failItemsHtml += `<tr><td style="border: 1px solid #000; padding: 8px; text-align:center;">${runNo}</td><td style="border: 1px solid #000; padding: 8px; text-align:center;">${item.id}</td><td style="border: 1px solid #000; padding: 8px;">${item.loc}</td><td style="border: 1px solid #000; padding: 8px; text-align:center;">${finalStatus}</td><td style="border: 1px solid #000; padding: 8px;">${failReason} ${note ? '<br><span style="color:#666; font-size:12px;">หมายเหตุ: '+note+'</span>' : ''}</td></tr>`;
+                    if (status === 'fail' || status === 'repair' || note.includes('[แก้ไขแล้ว')) {
+                        let finalStatusText = '';
+                        if (status === 'fail') finalStatusText = '<span style="color:#D32F2F; font-weight:bold;">พบปัญหา</span>';
+                        else if (status === 'repair') finalStatusText = '<span style="color:#F57C00; font-weight:bold;">กำลังซ่อม</span>';
+                        else finalStatusText = '<span style="color:#2E7D32; font-weight:bold;">ซ่อมเสร็จแล้ว</span>';
+
+                        failItemsHtml += `<tr><td style="border: 1px solid #000; padding: 8px; text-align:center;">${runNo}</td><td style="border: 1px solid #000; padding: 8px; text-align:center;">${item.id}</td><td style="border: 1px solid #000; padding: 8px;">${item.loc}</td><td style="border: 1px solid #000; padding: 8px; text-align:center;">${finalStatusText}</td><td style="border: 1px solid #000; padding: 8px;">${failReason} ${note ? '<br><span style="color:#666; font-size:12px;">หมายเหตุ: '+note+'</span>' : ''}</td></tr>`;
                         runNo++;
                     }
                 });
@@ -759,21 +857,24 @@
                         <div style="text-align:right; font-size:12px; line-height:1.5;">
                             <table style="border-collapse: collapse; text-align:left; float:right;">
                                 <tr><td style="border:1px solid #000; padding:2px 8px; font-weight:bold;">Doc No.</td><td style="border:1px solid #000; padding:2px 8px;">FM-OHS-001</td></tr>
-                                <tr><td style="border:1px solid #000; padding:2px 8px; font-weight:bold;">Rev.</td><td style="border:1px solid #000; padding:2px 8px;">00</td></tr>
+                                <tr><td style="border:1px solid #000; padding:2px 8px; font-weight:bold;">Rev.</td><td style="border:1px solid #000; padding:2px 8px;">01</td></tr>
                                 <tr><td style="border:1px solid #000; padding:2px 8px; font-weight:bold;">Date</td><td style="border:1px solid #000; padding:2px 8px;">${new Date().toLocaleDateString('th-TH')}</td></tr>
                             </table>
                         </div>
                     </div>
 
                     <div style="display:flex; justify-content:space-between; margin-bottom:25px;">
-                        <div style="width:31%; padding:10px; border:1px solid #333; text-align:center;">
-                            <div style="font-size:14px; color:#555;">จำนวนอุปกรณ์ทั้งหมด (ถัง)</div><div style="font-size:26px; font-weight:bold;">${stats.total}</div>
+                        <div style="width:23%; padding:10px; border:1px solid #333; text-align:center;">
+                            <div style="font-size:14px; color:#555;">จำนวนถังทั้งหมด</div><div style="font-size:26px; font-weight:bold;">${stats.total}</div>
                         </div>
-                        <div style="width:31%; padding:10px; border:1px solid #2E7D32; background:#E8F5E9; text-align:center;">
-                            <div style="font-size:14px; color:#2E7D32;">สภาพปกติพร้อมใช้งาน (Pass)</div><div style="font-size:26px; font-weight:bold; color:#2E7D32;">${stats.pass}</div>
+                        <div style="width:23%; padding:10px; border:1px solid #2E7D32; background:#E8F5E9; text-align:center;">
+                            <div style="font-size:14px; color:#2E7D32;">ปกติ (Pass)</div><div style="font-size:26px; font-weight:bold; color:#2E7D32;">${stats.pass}</div>
                         </div>
-                        <div style="width:31%; padding:10px; border:1px solid #D32F2F; background:#FFEBEE; text-align:center;">
-                            <div style="font-size:14px; color:#D32F2F;">พบปัญหา / รอซ่อม (Fail)</div><div style="font-size:26px; font-weight:bold; color:#D32F2F;">${stats.fail}</div>
+                        <div style="width:23%; padding:10px; border:1px solid #D32F2F; background:#FFEBEE; text-align:center;">
+                            <div style="font-size:14px; color:#D32F2F;">พบปัญหา (Fail)</div><div style="font-size:26px; font-weight:bold; color:#D32F2F;">${stats.fail}</div>
+                        </div>
+                        <div style="width:23%; padding:10px; border:1px solid #F57C00; background:#FFF8E1; text-align:center;">
+                            <div style="font-size:14px; color:#F57C00;">กำลังซ่อม (Repair)</div><div style="font-size:26px; font-weight:bold; color:#F57C00;">${stats.repair}</div>
                         </div>
                     </div>
 
@@ -804,7 +905,7 @@
                         </div>
                         <div style="width:30%;">
                             <p style="margin:0 0 10px 0; border-bottom:1px solid #000; display:inline-block; width:100%; height:20px;"></p>
-                            <p style="margin:5px 0 0 0; font-weight:bold;">( ผู้รับรอง / ผู้จัดการ )</p>
+                            <p style="margin:5px 0 0 0; font-weight:bold;">( ผู้จัดการฝ่าย )</p>
                             <p style="margin:5px 0 0 0; font-size:14px;">วันที่ ....... / ....... / .......</p>
                         </div>
                     </div>
@@ -815,18 +916,11 @@
                 UI.openModal('modalReport');
             },
 
-            openPrintQR() {
-                UI.closeModal('modalMenu');
-                document.body.classList.add('print-mode-qr');
-                document.body.classList.remove('print-mode-report');
-                document.getElementById('qrPrintContainer').innerHTML = '<div class="no-print" style="color:#999; margin-top:50px; width:100%; text-align:center;">กดปุ่มด้านบนเพื่อโหลด QR Code ขึ้นมาบนกระดาษ</div>';
-                UI.openModal('modalPrintQR');
-            },
-
+            openPrintQR() { UI.closeModal('modalMenu'); document.body.classList.add('print-mode-qr'); document.body.classList.remove('print-mode-report'); document.getElementById('qrPrintContainer').innerHTML = '<div class="no-print" style="color:#999; margin-top:50px; width:100%; text-align:center;">กดปุ่มด้านบนเพื่อโหลด QR Code ขึ้นมาบนกระดาษ</div>'; UI.openModal('modalPrintQR'); },
             openEdit() { const item = this.data.find(d => d.id === this.currentId); if(!item) return; document.getElementById('editId').value = item.id; document.getElementById('editLoc').value = item.loc; document.getElementById('editType').value = item.type; document.getElementById('editSize').value = item.size; document.getElementById('editExp').value = item.expDate || ''; UI.openModal('modalEdit'); },
             saveEditDevice() { const id = document.getElementById('editId').value; const loc = document.getElementById('editLoc').value.trim(); const type = document.getElementById('editType').value.trim(); const size = document.getElementById('editSize').value.trim(); const expDate = document.getElementById('editExp').value; if(!loc) return Toast.show('กรุณาระบุสถานที่', 'warning'); const itemIndex = this.data.findIndex(d => d.id === id); if(itemIndex > -1) { this.data[itemIndex].loc = loc; this.data[itemIndex].type = type; this.data[itemIndex].size = size; this.data[itemIndex].expDate = expDate; this.saveToStorage(); this.populateLocationFilter(); this.renderAll(); UI.closeModal('modalEdit'); this.openInspect(id); Toast.show('อัปเดตข้อมูลสำเร็จ!', 'success'); } },
             deleteDevice() { const id = document.getElementById('editId').value; if(confirm(`⚠️ ลบถังรหัส ${id} ออกจากระบบ?`)) { this.data = this.data.filter(d => d.id !== id); this.saveToStorage(); this.populateLocationFilter(); this.renderAll(); UI.closeModal('modalEdit'); UI.closeModal('modalInspect'); Toast.show(`ลบถัง ${id} เรียบร้อย`, 'success'); } },
-            showHistory() { const item = this.data.find(d => d.id === this.currentId); if(!item) return; document.getElementById('historyTitle').innerText = `${item.id} - ${item.loc}`; const listEl = document.getElementById('historyList'); listEl.innerHTML = ''; const monthsChecked = Object.keys(item.history).sort().reverse(); if(monthsChecked.length === 0) { listEl.innerHTML = '<div style="text-align:center; padding:20px; color:#999; font-size:0.9rem; background:#F5F5F5; border-radius:12px;">ยังไม่มีประวัติการตรวจในเครื่องนี้</div>'; } else { monthsChecked.forEach(m => { const h = item.history[m]; const isPass = h.status === 'pass'; const color = isPass ? 'var(--success)' : 'var(--primary)'; const icon = isPass ? 'fa-circle-check' : 'fa-triangle-exclamation'; const failText = !isPass && h.failTopics ? `<br><span style="color:var(--primary); font-size:0.8rem;">ปัญหา: ${h.failTopics.join(', ')}</span>` : ''; listEl.innerHTML += `<div style="border:1px solid #ECEFF1; border-radius:12px; padding:12px; background:#FFF; border-left:4px solid ${color};"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;"><span style="font-weight:600; font-size:0.95rem;">เดือน ${m}</span><span style="color:${color}; font-size:0.85rem; font-weight:600;"><i class="fa-solid ${icon}"></i> ${isPass ? 'ปกติ' : 'พบปัญหา'}</span></div><div style="font-size:0.85rem; color:var(--text-muted); line-height:1.4;"><i class="fa-solid fa-user"></i> ผู้ตรวจ: ${h.inspector || '-'}<br><i class="fa-solid fa-calendar"></i> เวลา: ${h.time || '-'}${failText}</div></div>`; }); } UI.openModal('modalHistory'); },
+            showHistory() { const item = this.data.find(d => d.id === this.currentId); if(!item) return; document.getElementById('historyTitle').innerText = `${item.id} - ${item.loc}`; const listEl = document.getElementById('historyList'); listEl.innerHTML = ''; const monthsChecked = Object.keys(item.history).sort().reverse(); if(monthsChecked.length === 0) { listEl.innerHTML = '<div style="text-align:center; padding:20px; color:#999; font-size:0.9rem; background:#F5F5F5; border-radius:12px;">ยังไม่มีประวัติการตรวจในเครื่องนี้</div>'; } else { monthsChecked.forEach(m => { const h = item.history[m]; const isPass = h.status === 'pass'; const color = isPass ? 'var(--success)' : (h.status === 'repair' ? 'var(--warning)' : 'var(--primary)'); const icon = isPass ? 'fa-circle-check' : (h.status === 'repair' ? 'fa-tools' : 'fa-triangle-exclamation'); const failText = !isPass && h.failTopics ? `<br><span style="color:var(--primary); font-size:0.8rem;">ปัญหา: ${h.failTopics.join(', ')}</span>` : ''; listEl.innerHTML += `<div style="border:1px solid #ECEFF1; border-radius:12px; padding:12px; background:#FFF; border-left:4px solid ${color};"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;"><span style="font-weight:600; font-size:0.95rem;">เดือน ${m}</span><span style="color:${color}; font-size:0.85rem; font-weight:600;"><i class="fa-solid ${icon}"></i> ${isPass ? 'ปกติ' : (h.status === 'repair' ? 'กำลังซ่อม' : 'พบปัญหา')}</span></div><div style="font-size:0.85rem; color:var(--text-muted); line-height:1.4;"><i class="fa-solid fa-user"></i> ผู้ตรวจ: ${h.inspector || '-'}<br><i class="fa-solid fa-calendar"></i> เวลา: ${h.time || '-'}${failText}</div></div>`; }); } UI.openModal('modalHistory'); },
             
             appendQRBlock(id) { const container = document.getElementById('qrPrintContainer'); const div = document.createElement('div'); div.className = 'qr-card-screen'; const appUrl = `https://safetyawareness.github.io/safety-check/?id=${id}`; const qrData = encodeURIComponent(appUrl); div.innerHTML = `<button class="del-qr-btn" onclick="this.parentElement.remove()">✕</button><img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrData}" alt="${id}"><h3 style="margin: 0; font-size: 1.2rem; color: #263238;">${id}</h3><p style="margin: 2px 0 0 0; font-size: 0.7rem; color: #D32F2F; font-weight: 600;">สแกนเพื่อตรวจถังนี้</p>`; container.appendChild(div); },
             generateAllQR() { if(this.data.length === 0) return Toast.show('ไม่มีถังในระบบ', 'warning'); document.getElementById('qrPrintContainer').innerHTML = ''; Toast.show('กำลังโหลดรูปลงกระดาษ...', 'info'); setTimeout(() => { this.data.forEach(item => this.appendQRBlock(item.id)); }, 100); },
@@ -836,33 +930,8 @@
             checkStatus() { const checks = []; for(let i=0; i<this.currentCheckList.length; i++) { const el = document.getElementById(`chk_${i}`); if(el) checks.push(el.checked); } const isFail = checks.some(c => !c); const photoSec = document.getElementById('photoSection'); if(isFail) photoSec.style.display = 'block'; else if(!this.tempPhoto) photoSec.style.display = 'none'; },
             updatePhotoUI() { const img = document.getElementById('photoPreview'); if(this.tempPhoto) { img.src = this.tempPhoto; img.style.display = 'block'; } else { img.style.display = 'none'; img.src = ''; } },
             handlePhoto(input) { if (input.files && input.files[0]) { const file = input.files[0]; const reader = new FileReader(); reader.onload = (e) => { const img = new Image(); img.src = e.target.result; img.onload = () => { const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d'); const MAX_SIZE = 500; let w = img.width, h = img.height; if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; } } else { if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; } } canvas.width = w; canvas.height = h; ctx.drawImage(img, 0, 0, w, h); this.tempPhoto = canvas.toDataURL('image/jpeg', 0.5); this.updatePhotoUI(); }; }; reader.readAsDataURL(file); } },
-
-            save() {
-                const name = document.getElementById('inspectName').value.trim(); if (!name) return Toast.show('กรุณาระบุชื่อผู้ตรวจสอบ', 'warning');
-                const btn = document.getElementById('btnSave'); btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
-                const checks = []; const failTopics = [];
-                for(let i=0; i<this.currentCheckList.length; i++) { const isChecked = document.getElementById(`chk_${i}`).checked; checks.push(isChecked); if(!isChecked) failTopics.push(this.currentCheckList[i]); }
-                const status = checks.every(c => c === true) ? 'pass' : 'fail';
-                if(status === 'fail' && !this.tempPhoto) { if(!confirm("⚠️ พบข้อบกพร่องแต่ยังไม่ได้ถ่ายรูป\nต้องการบันทึกโดยไม่มีรูปหรือไม่?")) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> บันทึกข้อมูล'; return; } }
-
-                const item = this.data.find(d => d.id === this.currentId);
-                const payload = { id: this.currentId, loc: item.loc, type: item.type, size: item.size, expDate: item.expDate, month: this.month, status: status, inspector: name, note: document.getElementById('inspectNote').value, checks: checks, failTopics: failTopics, time: new Date().toLocaleString('th-TH'), photo: this.tempPhoto };
-                
-                item.history[this.month] = { ...payload }; 
-                if (!this.cloudData[this.month]) this.cloudData[this.month] = {};
-                this.cloudData[this.month][this.currentId] = { status: status, inspector: name, time: payload.time, image: this.tempPhoto, failReason: failTopics[0] || '', note: payload.note };
-                this.cloudStatus = this.cloudData[this.month];
-                
-                this.saveToStorage(); this.renderAll(); 
-                if(CLOUD_URL && CLOUD_URL.startsWith('http')) {
-                    fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-                    .then(() => { Toast.show("บันทึกเข้าระบบคลาวด์สำเร็จ!", "success"); UI.closeModal('modalInspect'); })
-                    .catch(err => { Toast.show("บันทึกในเครื่องแล้ว (ส่งออนไลน์ไม่ผ่าน)", "warning"); UI.closeModal('modalInspect'); })
-                    .finally(() => { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> บันทึกข้อมูล'; });
-                } else { Toast.show("บันทึกในเครื่องเรียบร้อย (Offline)", "success"); UI.closeModal('modalInspect'); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> บันทึกข้อมูล'; }
-            },
-
-            exportExcel() { let csv = `\uFEFFID,Location,Type,Size,Status,Inspector,Timestamp,Note,Check_Result,Image_URL\n`; this.data.forEach(d => { const local = d.history[this.month]; const cloud = this.cloudStatus[d.id]; let useData = local; if(cloud && cloud.status) { useData = { status: (String(cloud.status).toLowerCase() === 'pass' || (String(cloud.status).includes('ปกติ') && !String(cloud.status).includes('ผิด'))) ? 'pass' : 'fail', inspector: cloud.inspector, time: cloud.time, note: cloud.note || (local?.note || ''), failTopics: cloud.failReason ? [cloud.failReason] : (local?.failTopics || []), image: cloud.image || (local?.photo || '') }; } if(useData) { let resultStr = "PASS"; if(useData.status === 'fail') { resultStr = (useData.failTopics && useData.failTopics.length > 0) ? "FAIL: " + useData.failTopics.join(" | ") : "FAIL (No Details)"; } const note = (useData.note || '').replace(/,/g, ' '); const safeResult = resultStr.replace(/,/g, ' '); const imgLink = useData.image || ''; csv += `${d.id},"${d.loc}","${d.type}","${d.size}",${useData.status},"${useData.inspector}",${useData.time},"${note}","${safeResult}","${imgLink}"\n`; } else { csv += `${d.id},"${d.loc}","${d.type}","${d.size}",PENDING,,,,,\n`; } }); const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `FireReport_${this.month}.csv`; link.click(); Toast.show("ดาวน์โหลด Excel แล้ว", "success"); },
+            
+            exportExcel() { let csv = `\uFEFFID,Location,Type,Size,Status,Inspector,Timestamp,Note,Check_Result,Image_URL\n`; this.data.forEach(d => { const local = d.history[this.month]; const cloud = this.cloudStatus[d.id]; let useData = local; if(cloud && cloud.status) { useData = { status: (String(cloud.status).toLowerCase() === 'pass' || (String(cloud.status).includes('ปกติ') && !String(cloud.status).includes('ผิด'))) ? 'pass' : (String(cloud.status).includes('repair') ? 'repair' : 'fail'), inspector: cloud.inspector, time: cloud.time, note: cloud.note || (local?.note || ''), failTopics: cloud.failReason ? [cloud.failReason] : (local?.failTopics || []), image: cloud.image || (local?.photo || '') }; } if(useData) { let resultStr = "PASS"; if(useData.status === 'fail' || useData.status === 'repair') { resultStr = (useData.failTopics && useData.failTopics.length > 0) ? "FAIL: " + useData.failTopics.join(" | ") : "FAIL (No Details)"; } const note = (useData.note || '').replace(/,/g, ' '); const safeResult = resultStr.replace(/,/g, ' '); const imgLink = useData.image || ''; csv += `${d.id},"${d.loc}","${d.type}","${d.size}",${useData.status},"${useData.inspector}",${useData.time},"${note}","${safeResult}","${imgLink}"\n`; } else { csv += `${d.id},"${d.loc}","${d.type}","${d.size}",PENDING,,,,,\n`; } }); const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `FireReport_${this.month}.csv`; link.click(); Toast.show("ดาวน์โหลด Excel แล้ว", "success"); },
             backupData() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.data)); const dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", `FireCheck_Backup_${new Date().toISOString().slice(0,10)}.json`); document.body.appendChild(dl); dl.click(); dl.remove(); Toast.show("สำรองข้อมูลสำเร็จ", "success"); },
             restoreData(input) { const file = input.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = (e) => { try { this.data = JSON.parse(e.target.result); this.saveToStorage(); this.populateLocationFilter(); this.renderAll(); Toast.show('กู้คืนข้อมูลสำเร็จ!', 'success'); UI.closeModal('modalMenu'); } catch(err) { Toast.show('ไฟล์ไม่ถูกต้อง', 'error'); } }; reader.readAsText(file); },
             saveToStorage() { localStorage.setItem('firePins_Ent_V5', JSON.stringify(this.data)); },
@@ -878,7 +947,13 @@
             stopScanner() { if(App.scanner) App.scanner.clear(); this.closeModal('modalScan'); }
         };
 
-        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').then(() => console.log('Service Worker Registered')); }
+        // Fix for ServiceWorker registration issue on blob/file protocols
+        if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.protocol === 'http:')) {
+            navigator.serviceWorker.register('sw.js')
+                .then(() => console.log('Service Worker Registered'))
+                .catch((error) => console.log('Service Worker registration failed:', error));
+        }
+        
         window.onload = () => App.init();
     </script>
 </body>
