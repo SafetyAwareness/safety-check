@@ -81,7 +81,6 @@
         .card.repair .status-icon { color: var(--warning); }
         .inspector-badge { font-size: 0.7rem; background: rgba(0,0,0,0.04); padding: 3px 8px; border-radius: 6px; display:inline-block; margin-top:4px; font-weight: 500;}
 
-        /* FAB & Nav Styles */
         .fab-wrapper { position: fixed; bottom: calc(var(--nav-h) + 20px); right: 20px; display: flex; flex-direction: column; align-items: flex-end; gap: 15px; z-index: 40; }
         .fab { display: flex; justify-content: center; align-items: center; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.25); cursor: pointer; transition: transform 0.2s; font-family: 'Prompt', sans-serif;}
         .fab:active { transform: scale(0.95); }
@@ -367,8 +366,8 @@
     <div id="modalScan" class="modal"><div class="sheet"><div style="text-align:center;"><h2 style="margin-bottom:20px;">สแกน QR Code</h2><div id="qr-reader"></div><p style="color:#90A4AE; margin:20px 0 10px; font-size:0.9rem;">หรือกรอกรหัสด้วยมือ</p><div style="display:flex; gap:10px; justify-content:center;"><input type="text" id="manualId" class="form-control" style="margin:0; width:130px; text-transform:uppercase;" placeholder="เช่น FE-01"><button onclick="App.manualScan()" class="btn-save" style="margin-top:0; width:auto; padding:10px 24px;">ค้นหา</button></div></div><button onclick="UI.stopScanner()" style="width:100%; padding:14px; border:none; background:#F5F5F5; color:var(--text-muted); border-radius:12px; margin-top:20px; font-size:1rem; font-family:'Prompt';">ปิดกล้อง</button></div></div>
 
     <script>
-        // 🔴 อย่าลืมเปลี่ยน URL ตรงนี้ให้เป็นลิงก์ Google Apps Script อันใหม่ของคุณนะครับ!
-        const CLOUD_URL = https://script.google.com/macros/library/d/14_x_R6hoS8Eh0RV7nICFdY2Om93OaQ-Pl5fGpDtrzGcx97iDswHrjFB0/11 
+        // 🔴🔴🔴 สำคัญมาก: เปลี่ยน URL ตรงนี้เป็น Web App URL ของคุณที่ได้จากการ Deploy ใหม่นะครับ! 🔴🔴🔴
+        const CLOUD_URL = https://script.google.com/macros/s/AKfycbyWV9ncnU_mnxX3UTMK0LTnLvefXV0TMIonULZLeGOyjBu6xcfHsOrLSluJHDKrv2_fig/exec 
 
         const DB_INIT = [
             { id: "FE-01", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Workshop" },
@@ -496,14 +495,14 @@
             autoCleanOldHistory() {
                 const today = new Date();
                 today.setFullYear(today.getFullYear() - 1);
-                const limitMonth = today.toISOString().slice(0, 7); // Format: YYYY-MM
+                const limitMonth = today.toISOString().slice(0, 7); 
                 let hasDeleted = false;
 
                 this.data.forEach(item => {
                     if (item.history) {
                         Object.keys(item.history).forEach(month => {
                             if (month < limitMonth) {
-                                delete item.history[month]; // ลบทิ้งจากมือถือ
+                                delete item.history[month]; 
                                 hasDeleted = true;
                             }
                         });
