@@ -18,8 +18,8 @@
 
     <style>
         :root {
-            --primary: #D32F2F; --primary-dark: #B71C1C; --secondary: #263238;       
-            --success: #2E7D32; --warning: #F57C00; /* สีส้มสำหรับงานซ่อม */ --info: #0288D1;          
+            --primary: #D32F2F; --primary-dark: #B71C1C; --secondary: #263238;        
+            --success: #2E7D32; --warning: #F57C00; --info: #0288D1;          
             --bg-body: #F5F7FA; --surface: #FFFFFF; --text-main: #201F1E;
             --text-muted: #605E5C; --radius: 16px; --header-h: 64px; --nav-h: 65px;
         }
@@ -81,14 +81,13 @@
         .card.repair .status-icon { color: var(--warning); }
         .inspector-badge { font-size: 0.7rem; background: rgba(0,0,0,0.04); padding: 3px 8px; border-radius: 6px; display:inline-block; margin-top:4px; font-weight: 500;}
 
-        .fab-wrapper { position: fixed; bottom: calc(var(--nav-h) + 20px); right: 20px; display: flex; flex-direction: column; gap: 15px; z-index: 40; }
-        .fab { width: 56px; height: 56px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.25); cursor: pointer; font-size: 1.2rem; transition: transform 0.2s; }
+        /* FAB & Nav Styles */
+        .fab-wrapper { position: fixed; bottom: calc(var(--nav-h) + 20px); right: 20px; display: flex; flex-direction: column; align-items: flex-end; gap: 15px; z-index: 40; }
+        .fab { display: flex; justify-content: center; align-items: center; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.25); cursor: pointer; transition: transform 0.2s; font-family: 'Prompt', sans-serif;}
         .fab:active { transform: scale(0.95); }
-        .fab-scan { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); width: 64px; height: 64px; font-size: 1.6rem; }
-        .fab-excel { background: var(--success); }
-        .fab-refresh { background: var(--text-main); width: 48px; height: 48px; font-size: 1.1rem; }
-
-        .bottom-nav { height: var(--nav-h); background: var(--surface); display: flex; box-shadow: 0 -4px 20px rgba(0,0,0,0.06); z-index: 50; flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom); border-radius: 20px 20px 0 0; }
+        .fab-refresh { background: var(--text-main); width: 48px; height: 48px; border-radius: 50%; font-size: 1.1rem; }
+        
+        .bottom-nav { position: relative; height: var(--nav-h); background: var(--surface); display: flex; box-shadow: 0 -4px 20px rgba(0,0,0,0.06); z-index: 50; flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom); border-radius: 20px 20px 0 0; }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #90A4AE; font-size: 0.75rem; text-decoration: none; cursor: pointer; transition: 0.2s; border: none; background: none; font-family: 'Prompt'; padding-top: 5px; }
         .nav-item i { font-size: 1.4rem; margin-bottom: 4px; transition: 0.2s; }
         .nav-item.active { color: var(--primary); font-weight: 600; }
@@ -171,23 +170,15 @@
         .qr-card-screen img { width: 100px; height: 100px; margin-bottom: 8px; }
         .del-qr-btn { position: absolute; top: -5px; right: -5px; background: #D32F2F; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 
-        /* PRINT MEDIA QUERIES */
         @media print {
             body { background: white !important; height: auto !important; overflow: visible !important; }
             #toast, header, #mainContent, .bottom-nav, .fab-wrapper, #modalMenu, #modalAdd, #modalEdit, #modalHistory, #modalScan, #modalInspect { display: none !important; }
             .no-print { display: none !important; }
-            
             body.print-mode-qr #modalPrintQR { display: block !important; position: static !important; background: white !important; z-index: auto !important; padding: 0 !important; }
             body.print-mode-qr #modalPrintQR .sheet { max-width: none !important; width: 100% !important; background: transparent !important; border-radius: 0 !important; padding: 0 !important; max-height: none !important; overflow: visible !important; animation: none !important; }
             body.print-mode-qr #qrPrintContainer { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 10mm !important; overflow: visible !important; padding: 10mm !important; align-content: start !important; }
             body.print-mode-qr .qr-card-screen { border: 1px dashed #999 !important; width: auto !important; padding: 15px !important; page-break-inside: avoid !important; border-radius: 0 !important; }
             body.print-mode-qr .del-qr-btn { display: none !important; }
-            body.print-mode-qr #modalReport { display: none !important; }
-
-            body.print-mode-report #modalReport { display: block !important; position: static !important; background: white !important; z-index: auto !important; padding: 0 !important; }
-            body.print-mode-report #modalReport .sheet { max-width: none !important; width: 100% !important; background: transparent !important; border-radius: 0 !important; padding: 0 !important; max-height: none !important; overflow: visible !important; animation: none !important; }
-            body.print-mode-report #reportContainer { width: 100% !important; padding: 0 !important; margin: 0 !important; box-shadow: none !important;}
-            body.print-mode-report #modalPrintQR { display: none !important; }
         }
     </style>
 </head>
@@ -200,12 +191,11 @@
         <div class="header-actions">
             <div id="statusBadge" class="header-status"><span id="statusDot" class="dot"></span> <span id="statusText">Offline</span></div>
             <input type="month" id="monthPicker" class="month-selector" onchange="App.changeMonth()">
-            <button class="btn-icon" onclick="UI.openModal('modalMenu')"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+            <button class="btn-icon" id="adminMenuBtn" onclick="UI.openModal('modalMenu')"><i class="fa-solid fa-ellipsis-vertical"></i></button>
         </div>
     </header>
 
     <div id="mainContent">
-        <!-- VIEW: LIST -->
         <div id="viewList" class="view-section active">
             <div class="dashboard-mini">
                 <div class="progress-card">
@@ -237,7 +227,6 @@
             <div id="list-container"></div>
         </div>
 
-        <!-- VIEW: DASHBOARD -->
         <div id="viewDashboard" class="view-section">
             <h2 class="dash-title"><i class="fa-solid fa-chart-pie" style="color:var(--primary)"></i> สรุปผลการตรวจ </h2>
             
@@ -250,9 +239,9 @@
                 <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
                     <span style="font-size:0.9rem; color:#888; font-weight:500;" id="dashMonthLabel"></span>
                 </div>
-                <!-- ปุ่มสร้าง PDF สำหรับ จป. -->
-                <button class="btn-save" style="margin-top:0; margin-bottom:15px; background:var(--secondary); padding:10px;" onclick="App.generateReport()">
-                    <i class="fa-solid fa-file-pdf"></i> พิมพ์รายงานประจำเดือน (PDF)
+                
+                <button id="adminExcelBtn" class="btn-save" style="margin-top:0; margin-bottom:15px; background:#107C41; padding:12px;" onclick="App.exportExcel()">
+                    <i class="fa-solid fa-file-excel"></i> ดาวน์โหลดข้อมูล (Excel)
                 </button>
 
                 <div class="dash-grid">
@@ -300,25 +289,21 @@
         </div>
     </div> 
 
-    <!-- BOTTOM NAVIGATION -->
     <nav class="bottom-nav">
         <button class="nav-item active" id="navBtnList" onclick="App.switchTab('List')"><i class="fa-solid fa-list-check"></i> รายการตรวจ</button>
+        <button class="nav-item" onclick="App.openScanner()" style="color: var(--primary); font-weight: 600;"><i class="fa-solid fa-qrcode"></i> สแกน QR</button>
         <button class="nav-item" id="navBtnDashboard" onclick="App.switchTab('Dashboard')"><i class="fa-solid fa-chart-line"></i> แดชบอร์ด</button>
     </nav>
 
-    <!-- Floating Action Buttons -->
     <div class="fab-wrapper" id="fabGroup">
         <div class="fab fab-refresh" onclick="App.syncCloud()" title="อัปเดตข้อมูล"><i class="fa-solid fa-rotate"></i></div>
-        <div class="fab fab-excel" onclick="App.exportExcel()" title="ส่งออก Excel"><i class="fa-solid fa-file-excel"></i></div>
-        <div class="fab fab-scan" onclick="App.openScanner()" title="สแกน QR"><i class="fa-solid fa-qrcode"></i></div>
     </div>
 
-    <!-- INSPECT MODAL -->
     <div id="modalInspect" class="modal">
         <div class="sheet">
             <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                 <div>
-                    <h2 style="margin:0; color:var(--text-main); font-size:1.4rem;">บันทึกผล <button onclick="App.openEdit()" style="background:none; border:none; color:var(--info); font-size:1rem; cursor:pointer; margin-left:8px;" title="แก้ไข"><i class="fa-solid fa-pen-to-square"></i></button></h2>
+                    <h2 style="margin:0; color:var(--text-main); font-size:1.4rem;">บันทึกผล <button id="adminEditBtn" onclick="App.openEdit()" style="background:none; border:none; color:var(--info); font-size:1rem; cursor:pointer; margin-left:8px;" title="แก้ไข"><i class="fa-solid fa-pen-to-square"></i></button></h2>
                     <p id="inspectTitle" style="color:var(--text-muted); margin:4px 0 0 0; font-size:0.9rem; font-weight:600;">FE-XX</p>
                     <p id="inspectSubtitle" style="font-size:0.8rem; color:#888;">ประเภท: -</p>
                     <p id="inspectExpDate" style="font-size:0.75rem; color:var(--warning); margin-top:2px; font-weight:500;"></p>
@@ -348,23 +333,14 @@
             <input type="text" id="inspectName" class="form-control" placeholder="ชื่อผู้ตรวจสอบ" required>
             
             <button id="btnSave" class="btn-save" onclick="App.save()"><i class="fa-solid fa-cloud-arrow-up"></i> บันทึกข้อมูล</button>
-            
-            <!-- ปุ่มแจ้งส่งซ่อม (จะโผล่เฉพาะถ้าสถานะคือ Fail แดง) -->
-            <button id="btnSetRepair" class="btn-save" style="background:var(--warning); color:#FFF; display:none; margin-top:10px; box-shadow:none;" onclick="App.markAsRepair()">
-                <i class="fa-solid fa-truck-fast"></i> แจ้งส่งซ่อม / รออะไหล่ (In-Progress)
-            </button>
-
-            <!-- ปุ่มซ่อมเสร็จแล้ว (จะโผล่เฉพาะถ้าสถานะคือ Repair เหลือง) -->
-            <button id="btnResolve" class="btn-save" style="background:var(--success); color:#FFF; display:none; margin-top:10px; box-shadow:none;" onclick="App.resolveIssue()">
-                <i class="fa-solid fa-wrench"></i> ซ่อมเสร็จแล้ว (เปลี่ยนกลับเป็นปกติ)
-            </button>
+            <button id="btnSetRepair" class="btn-save" style="background:var(--warning); color:#FFF; display:none; margin-top:10px; box-shadow:none;" onclick="App.markAsRepair()"><i class="fa-solid fa-truck-fast"></i> แจ้งส่งซ่อม / รออะไหล่ (In-Progress)</button>
+            <button id="btnResolve" class="btn-save" style="background:var(--success); color:#FFF; display:none; margin-top:10px; box-shadow:none;" onclick="App.resolveIssue()"><i class="fa-solid fa-wrench"></i> ซ่อมเสร็จแล้ว (เปลี่ยนกลับเป็นปกติ)</button>
         </div>
     </div>
 
-    <!-- MENU MODAL -->
     <div id="modalMenu" class="modal">
         <div class="sheet">
-            <h2 style="margin-top:0; margin-bottom: 20px;">เมนูจัดการ</h2>
+            <h2 style="margin-top:0; margin-bottom: 20px;">เมนูจัดการ (Admin)</h2>
             <button class="menu-btn" onclick="UI.openModal('modalAdd'); UI.closeModal('modalMenu')"><i class="fa-solid fa-plus-circle" style="color:var(--success)"></i> เพิ่มจุดตรวจใหม่</button>
             <button class="menu-btn" onclick="App.openPrintQR()"><i class="fa-solid fa-qrcode" style="color:var(--info)"></i> ระบบพิมพ์ QR Code</button>
             <button class="menu-btn" onclick="App.backupData()"><i class="fa-solid fa-download"></i> สำรองข้อมูล (Backup)</button>
@@ -375,14 +351,11 @@
         </div>
     </div>
     
-    <!-- ADD & EDIT MODALS -->
-    <div id="modalAdd" class="modal"><div class="sheet"><h2 style="margin-top:0;">เพิ่มจุดตรวจใหม่</h2><input type="text" id="addId" class="form-control" placeholder="รหัสถัง (เช่น FE-91)" style="text-transform:uppercase;"><input type="text" id="addLoc" class="form-control" placeholder="สถานที่ติดตั้ง"><input type="text" id="addType" class="form-control" placeholder="ชนิดถัง (เช่น เคมีแห้ง)"><input type="text" id="addSize" class="form-control" placeholder="ขนาด (เช่น 10 ปอนด์)"><button class="btn-save" onclick="App.addDevice()">บันทึกจุดใหม่</button><button onclick="UI.closeModal('modalAdd')" style="width:100%; margin-top:10px; background:none; border:none; padding:10px; font-family:'Prompt'; color:#666;">ยกเลิก</button></div></div>
+    <div id="modalAdd" class="modal"><div class="sheet"><h2 style="margin-top:0;">เพิ่มจุดตรวจใหม่</h2><input type="text" id="addId" class="form-control" placeholder="รหัสถัง (เช่น FE-91)" style="text-transform:uppercase;"><input type="text" id="addLoc" class="form-control" placeholder="สถานที่ติดตั้ง"><input type="text" id="addType" class="form-control" placeholder="ชนิดถัง (เช่น Dry Chemical)"><input type="text" id="addSize" class="form-control" placeholder="ขนาด (เช่น 10 ปอนด์)"><button class="btn-save" onclick="App.addDevice()">บันทึกจุดใหม่</button><button onclick="UI.closeModal('modalAdd')" style="width:100%; margin-top:10px; background:none; border:none; padding:10px; font-family:'Prompt'; color:#666;">ยกเลิก</button></div></div>
     <div id="modalEdit" class="modal"><div class="sheet"><h2 style="margin-top:0;"><i class="fa-solid fa-pen-to-square" style="color:var(--info)"></i> แก้ไขข้อมูลถัง</h2><input type="text" id="editId" class="form-control" readonly style="background:#ECEFF1; color:#90A4AE; margin-top:0; margin-bottom: 15px;" placeholder="รหัสถัง"><input type="text" id="editLoc" class="form-control" placeholder="สถานที่ติดตั้ง" style="margin-top:0; margin-bottom: 15px;"><input type="text" id="editType" class="form-control" placeholder="ชนิดถัง" style="margin-top:0; margin-bottom: 15px;"><input type="text" id="editSize" class="form-control" placeholder="ขนาด" style="margin-top:0; margin-bottom: 15px;"><label style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px; display: block;">วันหมดอายุ / วันทดสอบแรงดัน</label><input type="date" id="editExp" class="form-control" style="margin-top:0; margin-bottom: 20px;"><button class="btn-save" onclick="App.saveEditDevice()" style="background:var(--info);"><i class="fa-solid fa-floppy-disk"></i> บันทึกการแก้ไข</button><button class="btn-save" onclick="App.deleteDevice()" style="background:#FFF; color:var(--primary); border: 2px solid var(--primary); margin-top:10px; box-shadow:none;"><i class="fa-solid fa-trash"></i> ลบข้อมูลถังนี้</button><button onclick="UI.closeModal('modalEdit')" style="width:100%; margin-top:10px; background:none; border:none; padding:10px; font-family:'Prompt'; color:#666; cursor:pointer;">ยกเลิก</button></div></div>
 
-    <!-- HISTORY MODAL -->
     <div id="modalHistory" class="modal"><div class="sheet"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h2 style="margin:0;"><i class="fa-solid fa-clock-rotate-left"></i> ประวัติการตรวจ</h2><button onclick="UI.closeModal('modalHistory')" style="background:none; border:none; font-size:1.8rem; color:#DDD; line-height:1;">&times;</button></div><p id="historyTitle" style="color:var(--text-muted); margin-top:0; font-size:0.9rem; font-weight:600;"></p><div id="historyList" style="display:flex; flex-direction:column; gap:10px; max-height: 60vh; overflow-y:auto; padding-bottom:20px; margin-top:15px;"></div></div></div>
 
-    <!-- PRINT QR MODAL -->
     <div id="modalPrintQR" class="modal" style="background: white; z-index: 9999; align-items: flex-start;">
         <div class="sheet" style="max-width: none; width: 100%; height: 100%; border-radius: 0; padding: 0; display: flex; flex-direction: column; background: white;">
             <div class="no-print" style="padding: 15px 20px; background: #F5F7FA; border-bottom: 1px solid #ECEFF1; display: flex; justify-content: space-between; align-items: center;"><h2 style="margin:0; font-size: 1.2rem;"><i class="fa-solid fa-qrcode" style="color:var(--info)"></i> ระบบพิมพ์ QR Code</h2><button onclick="UI.closeModal('modalPrintQR')" style="background:none; border:none; font-size:1.8rem; color:#999; line-height:1;">&times;</button></div>
@@ -391,122 +364,103 @@
         </div>
     </div>
 
-    <!-- PDF REPORT MODAL (อัปเกรดเป็นมาตรฐาน ISO) -->
-    <div id="modalReport" class="modal" style="background: white; z-index: 9999; align-items: flex-start;">
-        <div class="sheet" style="max-width: none; width: 100%; height: 100%; border-radius: 0; padding: 0; display: flex; flex-direction: column; background: white;">
-            <div class="no-print" style="padding: 15px 20px; background: #F5F7FA; border-bottom: 1px solid #ECEFF1; display: flex; justify-content: space-between; align-items: center;">
-                <h2 style="margin:0; font-size: 1.2rem;"><i class="fa-solid fa-file-pdf" style="color:var(--primary)"></i> รายงานประจำเดือน (รูปแบบทางการ)</h2>
-                <button onclick="UI.closeModal('modalReport')" style="background:none; border:none; font-size:1.8rem; color:#999; line-height:1;">&times;</button>
-            </div>
-            <div class="no-print" style="padding: 15px; text-align: center; background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.05); z-index: 10;">
-                <button class="btn-save" style="width: auto; padding: 10px 20px; margin: 0 auto; background: var(--secondary);" onclick="window.print()"><i class="fa-solid fa-print"></i> พิมพ์เอกสาร / Save as PDF</button>
-            </div>
-            <div style="flex: 1; overflow-y: auto; background: #888; padding: 20px;">
-                <div id="reportContainer" style="width: 210mm; min-height: 297mm; margin: 0 auto; background: white; padding: 20mm; color: black; font-family: 'Prompt', sans-serif; box-shadow: 0 0 10px rgba(0,0,0,0.5);">
-                   <!-- ข้อมูล Report จะถูกใส่ตรงนี้ -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SCANNER MODAL -->
     <div id="modalScan" class="modal"><div class="sheet"><div style="text-align:center;"><h2 style="margin-bottom:20px;">สแกน QR Code</h2><div id="qr-reader"></div><p style="color:#90A4AE; margin:20px 0 10px; font-size:0.9rem;">หรือกรอกรหัสด้วยมือ</p><div style="display:flex; gap:10px; justify-content:center;"><input type="text" id="manualId" class="form-control" style="margin:0; width:130px; text-transform:uppercase;" placeholder="เช่น FE-01"><button onclick="App.manualScan()" class="btn-save" style="margin-top:0; width:auto; padding:10px 24px;">ค้นหา</button></div></div><button onclick="UI.stopScanner()" style="width:100%; padding:14px; border:none; background:#F5F5F5; color:var(--text-muted); border-radius:12px; margin-top:20px; font-size:1rem; font-family:'Prompt';">ปิดกล้อง</button></div></div>
 
     <script>
-        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbyWV9ncnU_mnxX3UTMK0LTnLvefXV0TMIonULZLeGOyjBu6xcfHsOrLSluJHDKrv2_fig/exec"; 
+        // 🔴 อย่าลืมเปลี่ยน URL ตรงนี้ให้เป็นลิงก์ Google Apps Script อันใหม่ของคุณนะครับ!
+        const CLOUD_URL = https://script.google.com/macros/library/d/14_x_R6hoS8Eh0RV7nICFdY2Om93OaQ-Pl5fGpDtrzGcx97iDswHrjFB0/11 
 
-        // ✅ ข้อมูลถังดับเพลิงทั้ง 90 ถังแบบละเอียดที่สุดตามที่ระบุมา
         const DB_INIT = [
-            { id: "FE-01", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Workshop" },
-            { id: "FE-02", type: "เคมีแห้ง", size: "15 ปอนด์", loc: "Workshop" },
-            { id: "FE-03", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Office 1 Fl." },
-            { id: "FE-04", type: "CO2", size: "10 ปอนด์", loc: "Office 2 Fl." },
-            { id: "FE-05", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Office 2 Fl." },
-            { id: "FE-06", type: "CO2", size: "10 ปอนด์", loc: "Office 2 Fl." },
-            { id: "FE-07", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Canteen" },
-            { id: "FE-08", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Workshop" },
-            { id: "FE-09", type: "CO2", size: "10 ปอนด์", loc: "Office 2 Fl." },
-            { id: "FE-10", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Fire Pump Rm." },
-            { id: "FE-11", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Utility Plant" },
-            { id: "FE-12", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Warehouse" },
-            { id: "FE-13", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Warehouse" },
-            { id: "FE-14", type: "CO2", size: "10 ปอนด์", loc: "Locker Room" },
-            { id: "FE-15", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Utility Plant" },
-            { id: "FE-16", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Utility Plant" },
-            { id: "FE-17", type: "CO2", size: "10 ปอนด์", loc: "AHU. Room" },
-            { id: "FE-18", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "AHU. Room" },
-            { id: "FE-19", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "AHU. Room" },
-            { id: "FE-20", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "AHU. Room" },
-            { id: "FE-21", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "AHU. Room" },
-            { id: "FE-22", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "AHU. Room" },
-            { id: "FE-23", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Office 1 Fl. (FHC1)" },
-            { id: "FE-24", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Office 1 Fl. (FHC2)" },
-            { id: "FE-25", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Office 2 Fl. (FHC3)" },
-            { id: "FE-26", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Office 2 Fl. (FHC4)" },
-            { id: "FE-27", type: "Halotron", size: "10 ปอนด์", loc: "Production (FHC5)" },
-            { id: "FE-28", type: "Halotron", size: "10 ปอนด์", loc: "Production (FHC6)" },
-            { id: "FE-29", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Warehouse (FHC7)" },
-            { id: "FE-30", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Production (FHC8)" },
-            { id: "FE-31", type: "Halotron", size: "10 ปอนด์", loc: "Production (FHC9)" },
-            { id: "FE-32", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Warehouse (FHC10)" },
-            { id: "FE-33", type: "Halotron", size: "10 ปอนด์", loc: "Production Area" },
-            { id: "FE-34", type: "Halotron", size: "10 ปอนด์", loc: "Production Area" },
-            { id: "FE-35", type: "Halotron", size: "10 ปอนด์", loc: "Canteen" },
-            { id: "FE-36", type: "Halotron", size: "10 ปอนด์", loc: "Production Area" },
-            { id: "FE-37", type: "CO2", size: "10 ปอนด์", loc: "Locker Room" },
-            { id: "FE-38", type: "CO2", size: "10 ปอนด์", loc: "Canteen" },
-            { id: "FE-39", type: "CO2", size: "10 ปอนด์", loc: "Locker Room" },
-            { id: "FE-40", type: "Halotron", size: "10 ปอนด์", loc: "Locker Room" },
-            { id: "FE-41", type: "Halotron", size: "10 ปอนด์", loc: "Yellow Zone 1" },
-            { id: "FE-42", type: "Halotron", size: "10 ปอนด์", loc: "Guard House" },
-            { id: "FE-43", type: "Halotron", size: "10 ปอนด์", loc: "Lobby 1st Floor" },
-            { id: "FE-44", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Production Area" },
-            { id: "FE-45", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Warehouse" },
-            { id: "FE-46", type: "เคมีแห้ง", size: "15 ปอนด์", loc: "Utility Plant" },
-            { id: "FE-47", type: "Halotron", size: "10 ปอนด์", loc: "Warehouse" },
-            { id: "FE-48", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Utility Plant" },
-            { id: "FE-49", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Fire Pump Rm." },
-            { id: "FE-50", type: "CO2", size: "10 ปอนด์", loc: "Production Area" },
-            { id: "FE-51", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Toliet" },
-            { id: "FE-52", type: "Halotron", size: "10 ปอนด์", loc: "Yellow Zone 2" },
-            { id: "FE-53", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Warehouse" },
-            { id: "FE-54", type: "Halotron", size: "10 ปอนด์", loc: "Warehouse" },
-            { id: "FE-55", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Warehouse" },
-            { id: "FE-56", type: "Halotron", size: "10 ปอนด์", loc: "Production Area" },
-            { id: "FE-57", type: "Halotron", size: "10 ปอนด์", loc: "Warehouse" },
-            { id: "FE-58", type: "เคมีแห้ง", size: "5 ปอนด์", loc: "ห้องพยาบาล" },
-            { id: "FE-59", type: "Halotron", size: "10 ปอนด์", loc: "Warehouse" },
-            { id: "FE-60", type: "Halotron", size: "10 ปอนด์", loc: "Warehouse" },
-            { id: "FE-61", type: "Halotron", size: "10 ปอนด์", loc: "Yellow Zone 1" },
-            { id: "FE-62", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Yellow Zone 2" },
-            { id: "FE-63", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Warehouse" },
-            { id: "FE-64", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Warehouse (FHC11)" },
-            { id: "FE-65", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Warehouse (FHC12)" },
-            { id: "FE-66", type: "Halotron", size: "10 ปอนด์", loc: "Office 2 Fl." },
-            { id: "FE-67", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Locker Room" },
-            { id: "FE-68", type: "ไฮโดรฟลูออโรคาร์บอน", size: "10 ปอนด์", loc: "M&E Room" },
-            { id: "FE-69", type: "Halotron", size: "10 ปอนด์", loc: "M&E Room" },
-            { id: "FE-70", type: "เคมีแห้ง", size: "15 ปอนด์", loc: "Utility Plant" },
-            { id: "FE-71", type: "BF2000", size: "10 ปอนด์", loc: "Utility Plant" },
-            { id: "FE-72", type: "BF2000", size: "10 ปอนด์", loc: "Utility Plant" },
-            { id: "FE-73", type: "BF2000", size: "10 ปอนด์", loc: "Warehouse" },
-            { id: "FE-74", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Production (FHC13)" },
-            { id: "FE-75", type: "BF2000", size: "10 ปอนด์", loc: "Production (FHC14)" },
-            { id: "FE-76", type: "BF2000", size: "10 ปอนด์", loc: "Production Area" },
-            { id: "FE-77", type: "Halotron", size: "10 ปอนด์", loc: "Production Area" },
-            { id: "FE-78", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Production (FHC15)" },
-            { id: "FE-79", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Fitness Room" },
-            { id: "FE-80", type: "เคมีแห้ง", size: "5 ปอนด์", loc: "รถโฟล์คลิฟท์ W/H" },
-            { id: "FE-81", type: "เคมีแห้ง", size: "5 ปอนด์", loc: "รถโฟล์คลิฟท์ W/H" },
-            { id: "FE-82", type: "เคมีแห้ง", size: "5 ปอนด์", loc: "รถโฟล์คลิฟท์ W/H" },
-            { id: "FE-83", type: "Halotron", size: "10 ปอนด์", loc: "Production Area" },
-            { id: "FE-84", type: "Halotron", size: "10 ปอนด์", loc: "Production Area" },
-            { id: "FE-85", type: "Halotron", size: "10 ปอนด์", loc: "Production Area" },
-            { id: "FE-86", type: "Halotron", size: "10 ปอนด์", loc: "Production Area" },
-            { id: "FE-87", type: "Halotron", size: "10 ปอนด์", loc: "Production Area" },
-            { id: "FE-88", type: "เคมีแห้ง", size: "10 ปอนด์", loc: "Production Area" },
-            { id: "FE-89", type: "Halotron", size: "10 ปอนด์", loc: "Warehouse" },
-            { id: "FE-90", type: "BF2000", size: "10 ปอนด์", loc: "AHU. Room" }
+            { id: "FE-01", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Workshop" },
+            { id: "FE-02", type: "Dry Chemical (เคมีแห้ง)", size: "15 ปอนด์", loc: "Workshop" },
+            { id: "FE-03", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Office 1 Fl." },
+            { id: "FE-04", type: "CO2 (คาร์บอนไดออกไซด์)", size: "10 ปอนด์", loc: "Office 2 Fl." },
+            { id: "FE-05", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Office 2 Fl." },
+            { id: "FE-06", type: "CO2 (คาร์บอนไดออกไซด์)", size: "10 ปอนด์", loc: "Office 2 Fl." },
+            { id: "FE-07", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Canteen" },
+            { id: "FE-08", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Workshop" },
+            { id: "FE-09", type: "CO2 (คาร์บอนไดออกไซด์)", size: "10 ปอนด์", loc: "Office 2 Fl." },
+            { id: "FE-10", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Fire Pump Rm." },
+            { id: "FE-11", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Utility Plant" },
+            { id: "FE-12", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Warehouse" },
+            { id: "FE-13", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Warehouse" },
+            { id: "FE-14", type: "CO2 (คาร์บอนไดออกไซด์)", size: "10 ปอนด์", loc: "Locker Room" },
+            { id: "FE-15", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Utility Plant" },
+            { id: "FE-16", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Utility Plant" },
+            { id: "FE-17", type: "CO2 (คาร์บอนไดออกไซด์)", size: "10 ปอนด์", loc: "AHU. Room" },
+            { id: "FE-18", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "AHU. Room" },
+            { id: "FE-19", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "AHU. Room" },
+            { id: "FE-20", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "AHU. Room" },
+            { id: "FE-21", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "AHU. Room" },
+            { id: "FE-22", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "AHU. Room" },
+            { id: "FE-23", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Office 1 Fl. (FHC1)" },
+            { id: "FE-24", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Office 1 Fl. (FHC2)" },
+            { id: "FE-25", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Office 2 Fl. (FHC3)" },
+            { id: "FE-26", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Office 2 Fl. (FHC4)" },
+            { id: "FE-27", type: "Clean Agent (สารสะอาด Halotron)", size: "10 ปอนด์", loc: "Production (FHC5)" },
+            { id: "FE-28", type: "Clean Agent (สารสะอาด Halotron)", size: "10 ปอนด์", loc: "Production (FHC6)" },
+            { id: "FE-29", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Warehouse (FHC7)" },
+            { id: "FE-30", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Production (FHC8)" },
+            { id: "FE-31", type: "Clean Agent (สารสะอาด Halotron)", size: "10 ปอนด์", loc: "Production (FHC9)" },
+            { id: "FE-32", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Warehouse (FHC10)" },
+            { id: "FE-33", type: "Clean Agent (สารสะอาด Halotron)", size: "10 ปอนด์", loc: "Production Area" },
+            { id: "FE-34", type: "Clean Agent (สารสะอาด Halotron)", size: "10 ปอนด์", loc: "Production Area" },
+            { id: "FE-35", type: "Clean Agent (สารสะอาด Halotron)", size: "10 ปอนด์", loc: "Canteen" },
+            { id: "FE-36", type: "Clean Agent (สารสะอาด Halotron)", size: "10 ปอนด์", loc: "Production Area" },
+            { id: "FE-37", type: "CO2 (คาร์บอนไดออกไซด์)", size: "10 ปอนด์", loc: "Locker Room" },
+            { id: "FE-38", type: "CO2 (คาร์บอนไดออกไซด์)", size: "10 ปอนด์", loc: "Canteen" },
+            { id: "FE-39", type: "CO2 (คาร์บอนไดออกไซด์)", size: "10 ปอนด์", loc: "Locker Room" },
+            { id: "FE-40", type: "Clean Agent (สารสะอาด Halotron)", size: "10 ปอนด์", loc: "Locker Room" },
+            { id: "FE-41", type: "Clean Agent (สารสะอาด Halotron)", size: "10 ปอนด์", loc: "Yellow Zone 1" },
+            { id: "FE-42", type: "Clean Agent (สารสะอาด Halotron)", size: "10 ปอนด์", loc: "Guard House" },
+            { id: "FE-43", type: "Clean Agent (สารสะอาด Halotron)", size: "10 ปอนด์", loc: "Lobby 1st Floor" },
+            { id: "FE-44", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Production Area" },
+            { id: "FE-45", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Warehouse" },
+            { id: "FE-46", type: "Dry Chemical (เคมีแห้ง)", size: "15 ปอนด์", loc: "Utility Plant" },
+            { id: "FE-47", type: "Clean Agent (สารสะอาด Halotron)", size: "10 ปอนด์", loc: "Warehouse" },
+            { id: "FE-48", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Utility Plant" },
+            { id: "FE-49", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Fire Pump Rm." },
+            { id: "FE-50", type: "CO2 (คาร์บอนไดออกไซด์)", size: "10 ปอนด์", loc: "Production Area" },
+            { id: "FE-51", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Toliet" },
+            { id: "FE-52", type: "Clean Agent (สารสะอาด Halotron)", size: "10 ปอนด์", loc: "Yellow Zone 2" },
+            { id: "FE-53", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Warehouse" },
+            { id: "FE-54", type: "Clean Agent (สารสะอาด Halotron)", size: "10 ปอนด์", loc: "Warehouse" },
+            { id: "FE-55", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Warehouse" },
+            { id: "FE-56", type: "Clean Agent (สารสะอาด Halotron)", size: "10 ปอนด์", loc: "Production Area" },
+            { id: "FE-57", type: "Clean Agent (สารสะอาด Halotron)", size: "10 ปอนด์", loc: "Warehouse" },
+            { id: "FE-58", type: "Dry Chemical (เคมีแห้ง)", size: "5 ปอนด์", loc: "ห้องพยาบาล" },
+            { id: "FE-59", type: "Clean Agent (สารสะอาด Halotron)", size: "10 ปอนด์", loc: "Warehouse" },
+            { id: "FE-60", type: "Clean Agent (สารสะอาด Halotron)", size: "10 ปอนด์", loc: "Warehouse" },
+            { id: "FE-61", type: "Clean Agent (สารสะอาด Halotron)", size: "10 ปอนด์", loc: "Yellow Zone 1" },
+            { id: "FE-62", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Yellow Zone 2" },
+            { id: "FE-63", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Warehouse" },
+            { id: "FE-64", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Warehouse (FHC11)" },
+            { id: "FE-65", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Warehouse (FHC12)" },
+            { id: "FE-66", type: "Clean Agent (สารสะอาด Halotron)", size: "10 ปอนด์", loc: "Office 2 Fl." },
+            { id: "FE-67", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Locker Room" },
+            { id: "FE-68", type: "Clean Agent (สารสะอาด HFC)", size: "10 ปอนด์", loc: "M&E Room" },
+            { id: "FE-69", type: "Clean Agent (สารสะอาด Halotron)", size: "10 ปอนด์", loc: "M&E Room" },
+            { id: "FE-70", type: "Dry Chemical (เคมีแห้ง)", size: "15 ปอนด์", loc: "Utility Plant" },
+            { id: "FE-71", type: "Clean Agent (สารสะอาด BF2000)", size: "10 ปอนด์", loc: "Utility Plant" },
+            { id: "FE-72", type: "Clean Agent (สารสะอาด BF2000)", size: "10 ปอนด์", loc: "Utility Plant" },
+            { id: "FE-73", type: "Clean Agent (สารสะอาด BF2000)", size: "10 ปอนด์", loc: "Warehouse" },
+            { id: "FE-74", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Production (FHC13)" },
+            { id: "FE-75", type: "Clean Agent (สารสะอาด BF2000)", size: "10 ปอนด์", loc: "Production (FHC14)" },
+            { id: "FE-76", type: "Clean Agent (สารสะอาด BF2000)", size: "10 ปอนด์", loc: "Production Area" },
+            { id: "FE-77", type: "Clean Agent (สารสะอาด Halotron)", size: "10 ปอนด์", loc: "Production Area" },
+            { id: "FE-78", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Production (FHC15)" },
+            { id: "FE-79", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Fitness Room" },
+            { id: "FE-80", type: "Dry Chemical (เคมีแห้ง)", size: "5 ปอนด์", loc: "รถโฟล์คลิฟท์ W/H" },
+            { id: "FE-81", type: "Dry Chemical (เคมีแห้ง)", size: "5 ปอนด์", loc: "รถโฟล์คลิฟท์ W/H" },
+            { id: "FE-82", type: "Dry Chemical (เคมีแห้ง)", size: "5 ปอนด์", loc: "รถโฟล์คลิฟท์ W/H" },
+            { id: "FE-83", type: "Clean Agent (สารสะอาด Halotron)", size: "10 ปอนด์", loc: "Production Area" },
+            { id: "FE-84", type: "Clean Agent (สารสะอาด Halotron)", size: "10 ปอนด์", loc: "Production Area" },
+            { id: "FE-85", type: "Clean Agent (สารสะอาด Halotron)", size: "10 ปอนด์", loc: "Production Area" },
+            { id: "FE-86", type: "Clean Agent (สารสะอาด Halotron)", size: "10 ปอนด์", loc: "Production Area" },
+            { id: "FE-87", type: "Clean Agent (สารสะอาด Halotron)", size: "10 ปอนด์", loc: "Production Area" },
+            { id: "FE-88", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Production Area" },
+            { id: "FE-89", type: "Clean Agent (สารสะอาด Halotron)", size: "10 ปอนด์", loc: "Warehouse" },
+            { id: "FE-90", type: "Clean Agent (สารสะอาด BF2000)", size: "10 ปอนด์", loc: "AHU. Room" }
         ];
 
         const Toast = {
@@ -528,10 +482,38 @@
             init() {
                 const stored = localStorage.getItem('firePins_Ent_V5');
                 this.data = stored ? JSON.parse(stored) : DB_INIT.map(d => ({ ...d, history: {} }));
+                
+                // --- ระบบเคลียร์ขยะอัตโนมัติ (Auto-Clean) ---
+                this.autoCleanOldHistory(); 
+
                 this.month = new Date().toISOString().slice(0, 7);
                 document.getElementById('monthPicker').value = this.month;
                 this.populateLocationFilter(); this.updateOnlineStatus(); this.renderAll();
                 this.syncCloud(); this.startAutoSync(); this.handleDeepLink();
+            },
+
+            // --- ฟังก์ชันล้างประวัติในเครื่องที่เก่ากว่า 1 ปี ---
+            autoCleanOldHistory() {
+                const today = new Date();
+                today.setFullYear(today.getFullYear() - 1);
+                const limitMonth = today.toISOString().slice(0, 7); // Format: YYYY-MM
+                let hasDeleted = false;
+
+                this.data.forEach(item => {
+                    if (item.history) {
+                        Object.keys(item.history).forEach(month => {
+                            if (month < limitMonth) {
+                                delete item.history[month]; // ลบทิ้งจากมือถือ
+                                hasDeleted = true;
+                            }
+                        });
+                    }
+                });
+
+                if (hasDeleted) {
+                    this.saveToStorage();
+                    console.log('🧹 เคลียร์ประวัติเก่ากว่า 1 ปีออกจากมือถือเรียบร้อยแล้ว');
+                }
             },
 
             populateLocationFilter() {
@@ -566,25 +548,73 @@
             syncCloud(silent = false) {
                 if(!CLOUD_URL) return;
                 const btn = document.querySelector('.fab-refresh i'); if(!silent && btn) btn.classList.add('fa-spin');
-                fetch(CLOUD_URL + "?action=read").then(res => res.json()).then(data => {
+                fetch(CLOUD_URL + "?action=read").then(res => res.json()).then(payload => {
+                    
+                    // --- 1. ผสานข้อมูล Master Data (ถังที่เพิ่ม/ลบ) จาก Cloud ---
+                    let mergedDevices = JSON.parse(JSON.stringify(DB_INIT)); 
+                    if (payload.devices && payload.devices.length > 0) {
+                        payload.devices.forEach(cloudDev => {
+                            const idx = mergedDevices.findIndex(d => d.id === cloudDev.id);
+                            if (cloudDev.isDeleted) {
+                                if (idx > -1) mergedDevices.splice(idx, 1); 
+                            } else {
+                                if (idx > -1) mergedDevices[idx] = { ...mergedDevices[idx], ...cloudDev }; 
+                                else mergedDevices.push(cloudDev); 
+                            }
+                        });
+                    }
+                    
+                    const oldHistories = {};
+                    this.data.forEach(d => { oldHistories[d.id] = d.history || {}; });
+                    this.data = mergedDevices.map(d => ({ ...d, history: oldHistories[d.id] || {} }));
+
+                    // --- 2. อัปเดตประวัติการตรวจ (Logs) จาก Cloud ---
                     this.cloudData = {}; 
-                    data.forEach(row => {
-                        let rowMonth = row.month;
-                        if (!rowMonth && row.time) {
-                            const timeStr = String(row.time);
-                            if (timeStr.includes('/')) {
-                                const parts = timeStr.split(/[/\s]/);
-                                if (parts.length >= 3) { let m = parts[1].padStart(2, '0'); let y = parseInt(parts[2]); if (y > 2500) y -= 543; rowMonth = `${y}-${m}`; }
-                            } else if (timeStr.match(/^\d{4}-\d{2}/)) { rowMonth = timeStr.substring(0, 7); }
-                        }
-                        if (rowMonth) {
-                            if (!this.cloudData[rowMonth]) this.cloudData[rowMonth] = {};
-                            this.cloudData[rowMonth][row.id] = { status: row.status, inspector: row.inspector, time: row.time, image: row.image || '', note: row.note || '', failReason: row.failReason || '' };
-                        }
-                    });
-                    this.cloudStatus = this.cloudData[this.month] || {}; this.renderAll();
+                    if (payload.logs) {
+                        payload.logs.forEach(row => {
+                            let rowMonth = row.month;
+                            if (!rowMonth && row.time) {
+                                const timeStr = String(row.time);
+                                if (timeStr.includes('/')) {
+                                    const parts = timeStr.split(/[/\s]/);
+                                    if (parts.length >= 3) { let m = parts[1].padStart(2, '0'); let y = parseInt(parts[2]); if (y > 2500) y -= 543; rowMonth = `${y}-${m}`; }
+                                } else if (timeStr.match(/^\d{4}-\d{2}/)) { rowMonth = timeStr.substring(0, 7); }
+                            }
+                            if (rowMonth) {
+                                if (!this.cloudData[rowMonth]) this.cloudData[rowMonth] = {};
+                                this.cloudData[rowMonth][row.id] = { status: row.status, inspector: row.inspector, time: row.time, image: row.image || '', note: row.note || '', failReason: row.failReason || '' };
+                            }
+                        });
+                    }
+                    this.cloudStatus = this.cloudData[this.month] || {}; 
+                    this.populateLocationFilter();
+                    this.renderAll();
+                    this.saveToStorage(); 
                     if(!silent) Toast.show("ซิงค์ข้อมูลล่าสุดแล้ว", "success");
                 }).catch(err => { console.error("Sync Error:", err); if(!silent) Toast.show("ซิงค์ข้อมูลล้มเหลว", "error"); }).finally(() => { if(!silent && btn) btn.classList.remove('fa-spin'); });
+            },
+
+            sendDeviceToCloud(payload, successMsg) {
+                Toast.show('กำลังซิงค์กับระบบกลาง...', 'info');
+                UI.closeModal('modalAdd'); UI.closeModal('modalEdit'); UI.closeModal('modalInspect');
+
+                if (payload.action === 'delete_device') {
+                    this.data = this.data.filter(d => d.id !== payload.id);
+                } else if (payload.action === 'edit_device') {
+                    const idx = this.data.findIndex(d => d.id === payload.id);
+                    if (idx > -1) { this.data[idx] = { ...this.data[idx], loc: payload.loc, type: payload.type, size: payload.size, expDate: payload.expDate }; }
+                } else if (payload.action === 'add_device') {
+                    this.data.push({ id: payload.id, loc: payload.loc, type: payload.type, size: payload.size, expDate: payload.expDate, history: {} });
+                }
+                this.saveToStorage(); this.populateLocationFilter(); this.renderAll();
+
+                if(CLOUD_URL && CLOUD_URL.startsWith('http')) {
+                    fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
+                    .then(() => {
+                        Toast.show(successMsg, 'success');
+                        setTimeout(() => this.syncCloud(true), 1500); 
+                    });
+                }
             },
 
             renderAll() {
@@ -608,7 +638,7 @@
                     if (status !== 'pending') done++;
                     if (status === 'pass') pass++;
                     if (status === 'repair') repair++;
-                    if (status === 'fail' || status === 'repair') { // เก็บยอดปัญหาทั้งหมด (รวมกำลังซ่อม)
+                    if (status === 'fail' || status === 'repair') { 
                         if(status === 'fail') fail++; 
                         let topics = [];
                         if (localInfo && localInfo.failTopics) topics = localInfo.failTopics; else if (cloudInfo && cloudInfo.failReason) topics = [cloudInfo.failReason];
@@ -644,7 +674,6 @@
                         inspectorName = cloudInfo.inspector; timeShow = cloudInfo.time.split(' ')[1] || ''; 
                     } 
 
-                    // กรองตามปุ่ม
                     if (this.filterType === 'pending' && status !== 'pending') return;
                     if (this.filterType === 'fail' && status !== 'fail') return;
                     if (this.filterType === 'repair' && status !== 'repair') return;
@@ -730,8 +759,9 @@
                 const id = document.getElementById('addId').value.toUpperCase().trim(); const loc = document.getElementById('addLoc').value.trim(); const type = document.getElementById('addType').value.trim(); const size = document.getElementById('addSize').value.trim();
                 if(!id || !loc) return Toast.show('กรุณากรอกรหัสและสถานที่', 'warning');
                 if(this.data.find(d => d.id === id)) return Toast.show('รหัสถังนี้มีอยู่แล้ว', 'error');
-                this.data.push({ id, loc, type, size, expDate: '', history: {} });
-                this.saveToStorage(); UI.closeModal('modalAdd'); this.populateLocationFilter(); this.renderAll(); Toast.show('เพิ่มจุดตรวจสำเร็จ!', 'success');
+                
+                const payload = { action: 'add_device', id, loc, type, size, expDate: '' };
+                this.sendDeviceToCloud(payload, 'เพิ่มจุดตรวจสำเร็จ! ทุกคนในระบบเห็นแล้ว');
             },
 
             getChecklistItems(type) {
@@ -759,7 +789,6 @@
                 });
                 this.checkStatus();
                 
-                // ควบคุมปุ่มซ่อมแซมตามสถานะปัจจุบัน
                 let currentStatus = h?.status;
                 if (!currentStatus && cloudInfo) { 
                     const s = String(cloudInfo.status).toLowerCase(); 
@@ -775,7 +804,6 @@
             markAsRepair() {
                 const detail = prompt('ระบุรายละเอียดส่งซ่อม (เช่น ถอดไปเติมน้ำยา, รอเบิกสายฉีด):', 'ถอดส่งซ่อม / รออะไหล่');
                 if(detail === null) return; 
-                
                 const noteEl = document.getElementById('inspectNote');
                 const prefix = noteEl.value ? noteEl.value + " | " : "";
                 noteEl.value = prefix + "[ส่งซ่อม: " + detail + "]";
@@ -785,7 +813,6 @@
             resolveIssue() {
                 const detail = prompt('ระบุรายละเอียดการแก้ไข (เช่น เปลี่ยนสายใหม่แล้ว):', 'ซ่อมแซมและนำกลับมาติดตั้งเรียบร้อย');
                 if(detail === null) return; 
-                
                 this.setAllPass(); 
                 const noteEl = document.getElementById('inspectNote');
                 const prefix = noteEl.value ? noteEl.value + " | " : "";
@@ -822,104 +849,24 @@
                 } else { Toast.show("บันทึกในเครื่องเรียบร้อย (Offline)", "success"); UI.closeModal('modalInspect'); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> บันทึกข้อมูล'; }
             },
 
-            generateReport() {
-                UI.closeModal('modalMenu'); const stats = this.calculateStats(); const reportEl = document.getElementById('reportContainer'); const [y, m] = this.month.split('-'); const mNames = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"]; const monthTh = `${mNames[parseInt(m)-1]} ${parseInt(y)+543}`;
-
-                let failItemsHtml = ''; let noFailMessage = ''; let runNo = 1;
-                
-                this.data.forEach(item => {
-                    const cloudInfo = this.cloudStatus[item.id]; const localInfo = item.history[this.month];
-                    let status = 'pending'; let failReason = ''; let note = '';
-
-                    if (localInfo) { status = localInfo.status; failReason = localInfo.failTopics ? localInfo.failTopics.join(', ') : ''; note = localInfo.note || ''; }
-                    else if (cloudInfo) { const s = String(cloudInfo.status).toLowerCase(); if (s === 'pass' || (s.includes('ปกติ') && !s.includes('ผิด'))) status = 'pass'; else if (s === 'repair' || s.includes('ซ่อม')) status = 'repair'; else status = 'fail'; failReason = cloudInfo.failReason || ''; note = cloudInfo.note || ''; }
-
-                    if (status === 'fail' || status === 'repair' || note.includes('[แก้ไขแล้ว')) {
-                        let finalStatusText = '';
-                        if (status === 'fail') finalStatusText = '<span style="color:#D32F2F; font-weight:bold;">พบปัญหา</span>';
-                        else if (status === 'repair') finalStatusText = '<span style="color:#F57C00; font-weight:bold;">กำลังซ่อม</span>';
-                        else finalStatusText = '<span style="color:#2E7D32; font-weight:bold;">ซ่อมเสร็จแล้ว</span>';
-
-                        failItemsHtml += `<tr><td style="border: 1px solid #000; padding: 8px; text-align:center;">${runNo}</td><td style="border: 1px solid #000; padding: 8px; text-align:center;">${item.id}</td><td style="border: 1px solid #000; padding: 8px;">${item.loc}</td><td style="border: 1px solid #000; padding: 8px; text-align:center;">${finalStatusText}</td><td style="border: 1px solid #000; padding: 8px;">${failReason} ${note ? '<br><span style="color:#666; font-size:12px;">หมายเหตุ: '+note+'</span>' : ''}</td></tr>`;
-                        runNo++;
-                    }
-                });
-
-                if (failItemsHtml === '') { noFailMessage = `<tr><td colspan="5" style="border: 1px solid #000; padding: 20px; text-align:center; color:green; font-weight:bold;">ไม่พบอุปกรณ์ชำรุดในเดือนนี้</td></tr>`; }
-
-                reportEl.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; border-bottom: 3px solid #000; padding-bottom:15px; margin-bottom: 20px;">
-                        <div>
-                            <h2 style="margin:0; font-size: 24px; text-transform:uppercase;">รายงานการตรวจสอบอุปกรณ์ดับเพลิง</h2>
-                            <p style="margin:5px 0 0 0; color:#555; font-size: 16px;">(Monthly Fire Extinguisher Inspection Report)</p>
-                            <p style="margin:5px 0 0 0; font-weight:bold; color:var(--primary);">ประจำเดือน: ${monthTh}</p>
-                        </div>
-                        <div style="text-align:right; font-size:12px; line-height:1.5;">
-                            <table style="border-collapse: collapse; text-align:left; float:right;">
-                                <tr><td style="border:1px solid #000; padding:2px 8px; font-weight:bold;">Doc No.</td><td style="border:1px solid #000; padding:2px 8px;">FM-OHS-001</td></tr>
-                                <tr><td style="border:1px solid #000; padding:2px 8px; font-weight:bold;">Rev.</td><td style="border:1px solid #000; padding:2px 8px;">01</td></tr>
-                                <tr><td style="border:1px solid #000; padding:2px 8px; font-weight:bold;">Date</td><td style="border:1px solid #000; padding:2px 8px;">${new Date().toLocaleDateString('th-TH')}</td></tr>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div style="display:flex; justify-content:space-between; margin-bottom:25px;">
-                        <div style="width:23%; padding:10px; border:1px solid #333; text-align:center;">
-                            <div style="font-size:14px; color:#555;">จำนวนถังทั้งหมด</div><div style="font-size:26px; font-weight:bold;">${stats.total}</div>
-                        </div>
-                        <div style="width:23%; padding:10px; border:1px solid #2E7D32; background:#E8F5E9; text-align:center;">
-                            <div style="font-size:14px; color:#2E7D32;">ปกติ (Pass)</div><div style="font-size:26px; font-weight:bold; color:#2E7D32;">${stats.pass}</div>
-                        </div>
-                        <div style="width:23%; padding:10px; border:1px solid #D32F2F; background:#FFEBEE; text-align:center;">
-                            <div style="font-size:14px; color:#D32F2F;">พบปัญหา (Fail)</div><div style="font-size:26px; font-weight:bold; color:#D32F2F;">${stats.fail}</div>
-                        </div>
-                        <div style="width:23%; padding:10px; border:1px solid #F57C00; background:#FFF8E1; text-align:center;">
-                            <div style="font-size:14px; color:#F57C00;">กำลังซ่อม (Repair)</div><div style="font-size:26px; font-weight:bold; color:#F57C00;">${stats.repair}</div>
-                        </div>
-                    </div>
-
-                    <h4 style="margin: 0 0 10px 0; font-size:16px;">ตารางสรุปรายการอุปกรณ์ที่พบปัญหา / การซ่อมบำรุง</h4>
-                    <table style="width:100%; border-collapse: collapse; margin-bottom: 40px; font-size:14px;">
-                        <thead>
-                            <tr style="background-color: #EEE; color:black;">
-                                <th style="border: 1px solid #000; padding: 8px; width:5%;">No.</th>
-                                <th style="border: 1px solid #000; padding: 8px; width:15%;">รหัสถัง</th>
-                                <th style="border: 1px solid #000; padding: 8px; width:25%;">สถานที่ติดตั้ง</th>
-                                <th style="border: 1px solid #000; padding: 8px; width:15%;">สถานะ</th>
-                                <th style="border: 1px solid #000; padding: 8px; width:40%;">รายละเอียดปัญหา / การแก้ไข</th>
-                            </tr>
-                        </thead>
-                        <tbody>${failItemsHtml}${noFailMessage}</tbody>
-                    </table>
-
-                    <div style="display:flex; justify-content:space-around; margin-top:80px; text-align:center;">
-                        <div style="width:30%;">
-                            <p style="margin:0 0 10px 0; border-bottom:1px solid #000; display:inline-block; width:100%; height:20px;"></p>
-                            <p style="margin:5px 0 0 0; font-weight:bold;">( ผู้ตรวจสอบ )</p>
-                            <p style="margin:5px 0 0 0; font-size:14px;">วันที่ ....... / ....... / .......</p>
-                        </div>
-                        <div style="width:30%;">
-                            <p style="margin:0 0 10px 0; border-bottom:1px solid #000; display:inline-block; width:100%; height:20px;"></p>
-                            <p style="margin:5px 0 0 0; font-weight:bold;">( จป. วิชาชีพ )</p>
-                            <p style="margin:5px 0 0 0; font-size:14px;">วันที่ ....... / ....... / .......</p>
-                        </div>
-                        <div style="width:30%;">
-                            <p style="margin:0 0 10px 0; border-bottom:1px solid #000; display:inline-block; width:100%; height:20px;"></p>
-                            <p style="margin:5px 0 0 0; font-weight:bold;">( ผู้จัดการฝ่าย )</p>
-                            <p style="margin:5px 0 0 0; font-size:14px;">วันที่ ....... / ....... / .......</p>
-                        </div>
-                    </div>
-                `;
-
-                document.body.classList.add('print-mode-report');
-                document.body.classList.remove('print-mode-qr');
-                UI.openModal('modalReport');
-            },
-
             openPrintQR() { UI.closeModal('modalMenu'); document.body.classList.add('print-mode-qr'); document.body.classList.remove('print-mode-report'); document.getElementById('qrPrintContainer').innerHTML = '<div class="no-print" style="color:#999; margin-top:50px; width:100%; text-align:center;">กดปุ่มด้านบนเพื่อโหลด QR Code ขึ้นมาบนกระดาษ</div>'; UI.openModal('modalPrintQR'); },
             openEdit() { const item = this.data.find(d => d.id === this.currentId); if(!item) return; document.getElementById('editId').value = item.id; document.getElementById('editLoc').value = item.loc; document.getElementById('editType').value = item.type; document.getElementById('editSize').value = item.size; document.getElementById('editExp').value = item.expDate || ''; UI.openModal('modalEdit'); },
-            saveEditDevice() { const id = document.getElementById('editId').value; const loc = document.getElementById('editLoc').value.trim(); const type = document.getElementById('editType').value.trim(); const size = document.getElementById('editSize').value.trim(); const expDate = document.getElementById('editExp').value; if(!loc) return Toast.show('กรุณาระบุสถานที่', 'warning'); const itemIndex = this.data.findIndex(d => d.id === id); if(itemIndex > -1) { this.data[itemIndex].loc = loc; this.data[itemIndex].type = type; this.data[itemIndex].size = size; this.data[itemIndex].expDate = expDate; this.saveToStorage(); this.populateLocationFilter(); this.renderAll(); UI.closeModal('modalEdit'); this.openInspect(id); Toast.show('อัปเดตข้อมูลสำเร็จ!', 'success'); } },
-            deleteDevice() { const id = document.getElementById('editId').value; if(confirm(`⚠️ ลบถังรหัส ${id} ออกจากระบบ?`)) { this.data = this.data.filter(d => d.id !== id); this.saveToStorage(); this.populateLocationFilter(); this.renderAll(); UI.closeModal('modalEdit'); UI.closeModal('modalInspect'); Toast.show(`ลบถัง ${id} เรียบร้อย`, 'success'); } },
+            
+            saveEditDevice() { 
+                const id = document.getElementById('editId').value; const loc = document.getElementById('editLoc').value.trim(); const type = document.getElementById('editType').value.trim(); const size = document.getElementById('editSize').value.trim(); const expDate = document.getElementById('editExp').value; 
+                if(!loc) return Toast.show('กรุณาระบุสถานที่', 'warning'); 
+                const payload = { action: 'edit_device', id, loc, type, size, expDate };
+                this.sendDeviceToCloud(payload, 'อัปเดตข้อมูลถังเรียบร้อย!');
+            },
+            
+            deleteDevice() { 
+                const id = document.getElementById('editId').value; 
+                if(confirm(`⚠️ ลบถังรหัส ${id} ออกจากระบบ?`)) { 
+                    const payload = { action: 'delete_device', id: id };
+                    this.sendDeviceToCloud(payload, `ลบถัง ${id} ออกจากระบบแล้ว`);
+                } 
+            },
+            
             showHistory() { const item = this.data.find(d => d.id === this.currentId); if(!item) return; document.getElementById('historyTitle').innerText = `${item.id} - ${item.loc}`; const listEl = document.getElementById('historyList'); listEl.innerHTML = ''; const monthsChecked = Object.keys(item.history).sort().reverse(); if(monthsChecked.length === 0) { listEl.innerHTML = '<div style="text-align:center; padding:20px; color:#999; font-size:0.9rem; background:#F5F5F5; border-radius:12px;">ยังไม่มีประวัติการตรวจในเครื่องนี้</div>'; } else { monthsChecked.forEach(m => { const h = item.history[m]; const isPass = h.status === 'pass'; const color = isPass ? 'var(--success)' : (h.status === 'repair' ? 'var(--warning)' : 'var(--primary)'); const icon = isPass ? 'fa-circle-check' : (h.status === 'repair' ? 'fa-tools' : 'fa-triangle-exclamation'); const failText = !isPass && h.failTopics ? `<br><span style="color:var(--primary); font-size:0.8rem;">ปัญหา: ${h.failTopics.join(', ')}</span>` : ''; listEl.innerHTML += `<div style="border:1px solid #ECEFF1; border-radius:12px; padding:12px; background:#FFF; border-left:4px solid ${color};"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;"><span style="font-weight:600; font-size:0.95rem;">เดือน ${m}</span><span style="color:${color}; font-size:0.85rem; font-weight:600;"><i class="fa-solid ${icon}"></i> ${isPass ? 'ปกติ' : (h.status === 'repair' ? 'กำลังซ่อม' : 'พบปัญหา')}</span></div><div style="font-size:0.85rem; color:var(--text-muted); line-height:1.4;"><i class="fa-solid fa-user"></i> ผู้ตรวจ: ${h.inspector || '-'}<br><i class="fa-solid fa-calendar"></i> เวลา: ${h.time || '-'}${failText}</div></div>`; }); } UI.openModal('modalHistory'); },
             
             appendQRBlock(id) { const container = document.getElementById('qrPrintContainer'); const div = document.createElement('div'); div.className = 'qr-card-screen'; const appUrl = `https://safetyawareness.github.io/safety-check/?id=${id}`; const qrData = encodeURIComponent(appUrl); div.innerHTML = `<button class="del-qr-btn" onclick="this.parentElement.remove()">✕</button><img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrData}" alt="${id}"><h3 style="margin: 0; font-size: 1.2rem; color: #263238;">${id}</h3><p style="margin: 2px 0 0 0; font-size: 0.7rem; color: #D32F2F; font-weight: 600;">สแกนเพื่อตรวจถังนี้</p>`; container.appendChild(div); },
@@ -947,14 +894,27 @@
             stopScanner() { if(App.scanner) App.scanner.clear(); this.closeModal('modalScan'); }
         };
 
-        // Fix for ServiceWorker registration issue on blob/file protocols
+        // --- ระบบแยกสิทธิ์ User ทั่วไป กับ Admin ---
+        function checkUserRole() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const isAdmin = urlParams.get('admin') === 'true';
+
+            if (!isAdmin) {
+                // ซ่อนเมนูอันตรายถ้าไม่ใช่ Admin
+                const menuBtn = document.getElementById('adminMenuBtn'); if(menuBtn) menuBtn.style.display = 'none';
+                const editBtn = document.getElementById('adminEditBtn'); if(editBtn) editBtn.style.display = 'none';
+                const excelBtn = document.getElementById('adminExcelBtn'); if(excelBtn) excelBtn.style.display = 'none';
+            }
+        }
+
         if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.protocol === 'http:')) {
-            navigator.serviceWorker.register('sw.js')
-                .then(() => console.log('Service Worker Registered'))
-                .catch((error) => console.log('Service Worker registration failed:', error));
+            navigator.serviceWorker.register('sw.js').catch(err => console.log(err));
         }
         
-        window.onload = () => App.init();
+        window.onload = () => {
+            App.init();
+            checkUserRole(); // เช็คสิทธิ์ก่อนเริ่มใช้งาน
+        };
     </script>
 </body>
 </html>
