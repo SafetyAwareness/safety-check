@@ -81,6 +81,7 @@
         .card.repair .status-icon { color: var(--warning); }
         .inspector-badge { font-size: 0.7rem; background: rgba(0,0,0,0.04); padding: 3px 8px; border-radius: 6px; display:inline-block; margin-top:4px; font-weight: 500;}
 
+        /* FAB & Nav Styles */
         .fab-wrapper { position: fixed; bottom: calc(var(--nav-h) + 20px); right: 20px; display: flex; flex-direction: column; align-items: flex-end; gap: 15px; z-index: 40; }
         .fab { display: flex; justify-content: center; align-items: center; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.25); cursor: pointer; transition: transform 0.2s; font-family: 'Prompt', sans-serif;}
         .fab:active { transform: scale(0.95); }
@@ -367,7 +368,7 @@
 
     <script>
         // 🔴🔴🔴 สำคัญมาก: เปลี่ยน URL ตรงนี้เป็น Web App URL ของคุณที่ได้จากการ Deploy ใหม่นะครับ! 🔴🔴🔴
-        const CLOUD_URL = https://script.google.com/macros/s/AKfycbyWV9ncnU_mnxX3UTMK0LTnLvefXV0TMIonULZLeGOyjBu6xcfHsOrLSluJHDKrv2_fig/exec 
+        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbyWV9ncnU_mnxX3UTMK0LTnLvefXV0TMIonULZLeGOyjBu6xcfHsOrLSluJHDKrv2_fig/exec"; 
 
         const DB_INIT = [
             { id: "FE-01", type: "Dry Chemical (เคมีแห้ง)", size: "10 ปอนด์", loc: "Workshop" },
@@ -479,19 +480,37 @@
             data: [], cloudData: {}, cloudStatus: {}, month: '', filterType: 'all', currentId: null, currentCheckList: [], scanner: null, tempPhoto: null, autoSyncInterval: null, currentTab: 'List', dashMode: 'month', 
 
             init() {
-                const stored = localStorage.getItem('firePins_Ent_V5');
-                this.data = stored ? JSON.parse(stored) : DB_INIT.map(d => ({ ...d, history: {} }));
-                
-                // --- ระบบเคลียร์ขยะอัตโนมัติ (Auto-Clean) ---
-                this.autoCleanOldHistory(); 
+                // เปลี่ยน Key ป้องกันข้อมูลเก่าตีกัน 100%
+                try {
+                    const stored = localStorage.getItem('fireCheck_Data_V7');
+                    let parsed = stored ? JSON.parse(stored) : null;
+                    if (!parsed || !Array.isArray(parsed)) throw new Error("Need Reset");
+                    this.data = parsed.map(d => ({ ...d, history: d.history || {} }));
+                } catch(e) {
+                    this.data = JSON.parse(JSON.stringify(DB_INIT)).map(d => ({ ...d, history: {} }));
+                }
+
+                try { this.autoCleanOldHistory(); } catch(e) { console.log(e); }
 
                 this.month = new Date().toISOString().slice(0, 7);
-                document.getElementById('monthPicker').value = this.month;
-                this.populateLocationFilter(); this.updateOnlineStatus(); this.renderAll();
-                this.syncCloud(); this.startAutoSync(); this.handleDeepLink();
+                const mp = document.getElementById('monthPicker');
+                if(mp) mp.value = this.month;
+
+                try { this.populateLocationFilter(); } catch(e) { console.log(e); }
+                this.updateOnlineStatus();
+                try { this.renderAll(); } catch(e) { console.log(e); }
+                this.syncCloud(); 
+                this.startAutoSync(); 
+                this.handleDeepLink();
             },
 
-            // --- ฟังก์ชันล้างประวัติในเครื่องที่เก่ากว่า 1 ปี ---
+            changeMonth() {
+                const mp = document.getElementById('monthPicker');
+                if(mp) this.month = mp.value;
+                this.cloudStatus = this.cloudData[this.month] || {};
+                this.renderAll();
+            },
+
             autoCleanOldHistory() {
                 const today = new Date();
                 today.setFullYear(today.getFullYear() - 1);
@@ -511,14 +530,14 @@
 
                 if (hasDeleted) {
                     this.saveToStorage();
-                    console.log('🧹 เคลียร์ประวัติเก่ากว่า 1 ปีออกจากมือถือเรียบร้อยแล้ว');
+                    console.log('🧹 เคลียร์ประวัติเก่าออกจากเครื่องเรียบร้อย');
                 }
             },
 
             populateLocationFilter() {
                 const select = document.getElementById('locFilter');
                 select.innerHTML = '<option value="">ทุกโซนพื้นที่</option>'; 
-                const uniqueLocs = [...new Set(this.data.map(item => item.loc.split(' (')[0].trim()))].sort();
+                const uniqueLocs = [...new Set(this.data.map(item => (item.loc || 'Unknown').split(' (')[0].trim()))].sort();
                 uniqueLocs.forEach(loc => { const opt = document.createElement('option'); opt.value = loc; opt.innerText = loc; select.appendChild(opt); });
             },
 
@@ -545,11 +564,10 @@
             updateOnlineStatus() { const badge = document.querySelector('.dot'); const text = document.querySelector('#statusText'); if(CLOUD_URL.startsWith('http')) { badge.classList.add('online'); text.innerText = 'Real-time'; } else { badge.classList.remove('online'); text.innerText = 'Offline'; } },
 
             syncCloud(silent = false) {
-                if(!CLOUD_URL) return;
+                if(!CLOUD_URL || !CLOUD_URL.startsWith('http')) return;
                 const btn = document.querySelector('.fab-refresh i'); if(!silent && btn) btn.classList.add('fa-spin');
                 fetch(CLOUD_URL + "?action=read").then(res => res.json()).then(payload => {
                     
-                    // --- 1. ผสานข้อมูล Master Data (ถังที่เพิ่ม/ลบ) จาก Cloud ---
                     let mergedDevices = JSON.parse(JSON.stringify(DB_INIT)); 
                     if (payload.devices && payload.devices.length > 0) {
                         payload.devices.forEach(cloudDev => {
@@ -567,7 +585,6 @@
                     this.data.forEach(d => { oldHistories[d.id] = d.history || {}; });
                     this.data = mergedDevices.map(d => ({ ...d, history: oldHistories[d.id] || {} }));
 
-                    // --- 2. อัปเดตประวัติการตรวจ (Logs) จาก Cloud ---
                     this.cloudData = {}; 
                     if (payload.logs) {
                         payload.logs.forEach(row => {
@@ -625,7 +642,11 @@
             calculateStats() {
                 let total=0, done=0, pass=0, fail=0, repair=0; const defectCounts = {};
                 this.data.forEach(item => {
-                    total++; const cloudInfo = this.cloudStatus[item.id]; const localInfo = item.history[this.month]; let status = 'pending';
+                    total++; 
+                    const cloudInfo = this.cloudStatus[item.id]; 
+                    const localInfo = item.history ? item.history[this.month] : null; 
+                    let status = 'pending';
+                    
                     if (localInfo) { status = localInfo.status; }
                     else if (cloudInfo) { 
                         const s = String(cloudInfo.status).toLowerCase(); 
@@ -662,8 +683,9 @@
                 if(!list) return; const stats = preCalcStats || this.calculateStats(); list.innerHTML = '';
 
                 this.data.forEach(item => {
-                    if(locFilter && !item.loc.startsWith(locFilter)) return;
-                    const cloudInfo = this.cloudStatus[item.id]; const localInfo = item.history[this.month];
+                    if(locFilter && !(item.loc||'').startsWith(locFilter)) return;
+                    const cloudInfo = this.cloudStatus[item.id]; 
+                    const localInfo = item.history ? item.history[this.month] : null;
                     let status = 'pending'; let inspectorName = ''; let timeShow = '';
                     
                     if (localInfo) { status = localInfo.status; inspectorName = localInfo.inspector; timeShow = localInfo.time.split(' ')[1] || ''; }
@@ -677,7 +699,8 @@
                     if (this.filterType === 'fail' && status !== 'fail') return;
                     if (this.filterType === 'repair' && status !== 'repair') return;
                     
-                    if(!search || (item.id+item.loc+item.type).toLowerCase().includes(search)) {
+                    const searchStr = (item.id + (item.loc||'') + (item.type||'')).toLowerCase();
+                    if(!search || searchStr.includes(search)) {
                         const isInspected = status !== 'pending';
                         const div = document.createElement('div'); div.className = `card ${status}`; div.onclick = () => this.openInspect(item.id);
                         let statusBadge = `<span style="color:#999">รอตรวจ</span>`;
@@ -739,7 +762,7 @@
                 months.forEach((m, idx) => {
                     const targetMonth = `${year}-${m}`; let pass = 0, fail = 0, repair = 0;
                     this.data.forEach(item => {
-                        let status = 'pending'; const cloudInfo = this.cloudData[targetMonth] ? this.cloudData[targetMonth][item.id] : null; const localInfo = item.history[targetMonth];
+                        let status = 'pending'; const cloudInfo = this.cloudData[targetMonth] ? this.cloudData[targetMonth][item.id] : null; const localInfo = item.history ? item.history[targetMonth] : null;
                         if (localInfo) { status = localInfo.status; }
                         else if (cloudInfo) { 
                             const s = String(cloudInfo.status).toLowerCase(); 
@@ -765,14 +788,14 @@
 
             getChecklistItems(type) {
                 const common = ["ตำแหน่งติดตั้งเข้าถึงง่าย/ไม่ถูกกีดขวาง", "ป้ายบ่งชี้จุดติดตั้งชัดเจน/ถูกต้อง", "สภาพตัวถังปกติ ไม่ผุ/ไม่เป็นสนิม/ไม่บุบ", "สลักนิรภัยและซีลล็อกอยู่ครบ สภาพดี"];
-                if (type.includes("CO2")) return [...common, "น้ำหนักถังปกติ (จากการชั่งตวง)", "กระบอกฉีด/กรวยฉีด สภาพสมบูรณ์"];
+                if ((type||'').includes("CO2")) return [...common, "น้ำหนักถังปกติ (จากการชั่งตวง)", "กระบอกฉีด/กรวยฉีด สภาพสมบูรณ์"];
                 else return [...common, "เกจวัดแรงดันอยู่แถบสีเขียว (พร้อมใช้)", "สายฉีดสภาพดี ไม่แตกลายงา/ไม่อุดตัน"];
             },
 
             openInspect(id) {
                 this.currentId = id; const item = this.data.find(d => d.id === id); if(!item) return;
                 const cloudInfo = this.cloudStatus[id]; if (cloudInfo) Toast.show(`ตรวจล่าสุดโดย: ${cloudInfo.inspector}`, 'info');
-                const h = item.history[this.month];
+                const h = item.history ? item.history[this.month] : null;
                 document.getElementById('inspectTitle').innerText = `${item.id} : ${item.loc}`; document.getElementById('inspectSubtitle').innerText = `ประเภท: ${item.type} (${item.size})`;
                 const expEl = document.getElementById('inspectExpDate');
                 if(item.expDate) { expEl.innerHTML = `<i class="fa-solid fa-calendar-xmark"></i> วันหมดอายุ/เทสต์: ${item.expDate}`; expEl.style.display = 'block'; } else { expEl.style.display = 'none'; }
@@ -866,7 +889,7 @@
                 } 
             },
             
-            showHistory() { const item = this.data.find(d => d.id === this.currentId); if(!item) return; document.getElementById('historyTitle').innerText = `${item.id} - ${item.loc}`; const listEl = document.getElementById('historyList'); listEl.innerHTML = ''; const monthsChecked = Object.keys(item.history).sort().reverse(); if(monthsChecked.length === 0) { listEl.innerHTML = '<div style="text-align:center; padding:20px; color:#999; font-size:0.9rem; background:#F5F5F5; border-radius:12px;">ยังไม่มีประวัติการตรวจในเครื่องนี้</div>'; } else { monthsChecked.forEach(m => { const h = item.history[m]; const isPass = h.status === 'pass'; const color = isPass ? 'var(--success)' : (h.status === 'repair' ? 'var(--warning)' : 'var(--primary)'); const icon = isPass ? 'fa-circle-check' : (h.status === 'repair' ? 'fa-tools' : 'fa-triangle-exclamation'); const failText = !isPass && h.failTopics ? `<br><span style="color:var(--primary); font-size:0.8rem;">ปัญหา: ${h.failTopics.join(', ')}</span>` : ''; listEl.innerHTML += `<div style="border:1px solid #ECEFF1; border-radius:12px; padding:12px; background:#FFF; border-left:4px solid ${color};"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;"><span style="font-weight:600; font-size:0.95rem;">เดือน ${m}</span><span style="color:${color}; font-size:0.85rem; font-weight:600;"><i class="fa-solid ${icon}"></i> ${isPass ? 'ปกติ' : (h.status === 'repair' ? 'กำลังซ่อม' : 'พบปัญหา')}</span></div><div style="font-size:0.85rem; color:var(--text-muted); line-height:1.4;"><i class="fa-solid fa-user"></i> ผู้ตรวจ: ${h.inspector || '-'}<br><i class="fa-solid fa-calendar"></i> เวลา: ${h.time || '-'}${failText}</div></div>`; }); } UI.openModal('modalHistory'); },
+            showHistory() { const item = this.data.find(d => d.id === this.currentId); if(!item) return; document.getElementById('historyTitle').innerText = `${item.id} - ${item.loc}`; const listEl = document.getElementById('historyList'); listEl.innerHTML = ''; const monthsChecked = Object.keys(item.history||{}).sort().reverse(); if(monthsChecked.length === 0) { listEl.innerHTML = '<div style="text-align:center; padding:20px; color:#999; font-size:0.9rem; background:#F5F5F5; border-radius:12px;">ยังไม่มีประวัติการตรวจในเครื่องนี้</div>'; } else { monthsChecked.forEach(m => { const h = item.history[m]; const isPass = h.status === 'pass'; const color = isPass ? 'var(--success)' : (h.status === 'repair' ? 'var(--warning)' : 'var(--primary)'); const icon = isPass ? 'fa-circle-check' : (h.status === 'repair' ? 'fa-tools' : 'fa-triangle-exclamation'); const failText = !isPass && h.failTopics ? `<br><span style="color:var(--primary); font-size:0.8rem;">ปัญหา: ${h.failTopics.join(', ')}</span>` : ''; listEl.innerHTML += `<div style="border:1px solid #ECEFF1; border-radius:12px; padding:12px; background:#FFF; border-left:4px solid ${color};"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;"><span style="font-weight:600; font-size:0.95rem;">เดือน ${m}</span><span style="color:${color}; font-size:0.85rem; font-weight:600;"><i class="fa-solid ${icon}"></i> ${isPass ? 'ปกติ' : (h.status === 'repair' ? 'กำลังซ่อม' : 'พบปัญหา')}</span></div><div style="font-size:0.85rem; color:var(--text-muted); line-height:1.4;"><i class="fa-solid fa-user"></i> ผู้ตรวจ: ${h.inspector || '-'}<br><i class="fa-solid fa-calendar"></i> เวลา: ${h.time || '-'}${failText}</div></div>`; }); } UI.openModal('modalHistory'); },
             
             appendQRBlock(id) { const container = document.getElementById('qrPrintContainer'); const div = document.createElement('div'); div.className = 'qr-card-screen'; const appUrl = `https://safetyawareness.github.io/safety-check/?id=${id}`; const qrData = encodeURIComponent(appUrl); div.innerHTML = `<button class="del-qr-btn" onclick="this.parentElement.remove()">✕</button><img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrData}" alt="${id}"><h3 style="margin: 0; font-size: 1.2rem; color: #263238;">${id}</h3><p style="margin: 2px 0 0 0; font-size: 0.7rem; color: #D32F2F; font-weight: 600;">สแกนเพื่อตรวจถังนี้</p>`; container.appendChild(div); },
             generateAllQR() { if(this.data.length === 0) return Toast.show('ไม่มีถังในระบบ', 'warning'); document.getElementById('qrPrintContainer').innerHTML = ''; Toast.show('กำลังโหลดรูปลงกระดาษ...', 'info'); setTimeout(() => { this.data.forEach(item => this.appendQRBlock(item.id)); }, 100); },
@@ -877,11 +900,11 @@
             updatePhotoUI() { const img = document.getElementById('photoPreview'); if(this.tempPhoto) { img.src = this.tempPhoto; img.style.display = 'block'; } else { img.style.display = 'none'; img.src = ''; } },
             handlePhoto(input) { if (input.files && input.files[0]) { const file = input.files[0]; const reader = new FileReader(); reader.onload = (e) => { const img = new Image(); img.src = e.target.result; img.onload = () => { const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d'); const MAX_SIZE = 500; let w = img.width, h = img.height; if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; } } else { if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; } } canvas.width = w; canvas.height = h; ctx.drawImage(img, 0, 0, w, h); this.tempPhoto = canvas.toDataURL('image/jpeg', 0.5); this.updatePhotoUI(); }; }; reader.readAsDataURL(file); } },
             
-            exportExcel() { let csv = `\uFEFFID,Location,Type,Size,Status,Inspector,Timestamp,Note,Check_Result,Image_URL\n`; this.data.forEach(d => { const local = d.history[this.month]; const cloud = this.cloudStatus[d.id]; let useData = local; if(cloud && cloud.status) { useData = { status: (String(cloud.status).toLowerCase() === 'pass' || (String(cloud.status).includes('ปกติ') && !String(cloud.status).includes('ผิด'))) ? 'pass' : (String(cloud.status).includes('repair') ? 'repair' : 'fail'), inspector: cloud.inspector, time: cloud.time, note: cloud.note || (local?.note || ''), failTopics: cloud.failReason ? [cloud.failReason] : (local?.failTopics || []), image: cloud.image || (local?.photo || '') }; } if(useData) { let resultStr = "PASS"; if(useData.status === 'fail' || useData.status === 'repair') { resultStr = (useData.failTopics && useData.failTopics.length > 0) ? "FAIL: " + useData.failTopics.join(" | ") : "FAIL (No Details)"; } const note = (useData.note || '').replace(/,/g, ' '); const safeResult = resultStr.replace(/,/g, ' '); const imgLink = useData.image || ''; csv += `${d.id},"${d.loc}","${d.type}","${d.size}",${useData.status},"${useData.inspector}",${useData.time},"${note}","${safeResult}","${imgLink}"\n`; } else { csv += `${d.id},"${d.loc}","${d.type}","${d.size}",PENDING,,,,,\n`; } }); const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `FireReport_${this.month}.csv`; link.click(); Toast.show("ดาวน์โหลด Excel แล้ว", "success"); },
+            exportExcel() { let csv = `\uFEFFID,Location,Type,Size,Status,Inspector,Timestamp,Note,Check_Result,Image_URL\n`; this.data.forEach(d => { const local = d.history ? d.history[this.month] : null; const cloud = this.cloudStatus[d.id]; let useData = local; if(cloud && cloud.status) { useData = { status: (String(cloud.status).toLowerCase() === 'pass' || (String(cloud.status).includes('ปกติ') && !String(cloud.status).includes('ผิด'))) ? 'pass' : (String(cloud.status).includes('repair') ? 'repair' : 'fail'), inspector: cloud.inspector, time: cloud.time, note: cloud.note || (local?.note || ''), failTopics: cloud.failReason ? [cloud.failReason] : (local?.failTopics || []), image: cloud.image || (local?.photo || '') }; } if(useData) { let resultStr = "PASS"; if(useData.status === 'fail' || useData.status === 'repair') { resultStr = (useData.failTopics && useData.failTopics.length > 0) ? "FAIL: " + useData.failTopics.join(" | ") : "FAIL (No Details)"; } const note = (useData.note || '').replace(/,/g, ' '); const safeResult = resultStr.replace(/,/g, ' '); const imgLink = useData.image || ''; csv += `${d.id},"${d.loc}","${d.type}","${d.size}",${useData.status},"${useData.inspector}",${useData.time},"${note}","${safeResult}","${imgLink}"\n`; } else { csv += `${d.id},"${d.loc}","${d.type}","${d.size}",PENDING,,,,,\n`; } }); const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `FireReport_${this.month}.csv`; link.click(); Toast.show("ดาวน์โหลด Excel แล้ว", "success"); },
             backupData() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.data)); const dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", `FireCheck_Backup_${new Date().toISOString().slice(0,10)}.json`); document.body.appendChild(dl); dl.click(); dl.remove(); Toast.show("สำรองข้อมูลสำเร็จ", "success"); },
             restoreData(input) { const file = input.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = (e) => { try { this.data = JSON.parse(e.target.result); this.saveToStorage(); this.populateLocationFilter(); this.renderAll(); Toast.show('กู้คืนข้อมูลสำเร็จ!', 'success'); UI.closeModal('modalMenu'); } catch(err) { Toast.show('ไฟล์ไม่ถูกต้อง', 'error'); } }; reader.readAsText(file); },
-            saveToStorage() { localStorage.setItem('firePins_Ent_V5', JSON.stringify(this.data)); },
-            clearData() { if(confirm('ยืนยันลบข้อมูลการตรวจทั้งหมด? (ข้อมูลถังจะยังอยู่)')) { localStorage.removeItem('firePins_Ent_V5'); location.reload(); } },
+            saveToStorage() { localStorage.setItem('fireCheck_Data_V7', JSON.stringify(this.data)); },
+            clearData() { if(confirm('ยืนยันลบข้อมูลการตรวจทั้งหมด? (ข้อมูลถังจะยังอยู่)')) { localStorage.removeItem('fireCheck_Data_V7'); location.reload(); } },
             handleDeepLink() { const pid = new URLSearchParams(window.location.search).get('id'); if(pid) { const item = this.data.find(d => d.id === pid); if(item) setTimeout(() => this.openInspect(pid), 500); } },
             openScanner() { UI.openModal('modalScan'); const config = { fps: 15, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0, videoConstraints: { facingMode: "environment" } }; this.scanner = new Html5QrcodeScanner("qr-reader", config, false); this.scanner.render((txt) => { let id = txt; if(txt.includes('id=')) { id = txt.split('id=')[1].split('&')[0]; } const item = this.data.find(d => d.id === id); if(item) { UI.stopScanner(); setTimeout(() => this.openInspect(id), 300); } else { Toast.show('ไม่พบรหัส: '+id, 'error'); } }); },
             manualScan() { const id = document.getElementById('manualId').value.toUpperCase().trim(); const item = this.data.find(d => d.id === id); if(item) { UI.stopScanner(); this.openInspect(id); } else Toast.show('ไม่พบรหัสในระบบ', 'error'); }
@@ -893,13 +916,11 @@
             stopScanner() { if(App.scanner) App.scanner.clear(); this.closeModal('modalScan'); }
         };
 
-        // --- ระบบแยกสิทธิ์ User ทั่วไป กับ Admin ---
         function checkUserRole() {
             const urlParams = new URLSearchParams(window.location.search);
             const isAdmin = urlParams.get('admin') === 'true';
 
             if (!isAdmin) {
-                // ซ่อนเมนูอันตรายถ้าไม่ใช่ Admin
                 const menuBtn = document.getElementById('adminMenuBtn'); if(menuBtn) menuBtn.style.display = 'none';
                 const editBtn = document.getElementById('adminEditBtn'); if(editBtn) editBtn.style.display = 'none';
                 const excelBtn = document.getElementById('adminExcelBtn'); if(excelBtn) excelBtn.style.display = 'none';
@@ -912,7 +933,7 @@
         
         window.onload = () => {
             App.init();
-            checkUserRole(); // เช็คสิทธิ์ก่อนเริ่มใช้งาน
+            checkUserRole(); 
         };
     </script>
 </body>
